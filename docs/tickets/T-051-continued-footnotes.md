@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-050]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 7
 ---
 
@@ -32,8 +32,8 @@ A footnote can continue on the next page (`continues: true`, text starts with '=
 - Previous page = previous existing page in order (pages may be missing).
 
 ## Acceptance criteria
-- [ ] 16 continuation links; b000103 (p.20) joins the last footnote of p.19 (b000097).
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] 16 continuation links; b000103 (p.20) joins the last footnote of p.19 (b000097).
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -42,3 +42,8 @@ uv run pytest tests/test_continued.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- **Data refines the rule:** the part a continued footnote joins is the previous page's footnote ending with the continuation mark "=" (all 16 cases), not always the last one: on p.33 the nested note b000215 ("أ") is printed after b000214, and b000220 continues b000214. Without an "=" the last footnote is used.
+- The logical footnote is the existing annotation with `target_block_ids` extended in order (e.g. `[b000097, b000103]`); `annotations.json` also lists `continuations` (part → previous part). Each join raises `continued_footnote_joined` (info). Previous page = previous existing page in order.
+- A continued footnote whose previous page has no footnote raises `unlinked_footnote`.

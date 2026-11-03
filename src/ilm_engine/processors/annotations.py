@@ -26,6 +26,7 @@ ENTRY_MARKER = re.compile(r"^[٠-٩0-9]+ ?-$")
 class Annotations:
     annotations: list[Annotation]
     issues: list[Issue] = field(default_factory=list)
+    continuation_of: dict[str, str] = field(default_factory=dict)  # continued block → previous footnote block
 
     def by_target(self) -> dict[str, list[Annotation]]:
         index: dict[str, list[Annotation]] = {}
@@ -35,7 +36,7 @@ class Annotations:
         return index
 
     def to_json(self) -> dict[str, Any]:
-        return {"annotations": self.annotations}
+        return {"annotations": self.annotations, "continuations": self.continuation_of}
 
 
 def marker_key(text: str) -> str:
@@ -131,6 +132,80 @@ def resolve_refs(book: CanonicalBook) -> Annotations:
     return Annotations(annotations, issues)
 
 
+def join_continuations(book: CanonicalBook, result: Annotations) -> Annotations:
+    """Join each `continues` footnote to the footnote it continues on the previous existing page (T-051):
+    the one ending with the continuation mark "=", else the page's last footnote.
+
+    The logical footnote becomes one annotation whose `target_block_ids` list every part in order;
+    the original blocks are untouched.
+    """
+    ctx = _Context(book)
+    pages = book.pages
+    footnotes_on = {
+        (page.volume, page.n): [b for b in page.block_ids if book.block(b).kind == "footnote"]
+        for page in pages
+    }
+    previous_page = {
+        (pages[i].volume, pages[i].n): (pages[i - 1].volume, pages[i - 1].n) for i in range(1, len(pages))
+    }
+
+    continuation_of: dict[str, str] = {}
+    issues: list[Issue] = []
+    for block in book.blocks_in_order():
+        if block.kind != "footnote" or not block.continues:
+            continue
+        before = previous_page.get((block.volume, block.page))
+        candidates = footnotes_on.get(before, []) if before else []
+        if not candidates:
+            issues.append(
+                make_issue(
+                    ctx.pub_ref,
+                    "unlinked_footnote",
+                    "warning",
+                    "annotation",
+                    block.block_id,
+                    f"Footnote {block.block_id} continues from a previous page that has no footnote.",
+                    STEP,
+                )
+            )
+            continue
+        # The part to continue ends with "=" (EC-040); a nested footnote may be printed after it (p.33).
+        marked = [b for b in candidates if book.block(b).text.rstrip().endswith("=")]
+        continuation_of[block.block_id] = marked[-1] if marked else candidates[-1]
+
+    def root(block_id: str) -> str:
+        while block_id in continuation_of:
+            block_id = continuation_of[block_id]
+        return block_id
+
+    chains: dict[str, list[str]] = {}
+    for block_id in continuation_of:  # reading order, so parts are appended in order
+        chains.setdefault(root(block_id), []).append(block_id)
+
+    updated = []
+    for annotation in result.annotations:
+        first = annotation.target_block_ids[0] if annotation.target_block_ids else None
+        if first in chains:
+            annotation = annotation.model_copy(update={"target_block_ids": [first, *chains[first]]})
+        updated.append(annotation)
+    for start, parts in chains.items():
+        for part in parts:
+            issues.append(
+                make_issue(
+                    ctx.pub_ref,
+                    "continued_footnote_joined",
+                    "info",
+                    "annotation",
+                    part,
+                    f"Footnote {part} (page {book.block(part).page}) continues {continuation_of[part]}; "
+                    f"joined into one note starting at {start}.",
+                    STEP,
+                    details={"continuation_of": continuation_of[part], "first_part": start},
+                )
+            )
+    return Annotations(updated, [*result.issues, *issues], continuation_of)
+
+
 def build(book: CanonicalBook) -> Annotations:
     """All annotation passes of the step."""
-    return resolve_refs(book)
+    return join_continuations(book, resolve_refs(book))

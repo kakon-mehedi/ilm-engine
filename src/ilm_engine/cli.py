@@ -18,6 +18,8 @@ schema_app = typer.Typer(help="Contract JSON Schemas.", no_args_is_help=True)
 app.add_typer(schema_app, name="schema")
 dev_app = typer.Typer(help="Developer-only commands.", no_args_is_help=True)
 app.add_typer(dev_app, name="dev")
+review_app = typer.Typer(help="Human review of uncertain and sensitive items.", no_args_is_help=True)
+app.add_typer(review_app, name="review")
 
 EXIT_OK, EXIT_FAILED, EXIT_UNKNOWN_SCHEMA = 0, 1, 2
 LLM_PROVIDERS = ("null", "fixture", "anthropic", "litellm")
@@ -181,3 +183,47 @@ def regen_goldens(
         raise typer.Exit(EXIT_FAILED)
     for path in regenerate():
         typer.echo(str(path))
+
+
+@review_app.command("apply")
+def review_apply(
+    decisions: Annotated[Path, typer.Argument(help="review_decisions.json written by a reviewer.")],
+    book: Annotated[str, typer.Option("--book", help="pub_ref of the run, e.g. pub_…@r6.")],
+    out: Annotated[Path, typer.Option("--out", help="Output root.")] = Path("output"),
+) -> None:
+    """Apply reviewer decisions: statuses, audit trail, training examples."""
+    from ilm_engine.validation.review_queue import ReviewError, apply_decisions, load_decisions
+
+    try:
+        summary = apply_decisions(out / book, load_decisions(decisions))
+    except ReviewError as error:
+        typer.echo(f"error: {error}", err=True)
+        raise typer.Exit(EXIT_FAILED) from None
+    typer.echo(f"applied {summary['applied']} decisions; {summary['training_examples']} training examples")
+
+
+@review_app.command("html")
+def review_html(
+    book: Annotated[str, typer.Option("--book", help="pub_ref of the run.")],
+    out: Annotated[Path, typer.Option("--out", help="Output root.")] = Path("output"),
+    source: Annotated[Path, typer.Option("--input", help="Source JSON of the book.")] = Path("data"),
+) -> None:
+    """Re-render review.html from review_queue.json."""
+    from ilm_engine.adapters.registry import resolve
+    from ilm_engine.enrichment.models import ReviewItem
+    from ilm_engine.pipeline.stages import find_inputs
+    from ilm_engine.storage.json_store import write_bytes_atomic
+    from ilm_engine.validation.review_html import render
+
+    inputs = find_inputs(source)
+    raw = json.loads(inputs["json"].read_text(encoding="utf-8"))
+    canonical = resolve(raw).to_canonical(raw, inputs.get("pdf"))
+    items = [
+        ReviewItem.model_validate(i)
+        for i in json.loads((out / book / "review_queue.json").read_text(encoding="utf-8"))
+    ]
+    pdf = inputs.get("pdf")
+    path = write_bytes_atomic(
+        out / book / "review.html", render(canonical, items, str(pdf.resolve()) if pdf else None).encode()
+    )
+    typer.echo(str(path))

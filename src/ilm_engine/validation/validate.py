@@ -60,13 +60,17 @@ def validate(book: CanonicalBook, records: Records, config: Config, genres: list
     issues: list[Issue] = []
     results: list[ValidationResult] = []
     units: list[KnowledgeUnit] = []
-    notes_by_unit = {u.unit_id: u.payload.get("tarjama_annotation") for u in records.units}
+    annotations = {a.annotation_id: a for a in records.others if hasattr(a, "annotation_id")}
 
     for unit in records.units:
         blocks = {a.block_id for a in unit.anchors}
-        note = notes_by_unit.get(unit.unit_id)
-        if note:
-            blocks.add(note)
+        for (
+            annotation_id
+        ) in unit.note_annotation_ids:  # every footnote of the entry (takhrij gradings live there)
+            if annotation_id in annotations:
+                blocks.update(annotations[annotation_id].target_block_ids)
+        if unit.payload.get("tarjama_annotation"):
+            blocks.add(unit.payload["tarjama_annotation"])
         tags = [
             tag
             for block_id in sorted(blocks)

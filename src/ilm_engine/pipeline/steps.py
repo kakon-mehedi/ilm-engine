@@ -113,7 +113,13 @@ def build_registry() -> StepRegistry:
                 outputs=("validation_report.json",),
                 config=("review", "confidence"),
             ),
-            _step("review_queue", "validate", outputs=("review_queue.json",), config=("review",)),
+            _step(
+                "review_queue",
+                "validate",
+                "integrity_register",
+                outputs=("review_queue.json",),
+                config=("review",),
+            ),
             _step("store", "review_queue", "search_index"),
             _step("export", "store", outputs=("enrichment.json",)),
             _step("integrity_verify", "export", "integrity_register"),
@@ -143,6 +149,7 @@ def _wire(registry: StepRegistry) -> StepRegistry:
     registry.replace("relations", stages.relations)
     registry.replace("search_index", stages.search_index)
     registry.replace("validate", stages.validate)
+    registry.replace("review_queue", stages.review_queue)
     registry.replace("manifest", manifest_step)
     return registry
 

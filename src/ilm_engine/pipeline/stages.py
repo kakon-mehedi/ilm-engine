@@ -352,3 +352,39 @@ def relations(ctx: RunContext) -> StepResult:
         },
         issues=result.issues,
     )
+
+
+def review_queue(ctx: RunContext) -> StepResult:
+    import os
+
+    from ilm_engine.storage.json_store import write_bytes_atomic
+    from ilm_engine.validation.review_html import render
+    from ilm_engine.validation.review_queue import build_queue, load_decisions
+
+    book = ctx.data("adapt", "book")
+    validation = ctx.data("validate", "validation")
+    records: dict[str, object] = {}
+    for unit in validation.records.units:
+        records[unit.unit_id] = unit
+        records.update({fact.fact_id: fact for fact in unit.facts})
+    records.update({e.entity_id: e for e in validation.records.entities})
+    records.update({r.relation_id: r for r in validation.records.relationships})
+    for item in validation.records.others:
+        for attribute in ("annotation_id", "citation_id", "internal_ref_id"):
+            if hasattr(item, attribute):
+                records[getattr(item, attribute)] = item
+        for target in getattr(item, "target_block_ids", [])[:1]:
+            if getattr(item, "type", "") == "nested_footnote":
+                records[target] = item  # nested-footnote issues target the footnote block
+
+    issues = [issue for result in ctx.results.values() for issue in result.issues]
+    decisions = load_decisions(ctx.store.path("review_decisions.json"))
+    items = build_queue(book, validation.results, issues, records, decisions)
+    stored = ctx.data("integrity_register", "stored")
+    pdf = next((name for name in stored.files if name.endswith(".pdf")), None)
+    href = os.path.relpath(stored.directory / pdf, ctx.store.directory) if pdf else None
+    write_bytes_atomic(ctx.store.directory / "review.html", render(book, items, href).encode("utf-8"))
+    return StepResult(
+        files={"review_queue.json": items},
+        data={"review_items": items, "counts": {"review_items": len(items)}},
+    )

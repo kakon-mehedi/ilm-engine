@@ -273,7 +273,7 @@ def validate(ctx: RunContext) -> StepResult:
     annotations = _optional(ctx, "annotations", "annotations", None)
     structure = _optional(ctx, "structure", "structure", None)
     records = Records(
-        units=list(_optional(ctx, "units", "units", [])),  # type: ignore[call-overload]
+        units=list(_optional(ctx, "entities", "units", None) or _optional(ctx, "units", "units", [])),  # type: ignore[call-overload,arg-type]
         entities=list(_optional(ctx, "entities", "entities", [])),  # type: ignore[call-overload]
         relationships=list(_optional(ctx, "relations", "relationships", [])),  # type: ignore[call-overload]
         works=list(related.works) if related else [],  # type: ignore[attr-defined]
@@ -306,4 +306,28 @@ def search_index(ctx: RunContext) -> StepResult:
     return StepResult(
         files={"search_index.json": index},
         data={"search_index": index, "counts": {"search_documents": len(index["documents"])}},
+    )
+
+
+def entities(ctx: RunContext) -> StepResult:
+    from ilm_engine.extractors.entities import build_entities
+
+    units = ctx.data("units", "units")
+    result = build_entities(
+        ctx.data("adapt", "book"),
+        units,
+        ctx.data("metadata", "metadata"),
+        ctx.data("origin", "origins"),
+        ctx.config,
+    )
+    linked = [u.model_copy(update={"subject_entity_id": result.unit_subjects.get(u.unit_id)}) for u in units]
+    return StepResult(
+        files={"entities.json": result.entities},
+        data={
+            "entities": result.entities,
+            "units": linked,
+            "result": result,
+            "counts": {"entities": len(result.entities)},
+        },
+        issues=result.issues,
     )

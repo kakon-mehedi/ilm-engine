@@ -77,7 +77,15 @@ def build_registry() -> StepRegistry:
                 outputs=("knowledge_units.json",),
                 config=("entries", "llm"),
             ),
-            _step("entities", "units", "annotations", outputs=("entities.json",), config=("llm",)),
+            _step(
+                "entities",
+                "units",
+                "annotations",
+                "metadata",
+                "origin",
+                outputs=("entities.json",),
+                config=("llm",),
+            ),
             _step(
                 "relations",
                 "entities",
@@ -124,6 +132,7 @@ def _wire(registry: StepRegistry) -> StepRegistry:
     registry.replace("citations", stages.citations)
     registry.replace("related_works", stages.related_works)
     registry.replace("units", stages.units)
+    registry.replace("entities", stages.entities)
     registry.replace("search_index", stages.search_index)
     registry.replace("validate", stages.validate)
     registry.replace("manifest", manifest_step)

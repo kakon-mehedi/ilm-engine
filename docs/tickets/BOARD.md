@@ -66,7 +66,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-032](T-032-structure-tree.md) | Structure tree from headings | E03 | P0 | T-012, T-003 | M | 4 | done |
 | [T-033](T-033-toc-alignment.md) | TOC alignment via source_ref.key | E03 | P0 | T-032 | S | 5 | done |
 | [T-034](T-034-origin-assignment.md) | Origin layer assignment (+ per-book override) | E03 | P0 | T-032, T-002 | M | 5 | done |
-| [T-035](T-035-section-block-ranges.md) | Section → block ranges and page index | E03 | P1 | T-032 | S | 5 | todo |
+| [T-035](T-035-section-block-ranges.md) | Section → block ranges and page index | E03 | P1 | T-032 | S | 5 | done |
 | [T-040](T-040-metadata-card.md) | Bibliographic metadata from source card | E04 | P0 | T-012 | S | 4 | done |
 | [T-041](T-041-metadata-from-content.md) | Metadata derived from book content | E04 | P1 | T-040, T-034, T-060 | M | 6 | todo |
 | [T-042](T-042-metadata-conflicts.md) | Metadata conflict & variant detection | E04 | P1 | T-041 | S | 7 | todo |

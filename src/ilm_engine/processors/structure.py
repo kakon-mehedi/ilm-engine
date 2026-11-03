@@ -64,6 +64,34 @@ class Structure:
     issues: list[Issue] = field(default_factory=list)
     toc_alignment: list[TocAlignment] = field(default_factory=list)
     page_offsets: list[int] = field(default_factory=list)  # distinct n - source key over all pages
+    block_order: list[str] = field(default_factory=list)  # reading order
+    block_pages: dict[str, int] = field(default_factory=dict)
+
+    def block_section_id(self, block_id: str) -> str:
+        """Deepest section of a block."""
+        try:
+            return self.block_section[block_id]
+        except KeyError:
+            raise KeyError(f"unknown block {block_id!r}") from None
+
+    def section_blocks(self, section_id: str, deep: bool = True) -> list[str]:
+        """Block IDs of a section in reading order; with `deep`, including its subsections' blocks."""
+        section = self.section(section_id)
+        start, end = (
+            self.block_order.index(section.start_block_id),
+            self.block_order.index(section.end_block_id),
+        )
+        blocks = self.block_order[start : end + 1]
+        return blocks if deep else [block for block in blocks if self.block_section[block] == section_id]
+
+    def page_index(self) -> dict[int, list[str]]:
+        """Printed page → deepest sections with blocks on that page, in order of first appearance."""
+        index: dict[int, list[str]] = {}
+        for block_id in self.block_order:
+            sections = index.setdefault(self.block_pages[block_id], [])
+            if self.block_section[block_id] not in sections:
+                sections.append(self.block_section[block_id])
+        return index
 
     def section(self, section_id: str) -> Section:
         for section in self.sections:
@@ -77,6 +105,7 @@ class Structure:
             "sections": self.sections,
             "toc_alignment": [asdict(item) for item in self.toc_alignment],
             "page_offsets": self.page_offsets,
+            "page_index": {str(page): sections for page, sections in self.page_index().items()},
         }
 
 
@@ -276,4 +305,13 @@ def build(book: CanonicalBook) -> Structure:
         for index in range(section.start, section.end + 1):
             block_section[blocks[index].block_id] = ids[position]  # deeper levels overwrite shallower
     page_offsets = sorted({page.n - int(page.source_key) for page in book.pages if page.source_key.isdigit()})
-    return Structure(root_id, sections, block_section, issues, alignment, page_offsets)
+    return Structure(
+        root_id,
+        sections,
+        block_section,
+        issues,
+        alignment,
+        page_offsets,
+        block_order=[block.block_id for block in blocks],
+        block_pages={block.block_id: block.page for block in blocks},
+    )

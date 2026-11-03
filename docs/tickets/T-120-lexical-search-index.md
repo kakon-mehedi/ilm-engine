@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-060, T-071]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 9
 ---
 
@@ -31,9 +31,9 @@ Requirement D: search that tolerates diacritics and spelling variants (MVP stand
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] Query 'الدارقطني' and 'الدَّارقطني' return identical result lists.
-- [ ] Query 'هند بنت عتيق' ranks unit #8 first.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Query 'الدارقطني' and 'الدَّارقطني' return identical result lists.
+- [x] Query 'هند بنت عتيق' ranks unit #8 first.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -42,3 +42,8 @@ uv run pytest tests/test_lexical.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `search_index.json` = `{version, normalizer_version, pub_ref, documents[{doc_id, kind, title, length, anchor}], avg_length, postings{token: [[doc, tf]]}}`, sorted for byte-stable output. Documents: every block with words (583 of 594; the 11 "* * * * *" separators have no tokens), every unit (person surface + entry text), every entity (canonical name + aliases, once T-080 exists).
+- Tokens are the `search`-normalized copy (ADR-012), so query variants match identically; BM25 (k1 1.2, b 0.75) with kind boosts unit 1.5 / entity 1.3 / block 1.0 and deterministic tie-breaks. Block anchors cover the whole block with the quote truncated at 120 characters (`quote_truncated`).
+- `search(index, query, limit, kinds)` is the API the search CLI (T-122) uses. Roots/lemmas from the optional morphology adapter (T-063) are not indexed yet (morphology is off by default).

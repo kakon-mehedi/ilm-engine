@@ -293,3 +293,17 @@ def validate(ctx: RunContext) -> StepResult:
         data={"validation": validation, "records": validation.records},
         issues=validation.issues,
     )
+
+
+def search_index(ctx: RunContext) -> StepResult:
+    from ilm_engine.search.lexical import build_index
+
+    index = build_index(
+        ctx.data("adapt", "book"),
+        list(_optional(ctx, "units", "units", [])),  # type: ignore[call-overload]
+        list(_optional(ctx, "entities", "entities", [])),  # type: ignore[call-overload]
+    )
+    return StepResult(
+        files={"search_index.json": index},
+        data={"search_index": index, "counts": {"search_documents": len(index["documents"])}},
+    )

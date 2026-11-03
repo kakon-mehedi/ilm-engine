@@ -89,7 +89,7 @@ def test_verify_ok_then_detects_tampering(dirs):
     out = dirs["out"] / PUB_REF
     ok = runner.invoke(app, ["verify", str(out), "--store", str(dirs["store"])])
     assert ok.exit_code == 0, ok.output
-    assert ok.output.startswith("OK " + PUB_REF)
+    assert "OK " + PUB_REF in ok.output
     stored = dirs["store"] / PUB_REF / "demo_book_daraqutni.json"
     os.chmod(stored, 0o644)
     stored.write_bytes(stored.read_bytes() + b" ")

@@ -451,3 +451,29 @@ def export(ctx: RunContext) -> StepResult:
         edges_from_records(enrichment.relationships, enrichment.work_relations),
     )
     return StepResult(files={"enrichment.json": enrichment}, data={"counts": dict(enrichment.stats)})
+
+
+def integrity_verify(ctx: RunContext) -> StepResult:
+    from ilm_engine.integrity import store as original_store
+    from ilm_engine.integrity.verify import IntegrityError, check_anchors, originals_unchanged
+
+    book = ctx.data("adapt", "book")
+    stored = ctx.data("integrity_register", "stored")
+    store_root = ctx.options.get("store_root", original_store.DEFAULT_STORE_ROOT)
+    problems = originals_unchanged(ctx.inputs, stored, store_root)
+    enrichment = ctx.data("store", "enrichment").model_dump(mode="json", by_alias=True)
+    checked, anchor_problems = check_anchors(book, enrichment, "enrichment.json")
+    problems += [str(problem) for problem in anchor_problems]
+    if problems:
+        raise IntegrityError(problems)
+    return StepResult(
+        data={
+            "integrity": {
+                "originals_unchanged": True,
+                "anchors_checked": checked,
+                "stale": 0,
+                "canonical_content_hash": book.canonical_content_hash,
+                "source_declared_hash_verified": book.source.source_declared_hash_verified,
+            }
+        }
+    )

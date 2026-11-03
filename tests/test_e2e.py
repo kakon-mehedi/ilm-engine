@@ -82,10 +82,10 @@ def test_manifest_identical_except_timestamps(runs):
     assert runs["first"][1] == runs["second"][1]
 
 
-def test_no_step_failed(runs):
+def test_every_step_ran(runs):
     lines = [line.split() for line in runs["output_text"].splitlines()]
     statuses = {parts[1]: parts[0] for parts in lines if len(parts) == 2 and parts[1] in STEP_NAMES}
-    assert len(statuses) == 21 and "failed" not in statuses.values()
+    assert len(statuses) == 21 and set(statuses.values()) == {"ran"}
 
 
 def test_all_decisions_output_files_written(runs):

@@ -59,7 +59,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-015](T-015-adapter-authoring-guide.md) | Adapter authoring guide + example OCR-team v1 adapter | E01 | P1 | T-014 | M | 5 | done |
 | [T-020](T-020-hashing.md) | Hashing utilities (block hash, canonical content hash) | E02 | P0 | T-001 | S | 1 | done |
 | [T-021](T-021-original-store.md) | Read-only original store | E02 | P0 | T-020 | S | 2 | done |
-| [T-022](T-022-integrity-invariant-tests.md) | Integrity invariant tests | E02 | P0 | T-021, T-143 | S | 13 | todo |
+| [T-022](T-022-integrity-invariant-tests.md) | Integrity invariant tests | E02 | P0 | T-021, T-143 | S | 13 | done |
 | [T-023](T-023-revision-diff-stale-anchors.md) | Revision diff + stale anchor detection | E02 | P1 | T-020, T-110 | M | 3 | done |
 | [T-030](T-030-document-analysis-report.md) | Document analysis report (quality & stats) | E03 | P0 | T-012 | S | 4 | done |
 | [T-031](T-031-page-gap-classification.md) | Missing-page detection and classification | E03 | P1 | T-030 | S | 5 | done |

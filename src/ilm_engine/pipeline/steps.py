@@ -135,7 +135,7 @@ def build_registry() -> StepRegistry:
                 "validate",
             ),
             _step("export", "store", outputs=("enrichment.json",)),
-            _step("integrity_verify", "export", "integrity_register"),
+            _step("integrity_verify", "export", "integrity_register", "store", uses_inputs=True),
             _step("manifest", "integrity_verify", outputs=("run_manifest.json",)),
         ]
     )
@@ -165,6 +165,7 @@ def _wire(registry: StepRegistry) -> StepRegistry:
     registry.replace("review_queue", stages.review_queue)
     registry.replace("store", stages.store)
     registry.replace("export", stages.export)
+    registry.replace("integrity_verify", stages.integrity_verify)
     registry.replace("manifest", manifest_step)
     return registry
 

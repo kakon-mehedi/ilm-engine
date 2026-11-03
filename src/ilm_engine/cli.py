@@ -139,6 +139,7 @@ def verify(
         raise typer.Exit(EXIT_FAILED)
     manifest = RunManifest.model_validate_json(manifest_path.read_text(encoding="utf-8"))
     problems = []
+    anchors = 0
     for item in manifest.outputs:
         path = out_dir / item.path
         if not path.is_file() or file_sha256(path) != item.sha256:
@@ -149,6 +150,20 @@ def verify(
             problems.append(f"input changed or missing: {item.path}")
     if not original_store.verify(manifest.pub_ref, store_root):
         problems.append(f"original store check failed for {manifest.pub_ref}")
+    else:
+        from ilm_engine.adapters.registry import resolve
+        from ilm_engine.integrity.verify import check_anchors
+
+        stored = original_store.load(manifest.pub_ref, store_root)
+        source = next(name for name in stored.files if name.endswith(".json"))
+        raw = json.loads(stored.path(source).read_text(encoding="utf-8"))
+        book = resolve(raw).to_canonical(raw)
+        for output in sorted(out_dir.glob("*.json")):
+            if output.name in ("run_manifest.json", "search_index.json"):
+                continue
+            checked, found = check_anchors(book, json.loads(output.read_text(encoding="utf-8")), output.name)
+            anchors += checked
+            problems += [str(problem) for problem in found]
     if manifest.integrity.get("originals_unchanged") is False or manifest.integrity.get("stale", 0):
         problems.append("the run recorded integrity problems (see run_manifest.json integrity)")
     for problem in problems:
@@ -156,7 +171,8 @@ def verify(
     if problems:
         raise typer.Exit(EXIT_FAILED)
     typer.echo(
-        f"OK {manifest.pub_ref}: {len(manifest.outputs)} outputs, {len(manifest.inputs)} inputs verified"
+        f"OK {manifest.pub_ref}: {len(manifest.outputs)} outputs, {len(manifest.inputs)} inputs, "
+        f"{anchors} anchors verified"
     )
 
 

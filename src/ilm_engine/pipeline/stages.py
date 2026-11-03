@@ -93,3 +93,14 @@ def document_analysis(ctx: RunContext) -> StepResult:
 
     report, issues = analyze(ctx.data("adapt", "book"))
     return StepResult(files={"document_report.json": report}, data={"report": report}, issues=issues)
+
+
+def structure(ctx: RunContext) -> StepResult:
+    from ilm_engine.processors.structure import build
+
+    result = build(ctx.data("adapt", "book"))
+    return StepResult(
+        files={"structure.json": result.to_json()},
+        data={"structure": result, "counts": {"sections": len(result.sections)}},
+        issues=result.issues,
+    )

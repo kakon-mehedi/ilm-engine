@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-131, T-141]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 13
 ---
 
@@ -30,9 +30,9 @@ Numbers for the proposal: what the system found, what went to review, quality.
 
 ## Acceptance criteria
 
-- [ ] Report reads `eval_report.json` (from T-131) and the run outputs; adds them to the run summary.
-- [ ] SUMMARY.md lists 594 blocks, 75 units, 300 refs resolved, 16 continuations, 1 nested footnote, review counts.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Report reads `eval_report.json` (from T-131) and the run outputs; adds them to the run summary.
+- [x] SUMMARY.md lists 594 blocks, 75 units, 300 refs resolved, 16 continuations, 1 nested footnote, review counts.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -41,3 +41,6 @@ uv run ilm-engine run --input data && test -f output/pub_01M0CJECV4ZHFTP02BJQ6D3
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `eval/summary.py::write_summary(out_dir)` builds `SUMMARY.md` from `enrichment.json`, `review_queue.json`, `run_manifest.json` and (when present) `eval_report.json`: book counts, enrichment counts (units, facts, refs resolved 300/300, 16 continuations, 1 nested footnote, citations, works, entities, relations by type and assertion), review items by reason, issues by code, evaluation metrics and an integrity excerpt. `ilm-engine eval` writes it after the evaluation.

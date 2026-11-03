@@ -308,3 +308,6 @@ def eval_command(
     )
     for miss in report["missed"]:
         typer.echo(f"  missed #{miss['entry_no']}: gold {miss['gold']!r}, extracted {miss['extracted']!r}")
+    from ilm_engine.eval.summary import write_summary
+
+    typer.echo(f"summary: {write_summary(directory)}")

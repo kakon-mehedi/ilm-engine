@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-001]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 1
 ---
 
@@ -32,10 +32,10 @@ Same input must always produce the same IDs so runs are repeatable and diffable 
 - `run` IDs may include the start timestamp; every other ID must not.
 
 ## Acceptance criteria
-- [ ] `pub_ref('pub_01M0CJECV4ZHFTP02BJQ6D3STJ', 6) == 'pub_01M0CJECV4ZHFTP02BJQ6D3STJ@r6'`.
-- [ ] Same inputs → identical ID; different natural key → different ID.
-- [ ] Invalid prefix raises `ValueError`.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] `pub_ref('pub_01M0CJECV4ZHFTP02BJQ6D3STJ', 6) == 'pub_01M0CJECV4ZHFTP02BJQ6D3STJ@r6'`.
+- [x] Same inputs → identical ID; different natural key → different ID.
+- [x] Invalid prefix raises `ValueError`.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -44,3 +44,7 @@ uv run pytest tests/test_ids.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `grp` is also an allowed prefix (sibling groups, DECISIONS §12c), which takes precedence over the 10-prefix list above.
+- `natural_key(*parts)` joins composite natural keys with `|` as listed in ADR-011 (e.g. `entry_no|block_id|start`), so every caller builds them the same way.

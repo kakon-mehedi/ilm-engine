@@ -26,7 +26,7 @@ from ilm_engine.enrichment.models import (
     RelationshipAttrs,
 )
 from ilm_engine.ids import make_id, natural_key
-from ilm_engine.nlp.nasab import clean, parse_name
+from ilm_engine.nlp.nasab import display_name, parse_name
 from ilm_engine.nlp.normalize import normalize
 from ilm_engine.validation.confidence import decide, score
 
@@ -112,7 +112,7 @@ def find_groups(book: CanonicalBook, units: list[KnowledgeUnit]) -> list[Group]:
 def _parent_entity(book: CanonicalBook, group: Group, config: Config) -> tuple[Entity, PersonName]:
     parsed = parse_name(group.parent_text)
     name = parsed.to_person_name() if parsed else PersonName(full_surface=group.parent_text)
-    canonical = clean(name.full_surface).strip()
+    canonical = display_name(name.full_surface)
     confidence = score(config, "rule").score
     entity = Entity(
         entity_id=make_id(
@@ -205,3 +205,189 @@ def sibling_groups(
                 )
             )
     return Relations(relationships, [*by_id.values(), *new_entities], groups)
+
+
+# --- Relation kinds and mothers (T-083) ------------------------------------------------------------------
+
+_LETTERS_B, _LETTERS_E = r"(?<![ء-ي])", r"(?![ء-ي])"
+_MOTHER = re.compile(_LETTERS_B + r"و?ام(?P<pronoun>ه|ها|هما|هم)" + _LETTERS_E)
+_UMM_WALAD = re.compile(_LETTERS_B + r"(?:ل)?(?:ام ولد|امهات اولاد)" + _LETTERS_E)
+_MATERNAL_SIBLING = re.compile(_LETTERS_B + r"و?(?:اخته|اخوه) لامه" + _LETTERS_E)
+
+
+@dataclass
+class MotherStatement:
+    unit: KnowledgeUnit
+    scope: list[KnowledgeUnit]
+    anchor: Anchor
+    name: PersonName | None  # None for an unnamed umm walad
+    umm_walad: bool
+
+
+def _normalized_spans(
+    book: CanonicalBook, unit: KnowledgeUnit, pattern: re.Pattern[str]
+) -> list[tuple[str, int, int]]:
+    from ilm_engine.nlp.normalize import normalize_with_map
+
+    found = []
+    for span in unit.anchors:
+        text = book.block(span.block_id).text
+        mapped = normalize_with_map(text[: span.end], "match")
+        for match in pattern.finditer(mapped.text):
+            start, end = mapped.to_original(match.start(), match.end())
+            if start >= span.start:
+                found.append((span.block_id, start, end))
+    return found
+
+
+def mother_statements(
+    book: CanonicalBook, units: list[KnowledgeUnit], groups: list[Group]
+) -> list[MotherStatement]:
+    """ "أمه X" (this entry), "أمهما X" (the dual group / last two entries), "أمهم X" (the group the entry
+    closes, else every entry since the previous closure or mother statement in the section)."""
+    ordered = sorted(units, key=lambda u: u.entry_no or 0)
+    closed_by = {g.members[-1].unit_id: g for g in groups if g.members}
+    statements = []
+    last_closure: dict[str, int] = {}
+    for index, unit in enumerate(ordered):
+        group = closed_by.get(unit.unit_id)
+        found = _normalized_spans(book, unit, _MOTHER)
+        for block_id, start, end in found:
+            text = book.block(block_id).text
+            word = normalize(text[start:end], "match")
+            pronoun = "هما" if word.endswith("هما") else "هم" if word.endswith("هم") else "ه"
+            after = _MARKER.sub(" ", text[end:])
+            umm_walad = normalize(after, "match").lstrip().startswith("ام ولد")
+            name_from = end
+            if umm_walad:
+                named = re.search(r"يقال لها:?\s*", text[end:])
+                name_from = end + named.end() if named else -1
+            parsed = parse_name(text[name_from:], offset=name_from) if name_from >= 0 else None
+            if parsed is None and not umm_walad:
+                continue
+            section = [u for u in ordered[: index + 1] if u.section_id == unit.section_id]
+            if pronoun == "ه":
+                scope = [unit]
+            elif pronoun == "هما":
+                scope = group.members if group and len(group.members) == 2 else section[-2:]
+            else:
+                previous = last_closure.get(unit.section_id, -1)
+                scope = group.members if group else [u for u in section if ordered.index(u) > previous]
+            anchor_end = parsed.span[1] if parsed else end
+            statements.append(
+                MotherStatement(
+                    unit=unit,
+                    scope=scope,
+                    anchor=_anchor(book, block_id, start, anchor_end),
+                    name=parsed.to_person_name() if parsed else None,
+                    umm_walad=umm_walad,
+                )
+            )
+        if group is not None or found:
+            last_closure[unit.section_id] = index
+    return statements
+
+
+def relation_kinds(
+    book: CanonicalBook, units: list[KnowledgeUnit], result: Relations, config: Config
+) -> Relations:
+    """Set `kind` / `mother_status` on sibling relations and add `mother_is` relations."""
+    pub_ref = book.book.pub_ref
+    confidence = score(config, "rule").score
+    provenance = Provenance(method="rule", step=STEP, step_version="1.0.0")
+    entities = {e.entity_id: e for e in result.entities}
+    relationships = list(result.relationships)
+    mother_of: dict[str, tuple[str | None, str]] = {}  # child entity → (mother entity, status)
+
+    for statement in mother_statements(book, units, result.groups):
+        mother_id: str | None = None
+        if statement.name is not None:
+            canonical = display_name(statement.name.full_surface)
+            mother_id = make_id("ent", pub_ref, natural_key(normalize(canonical), "mother"))
+            if mother_id not in entities:
+                entities[mother_id] = Entity(
+                    entity_id=mother_id,
+                    entity_type="person",
+                    canonical_name=canonical,
+                    canonical_name_normalized=normalize(canonical),
+                    name=statement.name,
+                    gender="f",
+                    mentions=[statement.anchor],
+                    confidence=confidence,
+                    review_status=decide(config, confidence),
+                    provenance=provenance,
+                )
+        status = "umm_walad" if statement.umm_walad else "named"
+        for member in statement.scope:
+            if not member.subject_entity_id:
+                continue
+            mother_of[member.subject_entity_id] = (mother_id, status)
+            if mother_id:
+                relationships.append(
+                    Relationship(
+                        relation_id=make_id(
+                            "rel", pub_ref, natural_key("mother_is", member.subject_entity_id, mother_id)
+                        ),
+                        type="mother_is",
+                        subject_entity_id=member.subject_entity_id,
+                        object_entity_id=mother_id,
+                        attrs=RelationshipAttrs(mother_status=status),  # type: ignore[arg-type]
+                        evidence=[statement.anchor],
+                        origin="author_text",
+                        assertion="stated",
+                        confidence=confidence,
+                        review_status=decide(config, confidence),
+                        provenance=provenance,
+                    )
+                )
+
+    # Closures with "لأم ولد" / "لأمهات أولاد": the mother was an umm walad (NOT maternal siblings).
+    umm_walad_groups = {g.group_id for g in result.groups if _UMM_WALAD.search(normalize(g.parent_text))}
+    updated: list[Relationship] = []
+    for relation in relationships:
+        if relation.type != "sibling_of":
+            updated.append(relation)
+            continue
+        attrs = relation.attrs
+        a, b = mother_of.get(relation.subject_entity_id), mother_of.get(relation.object_entity_id)
+        if attrs.group_id in umm_walad_groups:
+            attrs = attrs.model_copy(update={"kind": "paternal", "mother_status": "umm_walad"})
+        elif a and b and a[0] and a[0] == b[0]:
+            attrs = attrs.model_copy(update={"kind": "full", "mother_status": "named"})
+        elif attrs.via_parent_entity_id:
+            known = a or b
+            attrs = attrs.model_copy(
+                update={"kind": "paternal", "mother_status": known[1] if known else "unknown"}
+            )
+        updated.append(relation.model_copy(update={"attrs": attrs}))
+
+    # "وأخته لأمه: <next entry>" → stated maternal sister (full if they also share a father).
+    ordered = sorted(units, key=lambda u: u.entry_no or 0)
+    for index, unit in enumerate(ordered[:-1]):
+        spans = _normalized_spans(book, unit, _MATERNAL_SIBLING)
+        following = ordered[index + 1]
+        if not spans or not unit.subject_entity_id or not following.subject_entity_id:
+            continue
+        block_id, start, end = spans[0]
+        left, right = entities[unit.subject_entity_id], entities[following.subject_entity_id]
+        same_father = bool(
+            left.name and right.name and left.name.nasab[:1] and left.name.nasab[:1] == right.name.nasab[:1]
+        )
+        updated.append(
+            Relationship(
+                relation_id=make_id(
+                    "rel", pub_ref, natural_key("sibling_of", left.entity_id, right.entity_id, "maternal")
+                ),
+                type="sibling_of",
+                subject_entity_id=left.entity_id,
+                object_entity_id=right.entity_id,
+                attrs=RelationshipAttrs(kind="full" if same_father else "maternal", mother_status="named"),
+                evidence=[_anchor(book, block_id, start, end)],
+                origin="author_text",
+                assertion="stated",
+                confidence=confidence,
+                review_status=decide(config, confidence),
+                provenance=provenance,
+            )
+        )
+    return Relations(updated, list(entities.values()), result.groups, result.issues)

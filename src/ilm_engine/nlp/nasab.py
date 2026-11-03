@@ -126,6 +126,14 @@ def clean(word: str) -> str:
     return _MARKS.sub("", word)
 
 
+_INLINE_MARKER = re.compile(r"\s*\((?:[٠-٩0-9]+|[\u0621-\u064a])\)")
+
+
+def display_name(surface: str) -> str:
+    """A name surface for display: footnote markers removed, diacritics removed, spaces collapsed."""
+    return " ".join(clean(_INLINE_MARKER.sub(" ", surface)).split())
+
+
 @dataclass
 class _Token:
     core: str  # cleaned word without wrapping brackets or trailing punctuation
@@ -180,7 +188,8 @@ def parse_name(text: str, offset: int = 0) -> Name | None:
         nonlocal position, first_start, last_end, stopped
         token = tokens[position]
         position += 1
-        first_start = token.start if first_start is None else first_start
+        if first_start is None and not _is_marker(token):
+            first_start = token.start
         last_end = token.end
         stopped = token.stops
         return token
@@ -202,6 +211,8 @@ def parse_name(text: str, offset: int = 0) -> Name | None:
         name_end = last_end
         return word
 
+    while tokens and _is_marker(tokens[0]):  # "أمهم (٢) أم الفضل": the name starts after the marker
+        tokens.pop(0)
     if not tokens:
         return None
     head = tokens[0]

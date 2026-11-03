@@ -336,10 +336,11 @@ def entities(ctx: RunContext) -> StepResult:
 
 
 def relations(ctx: RunContext) -> StepResult:
-    from ilm_engine.extractors.relations import sibling_groups
+    from ilm_engine.extractors.relations import relation_kinds, sibling_groups
 
-    units = ctx.data("entities", "units")
-    result = sibling_groups(ctx.data("adapt", "book"), units, ctx.data("entities", "entities"), ctx.config)
+    book, units = ctx.data("adapt", "book"), ctx.data("entities", "units")
+    result = sibling_groups(book, units, ctx.data("entities", "entities"), ctx.config)
+    result = relation_kinds(book, units, result, ctx.config)
     return StepResult(
         files={"relationships.json": result.relationships},
         data={

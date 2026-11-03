@@ -25,7 +25,7 @@ from ilm_engine.enrichment.models import (
     Provenance,
 )
 from ilm_engine.ids import make_id, natural_key
-from ilm_engine.nlp.nasab import clean, parse_name
+from ilm_engine.nlp.nasab import display_name, parse_name
 from ilm_engine.nlp.normalize import normalize, normalize_with_map
 from ilm_engine.validation.confidence import decide, score
 
@@ -77,7 +77,7 @@ def _person(
     **extra: object,
 ) -> Entity:
     confidence = score(config, "rule").score
-    canonical = clean(name.full_surface).strip()
+    canonical = display_name(name.full_surface)
     return Entity(
         entity_id=identifier,
         entity_type="person",

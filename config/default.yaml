@@ -51,6 +51,14 @@ llm:
   # null (no key; emits needs_llm) | fixture (recorded responses, CI) | anthropic | litellm
   provider: "null"
   temperature: 0
+  # Primary extractor (ADR-006). Used when `provider` is anthropic or litellm.
+  extractor:
+    provider: anthropic
+    model: claude-sonnet-5-5
+  # Independent verifier for multi-model consensus (ADR-008). It must be a different model family than
+  # the extractor; the exact checkpoint is chosen by evaluation and pinned here. Unset = single model.
+  # Example: {provider: litellm, model: "openai/<model>", api_base: null}
+  verifier: null
 
 features:
   semantic_search: false  # BGE-M3 embeddings (needs the `semantic` extra)

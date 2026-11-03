@@ -114,9 +114,31 @@ class EntriesConfig(_Section):
         return value
 
 
+class ModelRoute(_Section):
+    provider: Literal["anthropic", "litellm"]
+    model: str = Field(min_length=1)
+    api_base: str | None = None
+
+    @property
+    def family(self) -> str:
+        return model_family(self.model)
+
+
 class LlmConfig(_Section):
     provider: Literal["null", "fixture", "anthropic", "litellm"]
     temperature: float = Field(ge=0)
+    extractor: ModelRoute
+    verifier: ModelRoute | None = None
+
+    @model_validator(mode="after")
+    def _independent_verifier(self) -> Self:
+        # ADR-008: consensus needs a second, independent model family.
+        if self.verifier is not None and self.verifier.family == self.extractor.family:
+            raise ValueError(
+                f"llm.verifier ({self.verifier.model}) is the same model family ({self.verifier.family}) "
+                f"as llm.extractor ({self.extractor.model}); choose a different family"
+            )
+        return self
 
 
 class FeaturesConfig(_Section):
@@ -161,6 +183,39 @@ class Config(_Section):
     def config_hash(self) -> str:
         """`sha256:<hex>` of the merged configuration as canonical JSON."""
         return self._config_hash
+
+
+_FAMILIES = (
+    ("claude", "anthropic"),
+    ("anthropic", "anthropic"),
+    ("gpt", "openai"),
+    ("openai", "openai"),
+    ("o1", "openai"),
+    ("o3", "openai"),
+    ("o4", "openai"),
+    ("gemini", "google"),
+    ("gemma", "google"),
+    ("qwen", "qwen"),
+    ("llama", "meta"),
+    ("mistral", "mistral"),
+    ("mixtral", "mistral"),
+    ("jais", "jais"),
+    ("deepseek", "deepseek"),
+    ("command", "cohere"),
+)
+
+
+def model_family(model: str) -> str:
+    """Model family of a model id, e.g. `claude-sonnet-5-5` → anthropic, `openai/gpt-x` → openai.
+
+    LiteLLM-style ids (`<provider>/<model>`) are judged by the model name, so a Claude model served
+    through any proxy is still the anthropic family.
+    """
+    name = model.lower().rsplit("/", 1)[-1]
+    for prefix, family in _FAMILIES:
+        if name.startswith(prefix):
+            return family
+    return name.split("-", 1)[0]
 
 
 def load_config(pub_id: str | None = None, config_dir: Path | None = None) -> Config:

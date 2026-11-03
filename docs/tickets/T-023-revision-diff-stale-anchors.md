@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-020, T-110]
 estimate: M
 owner: agent
-status: todo
+status: done
 wave: 3
 ---
 
@@ -32,8 +32,8 @@ When r6 becomes r7, unchanged blocks keep their enrichment; changed blocks are r
 - Simulate r7 in tests by editing one block text in a copy.
 
 ## Acceptance criteria
-- [ ] Editing `b000135` text in a simulated r7 → diff reports exactly 1 changed block; all anchors on b000135 become stale; others untouched.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Editing `b000135` text in a simulated r7 → diff reports exactly 1 changed block; all anchors on b000135 become stale; others untouched.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -42,3 +42,8 @@ uv run pytest tests/test_revision_diff.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- Uses the contract's `Anchor.status` (`stale` / `orphaned`) rather than a `stale=True` flag. Anchors on removed blocks become `orphaned` (ADR-017).
+- `restatus_anchors(records, diff)` walks any models/lists/dicts and returns copies only where an anchor changed; unchanged records keep their identity (same IDs, carried over). `stale_anchor_issues` raises one `anchor_stale` issue per affected block with the anchor count.
+- `RevisionDiff.to_reprocess` = changed ∪ added, the block set for an incremental run.

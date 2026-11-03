@@ -153,3 +153,32 @@ def annotate(ctx: RunContext) -> StepResult:
         data={"annotations": result, "counts": {"annotations": len(result.annotations)}},
         issues=result.issues,
     )
+
+
+def citations(ctx: RunContext) -> StepResult:
+    from ilm_engine.processors.citations import extract
+
+    result = extract(ctx.data("adapt", "book"), ctx.data("origin", "origins"), ctx.config)
+    return StepResult(
+        files={"citations.json": result.to_json()},
+        data={"citations": result, "counts": {"citations": len(result.citations)}},
+        issues=result.issues,
+    )
+
+
+def related_works(ctx: RunContext) -> StepResult:
+    from ilm_engine.extractors.related_works import related_works as resolve_related
+
+    result = resolve_related(
+        ctx.data("adapt", "book"),
+        ctx.data("citations", "citations"),
+        ctx.data("origin", "origins"),
+        ctx.config,
+    )
+    return StepResult(
+        files={"related_works.json": result.to_json()},
+        data={
+            "related_works": result,
+            "counts": {"works": len(result.works), "work_relations": len(result.relations)},
+        },
+    )

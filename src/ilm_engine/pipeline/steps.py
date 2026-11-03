@@ -121,6 +121,8 @@ def _wire(registry: StepRegistry) -> StepRegistry:
     registry.replace("metadata", stages.metadata)
     registry.replace("genre", stages.genre)
     registry.replace("annotations", stages.annotate)
+    registry.replace("citations", stages.citations)
+    registry.replace("related_works", stages.related_works)
     registry.replace("manifest", manifest_step)
     return registry
 

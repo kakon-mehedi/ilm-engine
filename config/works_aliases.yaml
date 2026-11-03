@@ -1,0 +1,66 @@
+# Cited-work dictionary for citation resolution (ADR-018, DECISIONS §12c).
+# works: canonical works with the short titles books cite them by (matched after normalization).
+# ambiguous: short titles that may mean several works; such citations stay unresolved and go to review.
+# not_works: quoted words that are not cited books (e.g. "الأصل" = the manuscript, EC-052).
+# this_book: titles by which the processed book refers to itself.
+
+works:
+  - title: الإصابة في تمييز الصحابة
+    author: ابن حجر العسقلاني
+    aliases: [الإصابة]
+  - title: أسد الغابة في معرفة الصحابة
+    author: ابن الأثير
+    aliases: [أسد الغابة]
+  - title: سير أعلام النبلاء
+    author: الذهبي
+    aliases: [السير]
+  - title: الطبقات الكبرى
+    author: ابن سعد
+    aliases: [الطبقات, طبقات ابن سعد]
+  - title: الاستيعاب في معرفة الأصحاب
+    author: ابن عبد البر
+    aliases: [الاستيعاب]
+  - title: تهذيب الكمال في أسماء الرجال
+    author: المزي
+    aliases: [تهذيب الكمال]
+  - title: تهذيب التهذيب
+    author: ابن حجر العسقلاني
+    aliases: []
+  - title: الآحاد والمثاني
+    author: ابن أبي عاصم
+    aliases: []
+  - title: الجرح والتعديل
+    author: ابن أبي حاتم الرازي
+    aliases: []
+  - title: التاريخ الكبير
+    author: البخاري
+    aliases: []
+  - title: المعجم الكبير
+    author: الطبراني
+    aliases: []
+  - title: المستدرك على الصحيحين
+    author: الحاكم النيسابوري
+    aliases: [المستدرك]
+  - title: مجمع الزوائد ومنبع الفوائد
+    author: الهيثمي
+    aliases: [مجمع الزوائد]
+  - title: الذرية الطاهرة
+    author: الدولابي
+    aliases: []
+  - title: المعرفة والتاريخ
+    author: يعقوب بن سفيان الفسوي
+    aliases: []
+  - title: المؤتلف والمختلف
+    author: الدارقطني
+    aliases: [المؤتلف]
+  - title: الإكمال
+    author: ابن ماكولا
+    aliases: []
+
+ambiguous:
+  التهذيب: [تهذيب الكمال في أسماء الرجال, تهذيب التهذيب]
+  الكبير: [المعجم الكبير, التاريخ الكبير]
+
+not_works: [الأصل]
+
+this_book: [الأخوة, الإخوة والأخوات, الأخوة والأخوات]

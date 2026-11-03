@@ -8,12 +8,16 @@ the edition; content-derived values and conflicts are added on top (T-041, T-042
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from typing import Any
 
 from ilm_engine.canonical.models import CanonicalBook
 from ilm_engine.config import Config
-from ilm_engine.enrichment.models import BookMetadata, Issue, MetadataField, MetadataSource
-from ilm_engine.nlp.arabic_digits import to_int
+from ilm_engine.enrichment.issues import make_issue
+from ilm_engine.enrichment.models import Anchor, BookMetadata, Issue, MetadataField, MetadataSource, Origin
+from ilm_engine.nlp.arabic_digits import to_int, words_to_int
+from ilm_engine.nlp.normalize import normalize
+from ilm_engine.processors.structure import Structure
 from ilm_engine.validation.confidence import decide, score
 
 STEP = "metadata"
@@ -135,3 +139,180 @@ def card_metadata(book: CanonicalBook, config: Config) -> tuple[BookMetadata, li
         **record,
     )
     return metadata, []
+
+
+# --- Metadata from the book's own text (T-041) -------------------------------------------------------
+
+_DEATH = re.compile(r"(?:توف[ِّ]*[يى]|المتوفى|مات)")
+_YEAR_PHRASE = re.compile(r"سنة[ٍَُِ]*\s*(?:\(\s*[٠-٩0-9]+\s*\)|[٠-٩0-9]+|[^،.()]+)")
+_DIGITS = re.compile(r"[٠-٩0-9]+")
+_PART = re.compile(r"«?\s*الجزء\s+(الأول|الثاني|الثالث|الرابع)\s*»?")
+_MISSING_PART = re.compile(r"لم\s+أجد\s+الجزء\s+(الثاني|الثالث|الرابع)")
+_PART_NUMBERS = {"الأول": 1, "الثاني": 2, "الثالث": 3, "الرابع": 4}
+
+
+def _anchor(book: CanonicalBook, block_id: str, start: int, end: int) -> Anchor:
+    block = book.block(block_id)
+    while end > start and block.text[end - 1].isspace():
+        end -= 1
+    return Anchor(
+        pub_ref=book.book.pub_ref,
+        page=block.page,
+        scan_page=book.page(block.page, block.volume).scan_page,
+        block_id=block_id,
+        start=start,
+        end=end,
+        quote=block.text[start:end],
+        block_hash=block.block_hash,
+    )
+
+
+def _year(phrase: str) -> int | None:
+    digits = _DIGITS.search(phrase)
+    if digits:
+        return to_int(digits.group(0))
+    try:
+        return words_to_int(phrase)
+    except ValueError:
+        return None
+
+
+@dataclass
+class ContentFinding:
+    field: str
+    value: Any
+    anchors: list[Anchor]
+    origin: Origin
+
+
+def death_year_findings(
+    book: CanonicalBook, origins: dict[str, Origin], structure: Structure
+) -> list[ContentFinding]:
+    """Author death years stated on the title page or in the section about the author."""
+    author_words = {normalize(word) for word in (book.metadata.author_name or "").split() if len(word) > 3}
+    about_author = {
+        section.section_id
+        for section in structure.sections
+        if section.level > 0 and author_words & set(normalize(section.title).split())
+    }
+    title_page = book.pages[0].n if book.pages else None
+    findings = []
+    for block in book.blocks_in_order():
+        on_title_page = block.page == title_page and block.kind == "text"
+        in_section = structure.block_section.get(block.block_id) in about_author
+        if block.kind == "footnote" or not (on_title_page or in_section):
+            continue
+        for death in _DEATH.finditer(block.text):
+            phrase = _YEAR_PHRASE.search(block.text, death.end())
+            if phrase is None or phrase.start() - death.end() > 40:
+                continue
+            year = _year(phrase.group(0))
+            if year is not None:
+                anchor = _anchor(book, block.block_id, phrase.start(), phrase.end())
+                findings.append(
+                    ContentFinding(
+                        "author.death_hijri", year, [anchor], origins.get(block.block_id, "editor_text")
+                    )
+                )
+                break
+    return findings
+
+
+def title_page_findings(book: CanonicalBook, origins: dict[str, Origin]) -> list[ContentFinding]:
+    """Title, author and editor as printed on the title page (first page of the source)."""
+    if not book.pages:
+        return []
+    blocks = [
+        book.block(block_id) for block_id in book.pages[0].block_ids if book.block(block_id).kind == "text"
+    ]
+    findings = []
+    if blocks:
+        findings.append(
+            ContentFinding(
+                "title",
+                blocks[0].text,
+                [_anchor(book, blocks[0].block_id, 0, len(blocks[0].text))],
+                origins.get(blocks[0].block_id, "editor_text"),
+            )
+        )
+    for index, block in enumerate(blocks[:-1]):
+        label, value = normalize(block.text), blocks[index + 1]
+        anchor = [_anchor(book, value.block_id, 0, len(value.text))]
+        if label in {normalize("للحافظ"), normalize("تأليف"), normalize("للإمام")}:
+            findings.append(
+                ContentFinding("author.name", value.text, anchor, origins.get(value.block_id, "editor_text"))
+            )
+        elif label in {normalize("تحقيق"), normalize("حققه")}:
+            findings.append(
+                ContentFinding("editor", value.text, anchor, origins.get(value.block_id, "editor_text"))
+            )
+    return findings
+
+
+def volume_findings(book: CanonicalBook, origins: dict[str, Origin]) -> ContentFinding | None:
+    """«الجزء الأول» plus "لم أجد الجزء الثاني" → part 1 of at least 2."""
+    part, anchors, at_least = None, [], None
+    for block in book.blocks_in_order():
+        if part is None and (match := _PART.search(block.text)) and block.page == book.pages[0].n:
+            part = _PART_NUMBERS[match.group(1)]
+            anchors.append(_anchor(book, block.block_id, match.start(), match.end()))
+        if match := _MISSING_PART.search(block.text):
+            at_least = _PART_NUMBERS[match.group(1)]
+            anchors.append(_anchor(book, block.block_id, match.start(), match.end()))
+    if part is None:
+        return None
+    value = {"part": part, "of_at_least": max(at_least or part, part)}
+    return ContentFinding("volume_note", value, anchors, "editor_text")
+
+
+def content_metadata(
+    book: CanonicalBook,
+    record: BookMetadata,
+    origins: dict[str, Origin],
+    structure: Structure,
+    config: Config,
+    llm_available: bool = False,
+) -> tuple[BookMetadata, list[ContentFinding], list[Issue]]:
+    """Add content-derived evidence to the card record (sources `book_content` with anchors)."""
+    findings = [
+        *title_page_findings(book, origins),
+        *death_year_findings(book, origins, structure),
+    ]
+    volume = volume_findings(book, origins)
+    updates: dict[str, Any] = {}
+
+    def with_content(field: MetadataField, anchors: list[Anchor]) -> MetadataField:
+        return field.model_copy(
+            update={"sources": [*field.sources, MetadataSource(kind="book_content", anchors=anchors)]}
+        )
+
+    for finding in findings:
+        name, _, key = finding.field.partition(".")
+        current = updates.get(name, getattr(record, name))
+        if key and isinstance(current.value, dict) and current.value.get(key) is None:
+            current = current.model_copy(
+                update={"value": {**current.value, key: finding.value}}
+            )  # card lacked it
+        updates[name] = with_content(current, finding.anchors)
+
+    if volume is not None:
+        fields = _Fields(config)
+        updates["volume_note"] = fields.stated(volume.value, None, kind="book_content").model_copy(
+            update={"sources": [MetadataSource(kind="book_content", anchors=volume.anchors)]}
+        )
+        findings.append(volume)
+    issues = []
+    if not llm_available:
+        issues.append(
+            make_issue(
+                book.book.pub_ref,
+                "needs_llm",
+                "info",
+                "book",
+                book.book.pub_ref,
+                "Metadata LLM verification (metadata_verify) not run: no LLM provider configured.",
+                STEP,
+                details={"task": "metadata_verify"},
+            )
+        )
+    return record.model_copy(update=updates), findings, issues

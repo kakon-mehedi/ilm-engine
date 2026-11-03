@@ -245,6 +245,7 @@ class BookMetadata(Strict):
     genre_secondary: list[MetadataField]
     missing_fields: list[str]
     issues: list[str]
+    volume_note: MetadataField | None = None  # e.g. {"part": 1, "of_at_least": 2} from the book's text
 
 
 # §8 Annotation

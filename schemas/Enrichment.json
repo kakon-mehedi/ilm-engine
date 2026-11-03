@@ -237,6 +237,17 @@
           "title": "Title Variants",
           "type": "array"
         },
+        "volume_note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MetadataField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "volumes": {
           "$ref": "#/$defs/MetadataField"
         },

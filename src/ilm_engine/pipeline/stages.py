@@ -107,10 +107,23 @@ def structure(ctx: RunContext) -> StepResult:
 
 
 def metadata(ctx: RunContext) -> StepResult:
-    from ilm_engine.processors.metadata import card_metadata
+    from ilm_engine.processors.metadata import card_metadata, content_metadata
 
-    record, issues = card_metadata(ctx.data("adapt", "book"), ctx.config)
-    return StepResult(files={"metadata.json": record}, data={"metadata": record}, issues=issues)
+    book = ctx.data("adapt", "book")
+    record, issues = card_metadata(book, ctx.config)
+    record, findings, more = content_metadata(
+        book,
+        record,
+        ctx.data("origin", "origins"),
+        ctx.data("structure", "structure"),
+        ctx.config,
+        llm_available=ctx.options.get("llm", "null") not in ("null",),
+    )
+    return StepResult(
+        files={"metadata.json": record},
+        data={"metadata": record, "findings": findings},
+        issues=[*issues, *more],
+    )
 
 
 def origin(ctx: RunContext) -> StepResult:

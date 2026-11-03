@@ -395,6 +395,7 @@ class BookMetadata(Strict):
     genre_secondary: list[MetadataField]
     missing_fields: list[str]
     issues: list[str]
+    volume_note: MetadataField | None = None  # {"part": 1, "of_at_least": 2}: «الجزء الأول» + "لم أجد الجزء الثاني"
 ```
 
 **Example (real): author death year confirmed by content.**

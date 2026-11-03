@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-001]
 estimate: M
 owner: agent
-status: todo
+status: done
 wave: 1
 ---
 
@@ -37,10 +37,10 @@ Every source format is converted into ONE internal shape. Downstream code only e
 - No normalization of text here — exact source text.
 
 ## Acceptance criteria
-- [ ] Models are frozen: assigning `block.text = 'x'` raises.
-- [ ] Round-trip `model_dump_json()` → `model_validate_json()` is lossless.
-- [ ] `Block.kind` rejects unknown kinds.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Models are frozen: assigning `block.text = 'x'` raises.
+- [x] Round-trip `model_dump_json()` → `model_validate_json()` is lossless.
+- [x] `Block.kind` rejects unknown kinds.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -49,3 +49,13 @@ uv run pytest tests/test_canonical_models.py -q
 
 ## Out of scope
 - Parsing the Shamela JSON (T-012).
+
+## Follow-ups
+- Implemented `03-data-contracts.md` §1–2 and §3–18 as written; contract names win over the summary above (`Block.block_id`, `TocEntry.source_page_key`, `BookRef.source_work_id`, `Page.source_key`, …).
+- `Strict` and `BlockKind` live in `canonical/models.py` (the base layer); `enrichment/models.py` imports them.
+- Contract names that clash with Python/Pydantic use aliases and serialize by alias: `Span.cls` ↔ `"class"`, `ConfidenceFactors.schema_` ↔ `"schema"`.
+- Invariants enforced in the models: span/ref offsets inside the block text and span text equal to the slice (all 594 sample blocks pass); `pub_ref == pub_id@r<revision>`; block order 0..N-1; page block IDs exist; no duplicate pages; anchor `start <= end`; `block_hash` / `canonical_content_hash` are `sha256:<64 hex>`; confidence in [0, 1]; facts and relationships carry ≥1 evidence anchor; `assertion: inferred` requires `origin: ai_generated` (ADR-010); sensitive review items require `scholar_reviewer` (DECISIONS §12c); our `Work.work_id` is `wrk_<12 hex>`.
+- `PersonName.ism/kunya/laqab` default to `None` so the contract's own examples (which omit them) validate.
+- Added `Structure`, `EnrichmentSource` and `Enrichment` for the §18 consolidated file.
+- Genre payload models (§12) are left to T-095 (genre plugin schemas).
+- **Doc fix needed:** the b000135 text in `03-data-contracts.md` (§2 block example, §11 unit anchor) has the diacritics of "اللَّه" in the wrong order (fatha before shadda; the source has shadda before fatha). It looks identical but does not hash to the stated `block_hash`. Tests use the exact source text.

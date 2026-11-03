@@ -41,6 +41,7 @@ select = ["E", "F", "I", "B", "UP"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["live: calls a real external API (skipped without credentials)"]
 
 [tool.mypy]
 python_version = "3.12"

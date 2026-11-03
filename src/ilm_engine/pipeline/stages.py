@@ -305,9 +305,18 @@ def search_index(ctx: RunContext) -> StepResult:
         list(_optional(ctx, "units", "units", [])),  # type: ignore[call-overload]
         list(_optional(ctx, "relations", "entities", None) or _optional(ctx, "entities", "entities", [])),  # type: ignore[call-overload,arg-type]
     )
+    semantic = False
+    if ctx.config.features.semantic_search:
+        from ilm_engine.search.semantic import vectors
+
+        semantic = vectors(index) is not None  # logs once and stays lexical when the model is missing
     return StepResult(
         files={"search_index.json": index},
-        data={"search_index": index, "counts": {"search_documents": len(index["documents"])}},
+        data={
+            "search_index": index,
+            "semantic": semantic,
+            "counts": {"search_documents": len(index["documents"])},
+        },
     )
 
 

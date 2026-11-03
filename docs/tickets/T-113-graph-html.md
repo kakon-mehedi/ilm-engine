@@ -6,7 +6,7 @@ priority: P2
 depends_on: [T-112]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 12
 ---
 
@@ -31,9 +31,9 @@ Visual demo of requirement G (entities and relationships, citation graph).
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] graph.html opens offline-capable except CDN script; node count = entities + works.
-- [ ] graph.cypher contains MERGE statements for all entities.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] graph.html opens offline-capable except CDN script; node count = entities + works.
+- [x] graph.cypher contains MERGE statements for all entities.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -42,3 +42,7 @@ uv run pytest tests/test_graph_export.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `storage/graph_export.py`: nodes = entities + works, edges = person relationships + work relations (label = type and sibling kind, colour/dashes by assertion). `graph.html` embeds the data and loads vis-network 9.1.9 from cdnjs (pinned; URL checked); without the CDN it shows a node/edge count instead of failing. `graph.cypher` has `MERGE` statements for every node and edge. Both are written by the `export` step.
+- `ilm-engine rebuild-derived <out_dir> [--store]` (`storage/derived.py`) rebuilds `search_index.json`, `graph.html` and `graph.cypher` from `enrichment.db` plus the block text in the read-only original store; the test deletes all three and checks the rebuilt files are byte-identical (closes T-142's deferred `rebuild-derived` criterion). To make that hold, the search index and graph builders sort their inputs by ID.

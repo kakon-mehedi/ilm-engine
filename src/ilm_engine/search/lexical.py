@@ -14,10 +14,10 @@ import re
 from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol
 
 from ilm_engine.canonical.models import CanonicalBook
-from ilm_engine.enrichment.models import Anchor, Entity, KnowledgeUnit
+from ilm_engine.enrichment.models import Anchor, Entity
 from ilm_engine.nlp.normalize import NORMALIZER_VERSION, normalize
 
 INDEX_VERSION = "1.0"
@@ -30,6 +30,14 @@ def tokens(text: str) -> list[str]:
     return _TOKEN.findall(normalize(text, "search"))
 
 
+class IndexedUnit(Protocol):
+    """What the index needs from a unit (a `KnowledgeUnit`, or a record rebuilt from the database)."""
+
+    unit_id: str
+    payload: dict[str, Any]
+    anchors: list[Anchor]
+
+
 @dataclass(frozen=True)
 class Hit:
     doc_id: str
@@ -39,7 +47,7 @@ class Hit:
 
 
 def build_index(
-    book: CanonicalBook, units: Sequence[KnowledgeUnit], entities: Sequence[Entity] = ()
+    book: CanonicalBook, units: Sequence[IndexedUnit], entities: Sequence[Entity] = ()
 ) -> dict[str, Any]:
     """The JSON-ready index (`search_index.json`)."""
     scan = {(p.volume, p.n): p.scan_page for p in book.pages}
@@ -74,7 +82,9 @@ def build_index(
             block_hash=block.block_hash,
         )
         add(block.block_id, "block", block.text, anchor)
-    for unit in units:
+    for unit in sorted(
+        units, key=lambda u: u.unit_id
+    ):  # sorted: byte-identical when rebuilt from the database
         person = unit.payload.get("person", {}).get("surface", "")
         add(
             unit.unit_id,
@@ -83,7 +93,7 @@ def build_index(
             unit.anchors[0],
             person or None,
         )
-    for entity in entities:
+    for entity in sorted(entities, key=lambda e: e.entity_id):
         names = " ".join([entity.canonical_name, *entity.aliases])
         add(
             entity.entity_id,

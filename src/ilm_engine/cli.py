@@ -227,3 +227,17 @@ def review_html(
         out / book / "review.html", render(canonical, items, str(pdf.resolve()) if pdf else None).encode()
     )
     typer.echo(str(path))
+
+
+@app.command("rebuild-derived")
+def rebuild_derived_command(
+    out_dir: Annotated[Path, typer.Argument(help="Output folder of a run: output/<pub_ref>.")],
+    store_root: Annotated[Path, typer.Option("--store", help="Original store root.")] = Path(
+        "store/originals"
+    ),
+) -> None:
+    """Rebuild search_index.json, graph.html and graph.cypher from enrichment.db and the originals."""
+    from ilm_engine.storage.derived import rebuild_derived
+
+    for path in rebuild_derived(out_dir, store_root):
+        typer.echo(str(path))

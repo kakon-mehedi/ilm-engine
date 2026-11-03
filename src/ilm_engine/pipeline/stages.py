@@ -431,5 +431,14 @@ def store(ctx: RunContext) -> StepResult:
 
 
 def export(ctx: RunContext) -> StepResult:
+    from ilm_engine.storage.derived import edges_from_records, write_graph
+
     enrichment = ctx.data("store", "enrichment")
+    write_graph(
+        ctx.store.directory,
+        ctx.data("adapt", "book"),
+        enrichment.entities,
+        enrichment.works,
+        edges_from_records(enrichment.relationships, enrichment.work_relations),
+    )
     return StepResult(files={"enrichment.json": enrichment}, data={"counts": dict(enrichment.stats)})

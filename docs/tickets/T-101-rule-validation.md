@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-100, T-071]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 9
 ---
 
@@ -31,8 +31,8 @@ Cheap deterministic checks before/after any AI step.
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] Sample run: 0 failures on anchor/hash/ID checks; report lists counts per check.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Sample run: 0 failures on anchor/hash/ID checks; report lists counts per check.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -41,3 +41,8 @@ uv run pytest tests/test_rules.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `validation/rules.py::run_checks(book, Records)` → anchors, ids_unique, origin_present, relation_endpoints, dual_grammar, numbering, traceable; `report()` gives pass/fail, counts and failure counts per check. Anchor failures report `stale` / `orphaned` (ADR-017). Sample: 0 failures.
+- The `validate` step (`validation/validate.py`) also applies sensitivity (T-104) to each unit's text and entry note — tagged units and facts whose evidence block is tagged go to `pending_review` with `sensitive_content` — and writes one `ValidationResult` per unit, fact, entity and relationship. `validation_report.json` = `{rules, results, decisions}`; validated records are passed on in the step data.
+- Entities and relationships are validated once T-080–T-084 produce them (the step reads upstream results only if present); the dual-grammar check then covers the "ابنا" groups.

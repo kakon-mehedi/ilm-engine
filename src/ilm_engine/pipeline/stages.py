@@ -255,3 +255,41 @@ def units(ctx: RunContext) -> StepResult:
         },
         issues=issues,
     )
+
+
+def _optional(ctx: RunContext, step: str, key: str, default: object) -> object:
+    result = ctx.results.get(step)
+    return result.data.get(key, default) if result is not None else default
+
+
+def validate(ctx: RunContext) -> StepResult:
+    from ilm_engine.validation.rules import Records
+    from ilm_engine.validation.validate import validate as run_validation
+
+    book = ctx.data("adapt", "book")
+    related = _optional(ctx, "related_works", "related_works", None)
+    citations = _optional(ctx, "citations", "citations", None)
+    internal = _optional(ctx, "citations", "internal_refs", None)
+    annotations = _optional(ctx, "annotations", "annotations", None)
+    structure = _optional(ctx, "structure", "structure", None)
+    records = Records(
+        units=list(_optional(ctx, "units", "units", [])),  # type: ignore[call-overload]
+        entities=list(_optional(ctx, "entities", "entities", [])),  # type: ignore[call-overload]
+        relationships=list(_optional(ctx, "relations", "relationships", [])),  # type: ignore[call-overload]
+        works=list(related.works) if related else [],  # type: ignore[attr-defined]
+        work_relations=list(related.relations) if related else [],  # type: ignore[attr-defined]
+        others=[
+            *(annotations.annotations if annotations else []),  # type: ignore[attr-defined]
+            *(citations.citations if citations else []),  # type: ignore[attr-defined]
+            *(internal.refs if internal else []),  # type: ignore[attr-defined]
+            *(structure.sections if structure else []),  # type: ignore[attr-defined]
+        ],
+    )
+    decision = ctx.data("genre", "genre")
+    genres = [g for g in [decision.primary, *decision.secondary] if g]
+    validation = run_validation(book, records, ctx.config, genres)
+    return StepResult(
+        files={"validation_report.json": validation.to_json()},
+        data={"validation": validation, "records": validation.records},
+        issues=validation.issues,
+    )

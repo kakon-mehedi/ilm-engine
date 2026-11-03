@@ -241,3 +241,45 @@ def rebuild_derived_command(
 
     for path in rebuild_derived(out_dir, store_root):
         typer.echo(str(path))
+
+
+def _book_dir(out: Path, book: str | None) -> Path:
+    if book:
+        return out / book
+    runs = sorted(path for path in out.glob("*@r*") if (path / "search_index.json").is_file())
+    if len(runs) != 1:
+        raise typer.BadParameter(f"pass --book (found {len(runs)} runs in {out})", param_hint="--book")
+    return runs[0]
+
+
+@app.command()
+def search(
+    query: Annotated[str, typer.Argument(help="Arabic query; spelling and diacritics are normalized.")],
+    book: Annotated[
+        str | None, typer.Option("--book", help="pub_ref (default: the only run in --out).")
+    ] = None,
+    out: Annotated[Path, typer.Option("--out", help="Output root.")] = Path("output"),
+    limit: Annotated[int, typer.Option("--limit", help="Number of results.")] = 10,
+    semantic: Annotated[
+        bool, typer.Option("--semantic", help="Hybrid BM25 + BGE-M3 (semantic extra).")
+    ] = False,
+) -> None:
+    """Search a processed book; prints page, block, origin and the matching text."""
+    from ilm_engine.search.lexical import search as lexical_search
+    from ilm_engine.search.semantic import hybrid_search
+
+    directory = _book_dir(out, book)
+    index = json.loads((directory / "search_index.json").read_text(encoding="utf-8"))
+    origins_path = directory / "origin_map.json"
+    origins = json.loads(origins_path.read_text(encoding="utf-8"))["blocks"] if origins_path.is_file() else {}
+    hits = hybrid_search(index, query, limit) if semantic else lexical_search(index, query, limit)
+    if not hits:
+        typer.echo("no results")
+        raise typer.Exit(EXIT_OK)
+    for rank, hit in enumerate(hits, 1):
+        anchor = hit.anchor or {}
+        origin = origins.get(anchor.get("block_id", ""), "-")
+        typer.echo(
+            f"{rank:>2}. {hit.kind:<6} p.{anchor.get('page', '?'):<3} {anchor.get('block_id', '-'):<8} "
+            f"{origin:<18} {hit.score:7.3f}  {anchor.get('quote', '')}"
+        )

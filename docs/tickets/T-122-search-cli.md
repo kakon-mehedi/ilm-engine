@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-120, T-142]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 10
 ---
 
@@ -30,8 +30,8 @@ Show search working from the terminal.
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] `ilm-engine search "الدارقطني"` prints results with page numbers and RTL text.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] `ilm-engine search "الدارقطني"` prints results with page numbers and RTL text.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -40,3 +40,6 @@ uv run pytest tests/test_search_cli.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `ilm-engine search "<query>" [--book <pub_ref>] [--out output] [--limit 10] [--semantic]`: one line per hit with rank, kind (unit/entity/block), printed page, block ID, origin layer (from `origin_map.json`), score and the original text (RTL Arabic as stored). `--book` may be omitted when the output root holds a single run; `--semantic` uses the hybrid ranking (falls back to lexical without the model).

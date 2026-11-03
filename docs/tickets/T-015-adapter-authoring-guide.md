@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-014]
 estimate: M
 owner: agent
-status: todo
+status: done
 wave: 5
 ---
 
@@ -34,9 +34,9 @@ Show that a different JSON format (e.g. future output of the OCR team) plugs in 
 - Bbox is kept in `raw_extras` until a canonical field is approved (ADR).
 
 ## Acceptance criteria
-- [ ] Registry resolves both adapters correctly for their inputs.
-- [ ] Pipeline steps E03 run on the OCR-team sample without code changes (may produce issues, must not crash).
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Registry resolves both adapters correctly for their inputs.
+- [x] Pipeline steps E03 run on the OCR-team sample without code changes (may produce issues, must not crash).
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -45,3 +45,9 @@ uv run pytest tests/test_ocr_team_v1.py -q
 
 ## Out of scope
 - Real OCR.
+
+## Follow-ups
+- The OCR-team v1 sample is synthetic (invented short Arabic lines), so its golden files are committed, unlike the Shamela excerpt.
+- The format declares no `pub.source_code` / `metadata.af_schema`; the registry resolves it through `detect()` (`format == "ocr-team"`, major version 1). Lines → text/heading blocks, per-page footnote list → footnote blocks with their marker, no refs (linking is left to the annotation step). Bounding boxes and any other extra keys stay in `raw_extras`.
+- E03 steps (document analysis, structure, origin) run on it unchanged; the gap at page 3 is reported as `missing_page`.
+- `docs/ADAPTERS.md`: recognition order, mapping rules, registration, golden tests, version-bump rules.

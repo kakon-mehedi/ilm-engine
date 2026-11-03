@@ -109,6 +109,7 @@ def _wire(registry: StepRegistry) -> StepRegistry:
     registry.replace("integrity_register", stages.integrity_register)
     registry.replace("document_analysis", stages.document_analysis)
     registry.replace("structure", stages.structure)
+    registry.replace("origin", stages.origin)
     registry.replace("metadata", stages.metadata)
     registry.replace("manifest", manifest_step)
     return registry

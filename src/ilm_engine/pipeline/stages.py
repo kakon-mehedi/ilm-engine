@@ -111,3 +111,12 @@ def metadata(ctx: RunContext) -> StepResult:
 
     record, issues = card_metadata(ctx.data("adapt", "book"), ctx.config)
     return StepResult(files={"metadata.json": record}, data={"metadata": record}, issues=issues)
+
+
+def origin(ctx: RunContext) -> StepResult:
+    from ilm_engine.processors.origin import assign
+
+    result = assign(ctx.data("adapt", "book"), ctx.config)
+    return StepResult(
+        files={"origin_map.json": result.to_json()}, data={"origins": result.blocks, "origin_map": result}
+    )

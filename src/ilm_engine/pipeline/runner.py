@@ -14,6 +14,7 @@ import pickle
 import time
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
 
@@ -47,6 +48,8 @@ class RunContext:
     options: dict[str, Any] = field(default_factory=dict)
     pub_ref: str | None = None  # set by the `adapt` step
     results: dict[str, StepResult] = field(default_factory=dict)
+    records: list[StepRecord] = field(default_factory=list)  # steps finished so far in this run
+    started_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat(timespec="seconds"))
 
     def data(self, step: str, key: str) -> Any:
         """A value produced by an upstream step."""
@@ -187,6 +190,7 @@ class Runner:
             selected = [*self.registry.upstream(only), only]
 
         records: list[StepRecord] = []
+        ctx.records = records
         keys: dict[str, str] = {}
         for name in selected:
             step = self.registry[name]

@@ -99,5 +99,12 @@ def build_registry() -> StepRegistry:
     )
 
 
+def _manifest(ctx: RunContext) -> StepResult:
+    from ilm_engine.pipeline.manifest import manifest_step
+
+    return manifest_step(ctx)
+
+
 PIPELINE = build_registry()
 assert tuple(PIPELINE.names()) == STEP_NAMES
+PIPELINE.replace("manifest", _manifest)

@@ -60,6 +60,7 @@ class Threshold(_Section):
 
 class ReviewConfig(_Section):
     threshold: Threshold
+    inferred_always_review: bool = True
     sensitive_categories: list[SensitiveCategory]
 
 

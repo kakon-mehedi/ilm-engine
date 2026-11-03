@@ -87,7 +87,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-081](T-081-alias-dedup.md) | Alias resolution and de-duplication | E08 | P1 | T-080 | M | 11 | done |
 | [T-082](T-082-sibling-groups.md) | Sibling grouping by closing phrases | E08 | P0 | T-080 | M | 11 | done |
 | [T-083](T-083-relation-kinds.md) | Relation kinds (full/paternal/maternal) incl. لأم ولد rule | E08 | P0 | T-082 | S | 12 | done |
-| [T-084](T-084-inferred-relations.md) | Inferred relations from headings (assertion=inferred) | E08 | P1 | T-073, T-083 | S | 13 | todo |
+| [T-084](T-084-inferred-relations.md) | Inferred relations from headings (assertion=inferred) | E08 | P1 | T-073, T-083 | S | 13 | done |
 | [T-090](T-090-llm-gateway-null-cache.md) | LLM gateway, null provider, response cache | E09 | P0 | T-002 | M | 2 | done |
 | [T-091](T-091-anthropic-provider.md) | Anthropic provider (primary extractor) | E09 | P1 | T-090 | S | 3 | done |
 | [T-092](T-092-litellm-provider.md) | LiteLLM provider (second, independent model family) | E09 | P1 | T-090 | S | 3 | done |

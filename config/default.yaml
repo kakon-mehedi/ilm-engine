@@ -10,6 +10,8 @@ review:
     # Per-category thresholds that replace the default.
     overrides:
       fiqh_ruling: 0.95
+  # Relations the system infers (assertion: inferred) always go to review in the MVP (T-084).
+  inferred_always_review: true
   # Categories that always go to human review, whatever their confidence (DECISIONS §8, ADR-009).
   sensitive_categories:
     - prophetic_attribution

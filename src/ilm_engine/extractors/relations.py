@@ -391,3 +391,111 @@ def relation_kinds(
             )
         )
     return Relations(updated, list(entities.values()), result.groups, result.issues)
+
+
+# --- Inferred relations from section headings (T-084) ---------------------------------------------------
+
+PROPHET_SUBJECTS = {normalize("رسول الله ﷺ"), normalize("رسول الله"), normalize("النبي")}
+
+
+def _subject_entity(
+    subject: str, entities: dict[str, Entity], book: CanonicalBook, config: Config, anchor: Anchor
+) -> str:
+    """The section subject's entity: the Prophet authority, an entity with that exact name, or a new one."""
+    from ilm_engine.extractors.entities import PROPHET_ID
+
+    key = normalize(subject)
+    if key in PROPHET_SUBJECTS:
+        return PROPHET_ID
+    for entity in entities.values():
+        if entity.canonical_name_normalized == key:
+            return entity.entity_id
+    parsed = parse_name(subject)
+    name = parsed.to_person_name() if parsed else PersonName(full_surface=subject)
+    identifier = make_id("ent", book.book.pub_ref, natural_key(key, "section_subject"))
+    confidence = score(config, "rule").score
+    entities[identifier] = Entity(
+        entity_id=identifier,
+        entity_type="person",
+        canonical_name=display_name(subject),
+        canonical_name_normalized=key,
+        name=name,
+        gender="m",
+        mentions=[anchor],
+        confidence=confidence,
+        review_status=decide(config, confidence),
+        provenance=Provenance(method="rule", step=STEP, step_version="1.0.0"),
+    )
+    return identifier
+
+
+def inferred_relations(
+    book: CanonicalBook, units: list[KnowledgeUnit], result: Relations, config: Config
+) -> Relations:
+    """`child_of` the section subject for every entry of a "أولاد / ولد / ذرية X" section, and maternal
+    siblings for a "من أمهم X" heading: inferred, `ai_generated`, evidence = heading + entry, reviewed."""
+    pub_ref = book.book.pub_ref
+    entities = {e.entity_id: e for e in result.entities}
+    stated = {(r.type, r.subject_entity_id) for r in result.relationships if r.assertion == "stated"}
+    confidence = score(config, "llm").score
+    status = "pending_review" if config.review.inferred_always_review else decide(config, confidence)
+    provenance = Provenance(method="rule", step=STEP, step_version="1.0.0")
+    added: list[Relationship] = []
+    by_section: dict[str, list[KnowledgeUnit]] = {}
+    for unit in sorted(units, key=lambda u: u.entry_no or 0):
+        by_section.setdefault(unit.section_id, []).append(unit)
+
+    def relation(
+        type_: str, subject: str, obj: str, evidence: list[Anchor], attrs: RelationshipAttrs
+    ) -> Relationship:
+        return Relationship(
+            relation_id=make_id("rel", pub_ref, natural_key(type_, subject, obj, "inferred")),
+            type=type_,  # type: ignore[arg-type]
+            subject_entity_id=subject,
+            object_entity_id=obj,
+            attrs=attrs,
+            evidence=evidence,
+            origin="ai_generated",
+            assertion="inferred",
+            confidence=confidence,
+            review_status=status,  # type: ignore[arg-type]
+            provenance=provenance,
+        )
+
+    for section_units in by_section.values():
+        payload = section_units[0].payload
+        heading = payload.get("section_heading_anchor")
+        subject = payload.get("section_subject")
+        if not heading or not subject:
+            continue
+        heading_anchor = Anchor.model_validate(heading)
+        parent_id = _subject_entity(subject, entities, book, config, heading_anchor)
+        mother = payload.get("section_mother")
+        for unit in section_units:
+            child = unit.subject_entity_id
+            if not child or ("child_of", child) in stated:
+                continue  # a stated parent (closure phrase) outranks the heading
+            evidence = [heading_anchor, unit.anchors[0]]
+            if mother:
+                # "وأخوة أولاد رسول الله من أمهم خديجة": these are the Prophet's children's maternal siblings.
+                children = [
+                    u.subject_entity_id
+                    for other in by_section.values()
+                    for u in other
+                    if u.subject_entity_id
+                    and other[0].payload.get("section_subject") == subject
+                    and not other[0].payload.get("section_mother")
+                ]
+                for sibling in children:
+                    added.append(
+                        relation(
+                            "sibling_of",
+                            child,
+                            sibling,
+                            evidence,
+                            RelationshipAttrs(kind="maternal", mother_status="named"),
+                        )
+                    )
+            else:
+                added.append(relation("child_of", child, parent_id, evidence, RelationshipAttrs()))
+    return Relations([*result.relationships, *added], list(entities.values()), result.groups, result.issues)

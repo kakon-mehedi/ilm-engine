@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-012]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 4
 ---
 
@@ -31,9 +31,9 @@ Data-flow step 2: understand the document before enriching it.
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] Report: 594 blocks; text 260, footnote 317, heading 15, toc_heading 2; 68 pages; refs 300/300 resolvable; 16 continued footnotes; spans c2 230, c5 64, c1 8, c4 2.
-- [ ] Issue `page_count_mismatch` present with claimed 72 / held 68.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Report: 594 blocks; text 260, footnote 317, heading 15, toc_heading 2; 68 pages; refs 300/300 resolvable; 16 continued footnotes; spans c2 230, c5 64, c1 8, c4 2.
+- [x] Issue `page_count_mismatch` present with claimed 72 / held 68.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -42,3 +42,9 @@ uv run pytest tests/test_document_analysis.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `analyze(book) -> (DocumentReport, issues)` fills every field of 03-data-contracts §5; the step is wired (`stages.document_analysis`) and writes `document_report.json`.
+- `page_count_mismatch` is raised as a warning with claimed 72 / held 68, the missing printed pages and a note that the source check passed although 5.56% short exceeds its 5% tolerance. T-031 classifies the gaps and downgrades it to info.
+- Shared helper `enrichment/issues.py::make_issue` builds issues with deterministic IDs (`code|target[|key]`); `tests/conftest.py` provides the sample book fixtures.
+- Duplicate blocks are groups of non-empty blocks with identical text (e.g. the `* * * * *` separators).

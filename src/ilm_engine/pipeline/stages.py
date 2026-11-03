@@ -86,3 +86,10 @@ def integrity_register(ctx: RunContext) -> StepResult:
         },
         issues=list(stored.issues),
     )
+
+
+def document_analysis(ctx: RunContext) -> StepResult:
+    from ilm_engine.processors.document_analysis import analyze
+
+    report, issues = analyze(ctx.data("adapt", "book"))
+    return StepResult(files={"document_report.json": report}, data={"report": report}, issues=issues)

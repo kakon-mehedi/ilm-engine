@@ -6,7 +6,7 @@ priority: P2
 depends_on: [T-060]
 estimate: M
 owner: agent
-status: todo
+status: done
 wave: 2
 ---
 
@@ -31,9 +31,9 @@ Requirement D: morphological analysis, root, lemma. Optional so the MVP runs wit
 - Tests for the real backend are skipped if camel-tools not installed.
 
 ## Acceptance criteria
-- [ ] Without camel-tools the pipeline runs and `analyze` returns [].
-- [ ] With camel-tools, 'أسلمت' yields root containing س-ل-م.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Without camel-tools the pipeline runs and `analyze` returns [].
+- [x] With camel-tools, 'أسلمت' yields root containing س-ل-م.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -42,3 +42,8 @@ uv run pytest tests/test_morphology.py -q
 
 ## Out of scope
 - Farasa (production option).
+
+## Follow-ups
+- `analyze(word, enabled)` takes the `features.camel_tools` flag from the caller (config is loaded once by the runner). A missing library or morphology database degrades to `[]` with one log line, never an error.
+- `roots_and_lemmas(words, enabled)` is the hook for search index entries; T-120 decides where the fields go.
+- camel-tools is not installed in this environment, so the real-backend test (root س-ل-م for 'أسلمت') is skipped; it runs once the `nlp` extra and its database are installed.

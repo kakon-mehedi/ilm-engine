@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-020]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 2
 ---
 
@@ -33,10 +33,10 @@ Originals are copied once into a content-addressed store and never written again
 - Never touch `data/` (only read).
 
 ## Acceptance criteria
-- [ ] After ingest, files are mode 0444 and `verify()` returns True.
-- [ ] Modifying a stored copy (in a tmp test) makes `verify()` False.
-- [ ] Hash of `data/demo_book_daraqutni.json` unchanged after ingest.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] After ingest, files are mode 0444 and `verify()` returns True.
+- [x] Modifying a stored copy (in a tmp test) makes `verify()` False.
+- [x] Hash of `data/demo_book_daraqutni.json` unchanged after ingest.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -45,3 +45,8 @@ uv run pytest tests/test_store.py -q
 
 ## Out of scope
 - MinIO/S3 (production).
+
+## Follow-ups
+- `ingest(json_path, pdf_path, pub_ref, declared_hash=None, store_root=store/originals)`: the declared hash is passed in by the caller (the adapter knows where the source keeps it), so the store stays format-agnostic. It counts as verified only if it equals the sha256 of a stored file's bytes; otherwise `StoredOriginal.issues` holds `source_hash_unverified` (info).
+- Immutability: re-ingesting identical files returns the existing entry without rewriting anything; different files for the same `pub_ref` raise `OriginalStoreError`. `manifest.json` is read-only too.
+- `verify` also fails if a stored file became writable or is missing.

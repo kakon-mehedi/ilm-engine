@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-002, T-003, T-020]
 estimate: M
 owner: agent
-status: todo
+status: done
 wave: 2
 ---
 
@@ -33,10 +33,10 @@ MVP orchestration mirrors Prefect: named steps, declared inputs/outputs, retries
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] Second run with no changes executes 0 steps (all cached).
-- [ ] Changing config threshold re-runs only validation+downstream steps.
-- [ ] `ilm-engine run --list-steps` prints the 21 step names in the order above.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Second run with no changes executes 0 steps (all cached).
+- [x] Changing config threshold re-runs only validation+downstream steps.
+- [x] `ilm-engine run --list-steps` prints the 21 step names in the order above.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -45,3 +45,10 @@ uv run pytest tests/test_runner.py -q
 
 ## Out of scope
 - Prefect (T-160).
+
+## Follow-ups
+- The cache key covers only the config sections a step declares (`Step.config`), not the whole config hash; otherwise any config change would re-run every step and the criterion "a threshold change re-runs only validation and downstream" could not hold. The full `config_hash` still goes into the run manifest (T-141).
+- A cache hit also requires the step's output files to exist with their recorded hashes; a deleted or edited output re-runs that step. Cached results (in-memory data + issues) are pickled under `.cache/steps/<step>/<key>.pkl`; this is a local cache written only by the runner.
+- Steps are registered with placeholder functions (reported `skipped`); each later ticket attaches its implementation with `PIPELINE.replace(name, fn)`. Dependencies follow 02-architecture §4.
+- `ilm-engine run` gained `--list-steps`, `--only`, `--from`, `--no-cache`, `--input` and `--out`; T-142 completes the CLI (`--llm`, `--pdf`, other commands).
+- `pipeline/README.md` maps the steps to the assignment's 12 data-flow steps.

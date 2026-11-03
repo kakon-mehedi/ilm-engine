@@ -110,7 +110,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-130](T-130-gold-index-sample.md) | Gold sample from printed index (PDF pp. 76–80) | E13 | P1 | T-001 | M | 1 | done |
 | [T-131](T-131-eval-precision-recall.md) | Entity evaluation (precision/recall vs gold) | E13 | P1 | T-130, T-081 | S | 12 | todo |
 | [T-132](T-132-eval-report.md) | Evaluation & run summary report | E13 | P1 | T-131, T-141 | S | 13 | todo |
-| [T-140](T-140-step-runner.md) | Step registry & DAG runner (cached, idempotent) | E14 | P0 | T-002, T-003, T-020 | M | 2 | todo |
+| [T-140](T-140-step-runner.md) | Step registry & DAG runner (cached, idempotent) | E14 | P0 | T-002, T-003, T-020 | M | 2 | done |
 | [T-141](T-141-run-manifest.md) | Run manifest (provenance of a run) | E14 | P0 | T-140 | S | 3 | todo |
 | [T-142](T-142-cli.md) | CLI: run | verify | search | eval | review apply | E14 | P0 | T-140, T-021 | S | 3 | todo |
 | [T-143](T-143-e2e-determinism.md) | End-to-end integration test + determinism | E14 | P0 | T-142, T-112 | S | 12 | todo |

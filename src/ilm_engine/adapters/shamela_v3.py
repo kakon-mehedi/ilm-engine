@@ -24,9 +24,43 @@ from ilm_engine.canonical.models import (
     TocEntry,
 )
 from ilm_engine.integrity.hashing import block_hash, content_hash
+from ilm_engine.log import get_logger
 from ilm_engine.nlp.arabic_digits import to_int
 
+log = get_logger("adapters.shamela_v3")
+
 _PDF_PAGE = re.compile(rb"/Type\s*/Page(?![a-zA-Z])")
+
+# Keys the adapter maps; everything else is preserved verbatim in raw_extras (T-013).
+_MAPPED = {
+    "pub": {
+        "id",
+        "work_id",
+        "source_code",
+        "source_book_key",
+        "claim_type",
+        "edition_ref",
+        "title_as_source",
+        "author_as_source",
+        "category",
+    },
+    "revision": {"r", "adapter_semver"},
+    "metadata": {"af_schema", "identity", "source_attributes"},
+    "content": {"content_sha256", "pages"},
+}
+_MAPPED_ATTRIBUTES = {
+    "author",
+    "card",
+    "edition",
+    "editor",
+    "page_count",
+    "page_numbering",
+    "publisher",
+    "source_category_id",
+    "toc",
+}
+_PAGE_KEYS = {"n", "volume", "blocks", "scan_page", "source_ref"}
+_BLOCK_KEYS = {"b", "kind", "text", "marker", "continues", "refs", "spans"}
 
 
 class SourceFormatError(AdapterError):
@@ -113,8 +147,35 @@ class ShamelaV3Adapter:
             scan=self._scan(raw, pdf_path),
             pages=pages,
             blocks={block.block_id: block for block in blocks},
+            raw_extras=self._raw_extras(raw, pages, blocks),
             canonical_content_hash=content_hash(blocks),
         )
+
+    def _raw_extras(self, raw: dict[str, Any], pages: list[Page], blocks: list[Block]) -> dict[str, Any]:
+        """Every source field the canonical model does not map, verbatim: `{"top": ..., "blocks": ...}`."""
+        top: dict[str, Any] = {}
+        for key, value in raw.items():
+            mapped = _MAPPED.get(key)
+            if mapped is None:
+                top[key] = value  # _meta, quality, timeline, work, editions, unknown sections
+                continue
+            rest = {sub: sub_value for sub, sub_value in value.items() if sub not in mapped}
+            if key == "metadata":
+                attributes = value.get("source_attributes") or {}
+                extra_attributes = {k: v for k, v in attributes.items() if k not in _MAPPED_ATTRIBUTES}
+                if extra_attributes:
+                    rest["source_attributes"] = extra_attributes
+            if rest:
+                top[key] = rest
+        block_extras = {block.block_id: dict(block.raw_extras) for block in blocks if block.raw_extras}
+        unmapped = sorted(
+            [f"top.{key}" for key in top]
+            + [f"pages.{page.n}.{key}" for page in pages for key in page.raw_extras]
+            + [f"blocks.{block_id}.{key}" for block_id, extras in block_extras.items() for key in extras]
+        )
+        if unmapped:
+            log.warning("unmapped source fields kept in raw_extras", extra={"fields": unmapped})
+        return {"top": top, "blocks": block_extras}
 
     def _pages_and_blocks(self, raw: dict[str, Any]) -> tuple[list[Page], list[Block]]:
         source_pages = _get(raw, "content.pages")
@@ -148,6 +209,7 @@ class ShamelaV3Adapter:
                         for s in source_block.get("spans") or []
                     ],
                     block_hash=block_hash(text),
+                    raw_extras={k: v for k, v in source_block.items() if k not in _BLOCK_KEYS},
                 )
                 blocks.append(block)
                 block_ids.append(block.block_id)
@@ -159,6 +221,7 @@ class ShamelaV3Adapter:
                     source_key=str(_get(source_page, "source_ref.key")),
                     source_url=_str_or_none(_get(source_page, "source_ref.url", False)),
                     block_ids=block_ids,
+                    raw_extras={k: v for k, v in source_page.items() if k not in _PAGE_KEYS},
                 )
             )
         return pages, blocks

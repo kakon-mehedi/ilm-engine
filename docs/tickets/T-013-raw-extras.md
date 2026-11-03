@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-012]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 4
 ---
 
@@ -32,9 +32,9 @@ If the source JSON gains new fields, we must not silently lose them.
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] Adding `"foo": 1` to a block in a test copy ends up in `raw_extras.blocks[<id>].foo`.
-- [ ] `raw_extras.top.quality.auto.detail.claimed == 72`.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Adding `"foo": 1` to a block in a test copy ends up in `raw_extras.blocks[<id>].foo`.
+- [x] `raw_extras.top.quality.auto.detail.claimed == 72`.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -43,3 +43,9 @@ uv run pytest tests/test_raw_extras.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `CanonicalBook.raw_extras = {"top": ..., "blocks": {block_id: ...}}` as specified, and, per the data contract, unknown page/block keys also sit on `Page.raw_extras` / `Block.raw_extras`.
+- `top` keeps verbatim every top-level section the adapter does not fully map (`_meta`, `quality`, `timeline`, `work`, `editions`, any new section), plus the unmapped sub-keys of mapped sections (`pub.listing_title`, `revision.origin`, `metadata.source_extras`, `metadata.source_attributes.card_html`, …), so no source field is lost.
+- One warning lists all unmapped paths (`fields` in the log record).
+- `raw_extras` is not part of `canonical_content_hash`, which covers block content only.

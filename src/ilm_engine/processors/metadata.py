@@ -16,6 +16,7 @@ from ilm_engine.config import Config
 from ilm_engine.enrichment.issues import make_issue
 from ilm_engine.enrichment.models import Anchor, BookMetadata, Issue, MetadataField, MetadataSource, Origin
 from ilm_engine.nlp.arabic_digits import to_int, words_to_int
+from ilm_engine.nlp.nasab import parse_name
 from ilm_engine.nlp.normalize import normalize
 from ilm_engine.processors.structure import Structure
 from ilm_engine.validation.confidence import decide, score
@@ -316,3 +317,114 @@ def content_metadata(
             )
         )
     return record.model_copy(update=updates), findings, issues
+
+
+# --- Conflicts and variants between card and content (T-042) ------------------------------------------
+
+# Bibliographic fields the record should have but the source card never provides.
+EXPECTED_FIELDS = ("isbn",)
+FRONT_MATTER_LAST_PAGE = 19  # title pages, introduction and the manuscript title page (p.17)
+
+
+def _author_mentions(book: CanonicalBook, record: BookMetadata) -> list[tuple[Anchor, Any]]:
+    """Name forms of the author printed in the front matter: (anchor, parsed name)."""
+    card = (
+        parse_name(record.author.value["name"])
+        if record.author.value and record.author.value.get("name")
+        else None
+    )
+    if card is None or card.ism is None or not card.chain:
+        return []
+    needle = normalize(f"{card.ism} بن {card.chain[0]}")
+    mentions = []
+    for block in book.blocks_in_order():
+        if (
+            block.page > FRONT_MATTER_LAST_PAGE
+            or block.kind == "footnote"
+            or needle not in normalize(block.text)
+        ):
+            continue
+        name = parse_name(block.text)
+        if name is not None and name.ism == card.ism and name.chain:
+            mentions.append((_anchor(book, block.block_id, name.span[0], name.span[1]), name))
+    return mentions
+
+
+def metadata_conflicts(
+    book: CanonicalBook, record: BookMetadata, findings: list[ContentFinding]
+) -> tuple[BookMetadata, list[Issue]]:
+    """Record title variants, author-name conflicts and missing fields; never auto-resolve them."""
+    pub_ref = book.book.pub_ref
+    issues: list[Issue] = []
+    updates: dict[str, Any] = {}
+
+    card_title = record.title.value
+    variants = [card_title] if card_title else []
+    title_anchors = []
+    for finding in findings:
+        if finding.field == "title" and finding.value not in variants:
+            variants.append(finding.value)
+            title_anchors += finding.anchors
+    if len(variants) > 1:
+        same = len({normalize(variant) for variant in variants}) == 1
+        conflicts = [{"value": v, "source": "book_content"} for v in variants[1:]]
+        updates["title_variants"] = variants
+        updates["title"] = record.title.model_copy(
+            update={"conflicts": [*record.title.conflicts, *conflicts]}
+        )
+        issues.append(
+            make_issue(
+                pub_ref,
+                "title_variant",
+                "info" if same else "warning",
+                "metadata_field",
+                "title",
+                f"Title spelled {' / '.join(repr(v) for v in variants)}"
+                + (" (equal after normalization)." if same else "."),
+                STEP,
+                details={"variants": variants, "equal_after_normalization": same},
+                anchors=title_anchors,
+            )
+        )
+
+    card_name = record.author.value.get("name") if isinstance(record.author.value, dict) else None
+    card = parse_name(card_name) if card_name else None
+    author_conflicts = []
+    for anchor, name in _author_mentions(book, record):
+        if card is None or name.chain == card.chain:
+            continue
+        shorter, longer = sorted([list(card.chain), list(name.chain)], key=len)
+        additive = longer[: len(shorter)] == shorter
+        author_conflicts.append(
+            {"value": anchor.quote, "source": "book_content", "block_id": anchor.block_id}
+        )
+        issues.append(
+            make_issue(
+                pub_ref,
+                "metadata_conflict",
+                "info" if additive else "warning",
+                "metadata_field",
+                "author",
+                f"Author name on page {anchor.page} ({anchor.quote!r}) "
+                + ("adds to" if additive else "differs from")
+                + f" the card ({card_name!r}).",
+                STEP,
+                details={
+                    "card_chain": list(card.chain),
+                    "text_chain": list(name.chain),
+                    "additive": additive,
+                },
+                anchors=[anchor],
+                key=anchor.block_id,
+            )
+        )
+    if author_conflicts:
+        updates["author"] = record.author.model_copy(
+            update={"conflicts": [*record.author.conflicts, *author_conflicts]}
+        )
+
+    updates["missing_fields"] = sorted(set(record.missing_fields) | set(EXPECTED_FIELDS))
+    updated = record.model_copy(update=updates)
+    return updated.model_copy(
+        update={"issues": sorted({*updated.issues, *(i.issue_id for i in issues)})}
+    ), issues

@@ -107,7 +107,7 @@ def structure(ctx: RunContext) -> StepResult:
 
 
 def metadata(ctx: RunContext) -> StepResult:
-    from ilm_engine.processors.metadata import card_metadata, content_metadata
+    from ilm_engine.processors.metadata import card_metadata, content_metadata, metadata_conflicts
 
     book = ctx.data("adapt", "book")
     record, issues = card_metadata(book, ctx.config)
@@ -119,10 +119,11 @@ def metadata(ctx: RunContext) -> StepResult:
         ctx.config,
         llm_available=ctx.options.get("llm", "null") not in ("null",),
     )
+    record, conflicts = metadata_conflicts(book, record, findings)
     return StepResult(
         files={"metadata.json": record},
         data={"metadata": record, "findings": findings},
-        issues=[*issues, *more],
+        issues=[*issues, *more, *conflicts],
     )
 
 

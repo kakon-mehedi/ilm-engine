@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-041]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 7
 ---
 
@@ -31,9 +31,9 @@ Requirement A: identify missing or inconsistent metadata.
 - Variants are recorded, never auto-resolved.
 
 ## Acceptance criteria
-- [ ] Issue `title_variant` with both forms and anchors.
-- [ ] `missing` contains at least `isbn`.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Issue `title_variant` with both forms and anchors.
+- [x] `missing` contains at least `isbn`.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -42,3 +42,9 @@ uv run pytest tests/test_metadata_conflicts.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `metadata_conflicts(book, record, findings)` records, never resolves: `title_variants` = card form + title-page form, both also in `title.conflicts`; issue `title_variant` (info when equal after normalization, as here) with the b000001 anchor.
+- Author name: front-matter blocks (pages ≤ 19) mentioning the author are parsed with the nasab parser and compared with the card's chain. p.17 b000083 adds "بن مهدي" → `metadata_conflict` info, `additive: true` (the card chain is a prefix); a contradictory chain would be a warning. Conflicts are appended to `author.conflicts` with their block.
+- `missing_fields` always includes bibliographic fields the card never provides (`isbn`). The page-count conflict is T-030/T-031's `page_count_mismatch`.
+- Wired into the `metadata` step after the card and content passes.

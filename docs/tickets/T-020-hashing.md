@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-001]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 1
 ---
 
@@ -33,9 +33,9 @@ Integrity is proved with hashes (Section 6: original content untouched).
 - Declared Shamela `content_sha256` is NOT reproducible by us → stored with issue `source_hash_unverified` (T-021).
 
 ## Acceptance criteria
-- [ ] Hash of 'أسلمت' is stable and differs from its normalized form 'اسلمت'.
-- [ ] `content_hash` identical across two adapter runs.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Hash of 'أسلمت' is stable and differs from its normalized form 'اسلمت'.
+- [x] `content_hash` identical across two adapter runs.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -44,3 +44,9 @@ uv run pytest tests/test_hashing.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `content_hash` accepts a `CanonicalBook` or the blocks themselves, because the adapter (T-012) must compute `canonical_content_hash` before it can build the (required-field) book. Rows are `[block_id, kind, text, marker, [[start, end, to], …]]` in `order`; spans and `continues` are not hashed (presentation, not content).
+- `file_sha256` returns `sha256:<hex>`, the same form as every other hash.
+- "Identical across two adapter runs" is tested by building all 594 sample blocks twice; T-014's golden tests re-check it through the real adapter.
+- As expected, our content hash does not reproduce the declared Shamela `content_sha256` (Q-HASH, ADR-017).

@@ -109,18 +109,18 @@ This file shows that every line of the client's technical assignment brief is co
 
 | Step | Line | FR | Pipeline step (`pipeline/steps.py`) | Tickets | Status |
 |---|---|---|---|---|---|
-| 4.1 | Receive digitized text, PDF, identifiers | FR-001–FR-004, FR-010 | `ingest` → `adapt` → `store_originals` | T-010–T-015, T-020 | Built |
-| 4.2 | Analyse document structure | FR-040, FR-022 | `analyse_document`, `build_structure`, `assign_origin` | T-030–T-034 | Built |
-| 4.3 | Extract and enrich metadata | FR-020–FR-022 | `extract_metadata` | T-040–T-042 | Built |
-| 4.4 | Identify genre and related works | FR-070, FR-031, FR-032 | `classify_genre`, `find_related_works` | T-093, T-053, T-084 | Built |
-| 4.5 | Structural and semantic indexes | FR-040, FR-042 | `build_structure`, `build_search_index` | T-031, T-120, T-121 | Built / optional semantic |
-| 4.6 | Identify and map annotations and references | FR-060–FR-063 | `map_annotations`, `extract_citations`, `resolve_internal_refs` | T-050–T-054 | Built |
-| 4.7 | Extract genre-specific knowledge units | FR-041, FR-071 | `extract_units`, `llm_extract` | T-070–T-073, T-094 | Built |
-| 4.8 | Identify entities and relationships | FR-080, FR-081, FR-052 | `extract_entities`, `extract_relations` | T-080–T-084 | Built |
+| 4.1 | Receive digitized text, PDF, identifiers | FR-001–FR-004, FR-010 | `ingest` → `adapt` → `integrity_register` | T-010–T-015, T-020 | Built |
+| 4.2 | Analyse document structure | FR-040, FR-022 | `document_analysis`, `structure`, `origin` | T-030–T-034 | Built |
+| 4.3 | Extract and enrich metadata | FR-020–FR-022 | `metadata` | T-040–T-042 | Built |
+| 4.4 | Identify genre and related works | FR-070, FR-031, FR-032 | `genre`, `related_works` | T-095, T-053, T-084 | Built |
+| 4.5 | Structural and semantic indexes | FR-040, FR-042 | `structure`, `search_index` | T-032, T-035, T-120, T-121 | Built / optional semantic |
+| 4.6 | Identify and map annotations and references | FR-060–FR-063 | `annotations`, `citations` | T-050–T-054 | Built |
+| 4.7 | Extract genre-specific knowledge units | FR-041, FR-071 | `units` | T-070–T-073, T-094 | Built |
+| 4.8 | Identify entities and relationships | FR-080, FR-081, FR-052 | `entities`, `relations` | T-080–T-084 | Built |
 | 4.9 | Validate with AI-based quality checks | FR-090–FR-093 | `validate` | T-100–T-103 | Built |
-| 4.10 | Send uncertain or sensitive results to human review | FR-100–FR-102 | `route_review` | T-103–T-105 | Built |
+| 4.10 | Send uncertain or sensitive results to human review | FR-100–FR-102 | `review_queue` | T-103–T-105 | Built |
 | 4.11 | Store approved info in the enrichment layer | FR-110 | `store` | T-110, T-111 | Built |
-| 4.12 | Make enriched books and knowledge available for publishing and search | FR-111, FR-112, FR-053 | `export`, `build_search_index` | T-112, T-120–T-122, T-160 | Built (files) / Designed (API) |
+| 4.12 | Make enriched books and knowledge available for publishing and search | FR-111, FR-112, FR-053 | `export`, `search_index` | T-112, T-120–T-122, T-160 | Built (files) / Designed (API) |
 
 ## §5 Initial deliverables
 

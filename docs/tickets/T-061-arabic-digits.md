@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-001]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 1
 ---
 
@@ -32,8 +32,8 @@ Entries, locators and dates use Arabic-Indic digits; dates also appear as words.
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] All examples above pass; 'سنةٍ خمسٍ وثمانين وثلاث مئة' (with tanween) → 385.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] All examples above pass; 'سنةٍ خمسٍ وثمانين وثلاث مئة' (with tanween) → 385.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -42,3 +42,8 @@ uv run pytest tests/test_arabic_digits.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `words_to_int` follows Arabic word order (units, then tens, then hundreds) and applies a multiplier only to the unit just before it, so "خمس وثمانين وثلاث مئة" = 5 + 80 + 300. It also handles teens (ثلاثة عشر), joined hundreds (أربعمائة), duals (مائتين, ألفين) and thousands (ألف وأربعمائة وثلاثة عشر = 1413). Words before/after the phrase (e.g. "سنة") are skipped; an unknown word inside it raises. Verified on the real b000049 [24:51] → 385.
+- `parse_locator` covers `(vol/ page)` and `(page)`; the other locator forms `(ص: n)` and `(رقم: n)` belong to the citation parser (T-053).
+- Self-contained (strips diacritics itself) because this ticket depends only on T-001, not on the normalizer.

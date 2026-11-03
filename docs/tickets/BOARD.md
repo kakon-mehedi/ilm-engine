@@ -76,7 +76,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-053](T-053-citations.md) | Citations + related works (book family) extraction | E05 | P0 | T-050, T-060 | M | 7 | todo |
 | [T-054](T-054-internal-references.md) | Internal cross-references | E05 | P1 | T-070, T-053 | S | 8 | todo |
 | [T-060](T-060-arabic-normalizer.md) | Arabic search normalizer | E06 | P0 | T-001 | S | 1 | done |
-| [T-061](T-061-arabic-digits.md) | Arabic-Indic digits and number words | E06 | P0 | T-001 | S | 1 | todo |
+| [T-061](T-061-arabic-digits.md) | Arabic-Indic digits and number words | E06 | P0 | T-001 | S | 1 | done |
 | [T-062](T-062-nasab-parser.md) | Nasab (lineage chain) parser | E06 | P0 | T-060 | M | 2 | todo |
 | [T-063](T-063-camel-tools-adapter.md) | Optional CAMeL Tools morphology adapter | E06 | P2 | T-060 | M | 2 | todo |
 | [T-070](T-070-entry-detection.md) | Biographical entry detection (75 entries) | E07 | P0 | T-034, T-061 | M | 6 | todo |

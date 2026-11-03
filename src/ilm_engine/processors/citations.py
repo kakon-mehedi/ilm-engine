@@ -21,7 +21,16 @@ from pydantic import BaseModel, ConfigDict
 from ilm_engine.canonical.models import Block, CanonicalBook
 from ilm_engine.config import DEFAULT_CONFIG_DIR, Config
 from ilm_engine.enrichment.issues import make_issue
-from ilm_engine.enrichment.models import Anchor, Citation, Issue, Locator, Origin, Provenance, Work
+from ilm_engine.enrichment.models import (
+    Anchor,
+    Citation,
+    InternalRef,
+    Issue,
+    Locator,
+    Origin,
+    Provenance,
+    Work,
+)
 from ilm_engine.ids import make_id
 from ilm_engine.nlp.arabic_digits import to_int
 from ilm_engine.nlp.normalize import normalize
@@ -244,3 +253,78 @@ def _anchor(
         quote=block.text[start:end],
         block_hash=block.block_hash,
     )
+
+
+# --- Internal cross-references (T-054) -----------------------------------------------------------------
+
+_N = r"\((?P<{name}>[٠-٩0-9]+)\)"
+_TAQADDUM = r"(?<!\S)(?:و?قد\s+)?و?تقدم[َّ]?(?:ت)?(?:\s+(?:ترجمت(?:ها|ه)|ذكرها|ذكره))?"
+_INTERNAL = re.compile(
+    rf"(?P<earlier>{_TAQADDUM}[،,]?\s*برقم\s*{_N.format(name='earlier_no')})"
+    rf"|(?P<entry>(?:ترجمة\s+رقم|برقم|(?<![(:])رقم)\s*{_N.format(name='number')})"
+    r"|(?P<forward>(?:كما\s+)?سيأت[يى](?:\s+(?:تخريجه|ذكره|ترجمته|بيانه))?)"
+    rf"|(?P<backward>{_TAQADDUM}(?:\s*\(ص:\s*(?P<page>[٠-٩0-9]+)\))?)"
+)
+# A bare "رقم (n)" right after a citation ('"الكبير" (١/ ٣٢) رقم (٩٩)') is a hadith number, not an entry.
+_AFTER_CITATION = re.compile(r'["»)]\s*[،,]?\s*$')
+
+
+@dataclass
+class InternalRefs:
+    refs: list[InternalRef]
+    issues: list[Issue] = field(default_factory=list)
+
+
+def internal_refs(book: CanonicalBook, unit_ids_by_entry: dict[int, str]) -> InternalRefs:
+    """References to other parts of the same book: by entry number (resolved to that entry's unit),
+    forward ("سيأتي") and backward ("تقدم"). Hadith numbers "(رقم: n)" are citation locators, not
+    internal references."""
+    pub_ref = book.book.pub_ref
+    scan_pages = {(page.volume, page.n): page.scan_page for page in book.pages}
+    refs: list[InternalRef] = []
+    issues: list[Issue] = []
+    for block in book.blocks_in_order():
+        for match in _INTERNAL.finditer(block.text):
+            if match.group("earlier"):
+                kind, number = "entry_number", to_int(match.group("earlier_no"))
+            elif match.group("entry"):
+                bare = match.group(0).startswith("رقم")
+                if bare and _AFTER_CITATION.search(block.text[: match.start()]):
+                    continue
+                kind, number = "entry_number", to_int(match.group("number"))
+            elif match.group("forward"):
+                kind, number = "forward", None
+            else:
+                kind, number = "backward", None
+            target = unit_ids_by_entry.get(number) if number is not None else None
+            anchor = _anchor(block, match.start(), match.end(), pub_ref, scan_pages)
+            ref = InternalRef(
+                internal_ref_id=make_id("ann", pub_ref, f"{block.block_id}|{match.start()}|internal"),
+                kind=kind,  # type: ignore[arg-type]
+                anchor=anchor,
+                target_unit_id=target,
+                target_entry_no=number,
+                status="resolved" if target else "unresolved",
+                provenance=_PROVENANCE,
+            )
+            refs.append(ref)
+            if target is None:
+                page = match.group("page")
+                issues.append(
+                    make_issue(
+                        pub_ref,
+                        "unresolved_internal_ref",
+                        "info",
+                        "annotation",
+                        ref.internal_ref_id,
+                        f"{kind} reference {anchor.quote!r} in {block.block_id} has no resolvable target.",
+                        STEP,
+                        details={
+                            "kind": kind,
+                            "entry_no": number,
+                            "printed_page": to_int(page) if page else None,
+                        },
+                        anchors=[anchor],
+                    )
+                )
+    return InternalRefs(refs, issues)

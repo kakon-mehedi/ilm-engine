@@ -156,13 +156,21 @@ def annotate(ctx: RunContext) -> StepResult:
 
 
 def citations(ctx: RunContext) -> StepResult:
-    from ilm_engine.processors.citations import extract
+    from ilm_engine.extractors.units import detect_entries, unit_id
+    from ilm_engine.processors.citations import extract, internal_refs
 
-    result = extract(ctx.data("adapt", "book"), ctx.data("origin", "origins"), ctx.config)
+    book, origins = ctx.data("adapt", "book"), ctx.data("origin", "origins")
+    result = extract(book, origins, ctx.config)
+    entries = detect_entries(book, origins, ctx.config).entries
+    refs = internal_refs(book, {entry.entry_no: unit_id(book.book.pub_ref, entry) for entry in entries})
     return StepResult(
-        files={"citations.json": result.to_json()},
-        data={"citations": result, "counts": {"citations": len(result.citations)}},
-        issues=result.issues,
+        files={"citations.json": {**result.to_json(), "internal_refs": refs.refs}},
+        data={
+            "citations": result,
+            "internal_refs": refs,
+            "counts": {"citations": len(result.citations), "internal_refs": len(refs.refs)},
+        },
+        issues=[*result.issues, *refs.issues],
     )
 
 

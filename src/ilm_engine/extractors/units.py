@@ -16,6 +16,7 @@ from ilm_engine.canonical.models import Block, CanonicalBook
 from ilm_engine.config import Config
 from ilm_engine.enrichment.issues import make_issue
 from ilm_engine.enrichment.models import Anchor, Issue, Origin
+from ilm_engine.ids import make_id, natural_key
 from ilm_engine.nlp.arabic_digits import to_int
 
 STEP = "units"
@@ -31,6 +32,12 @@ class Entry:
     @property
     def block_id(self) -> str:
         return self.anchors[0].block_id
+
+
+def unit_id(pub_ref: str, entry: Entry) -> str:
+    """Knowledge-unit ID of an entry: `ku` + `entry_no|block_id|start` (ADR-011)."""
+    first = entry.anchors[0]
+    return make_id("ku", pub_ref, natural_key(entry.entry_no, first.block_id, first.start))
 
 
 @dataclass

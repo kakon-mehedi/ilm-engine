@@ -65,7 +65,7 @@ def build_registry() -> StepRegistry:
             ),
             _step("genre", "adapt", "metadata", config=("llm",)),
             _step("annotations", "adapt", "origin", outputs=("annotations.json",)),
-            _step("citations", "annotations", "origin", outputs=("citations.json",)),
+            _step("citations", "annotations", "origin", outputs=("citations.json",), config=("entries",)),
             _step("related_works", "citations", "metadata", outputs=("related_works.json",), config=("llm",)),
             _step(
                 "units",

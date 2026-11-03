@@ -274,7 +274,9 @@ def validate(ctx: RunContext) -> StepResult:
     structure = _optional(ctx, "structure", "structure", None)
     records = Records(
         units=list(_optional(ctx, "entities", "units", None) or _optional(ctx, "units", "units", [])),  # type: ignore[call-overload,arg-type]
-        entities=list(_optional(ctx, "entities", "entities", [])),  # type: ignore[call-overload]
+        entities=list(
+            _optional(ctx, "relations", "entities", None) or _optional(ctx, "entities", "entities", [])
+        ),  # type: ignore[call-overload,arg-type]
         relationships=list(_optional(ctx, "relations", "relationships", [])),  # type: ignore[call-overload]
         works=list(related.works) if related else [],  # type: ignore[attr-defined]
         work_relations=list(related.relations) if related else [],  # type: ignore[attr-defined]
@@ -301,7 +303,7 @@ def search_index(ctx: RunContext) -> StepResult:
     index = build_index(
         ctx.data("adapt", "book"),
         list(_optional(ctx, "units", "units", [])),  # type: ignore[call-overload]
-        list(_optional(ctx, "entities", "entities", [])),  # type: ignore[call-overload]
+        list(_optional(ctx, "relations", "entities", None) or _optional(ctx, "entities", "entities", [])),  # type: ignore[call-overload,arg-type]
     )
     return StepResult(
         files={"search_index.json": index},
@@ -328,6 +330,23 @@ def entities(ctx: RunContext) -> StepResult:
             "units": linked,
             "result": result,
             "counts": {"entities": len(result.entities)},
+        },
+        issues=result.issues,
+    )
+
+
+def relations(ctx: RunContext) -> StepResult:
+    from ilm_engine.extractors.relations import sibling_groups
+
+    units = ctx.data("entities", "units")
+    result = sibling_groups(ctx.data("adapt", "book"), units, ctx.data("entities", "entities"), ctx.config)
+    return StepResult(
+        files={"relationships.json": result.relationships},
+        data={
+            "relationships": result.relationships,
+            "entities": result.entities,
+            "groups": result.groups,
+            "counts": {"relationships": len(result.relationships), "entities": len(result.entities)},
         },
         issues=result.issues,
     )

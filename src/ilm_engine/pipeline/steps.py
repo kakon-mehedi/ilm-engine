@@ -94,7 +94,14 @@ def build_registry() -> StepRegistry:
                 outputs=("relationships.json",),
                 config=("llm",),
             ),
-            _step("search_index", "units", "entities", outputs=("search_index.json",), config=("features",)),
+            _step(
+                "search_index",
+                "units",
+                "entities",
+                "relations",
+                outputs=("search_index.json",),
+                config=("features",),
+            ),
             _step(
                 "validate",
                 "metadata",
@@ -133,6 +140,7 @@ def _wire(registry: StepRegistry) -> StepRegistry:
     registry.replace("related_works", stages.related_works)
     registry.replace("units", stages.units)
     registry.replace("entities", stages.entities)
+    registry.replace("relations", stages.relations)
     registry.replace("search_index", stages.search_index)
     registry.replace("validate", stages.validate)
     registry.replace("manifest", manifest_step)

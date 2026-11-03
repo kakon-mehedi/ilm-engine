@@ -193,22 +193,59 @@ def related_works(ctx: RunContext) -> StepResult:
 
 
 def units(ctx: RunContext) -> StepResult:
-    from ilm_engine.extractors.units import assemble_units, detect_entries
+    from ilm_engine.enrichment.issues import make_issue
+    from ilm_engine.extractors.units import assemble_units, detect_entries, with_llm_facts, with_rule_facts
 
     book, origins = ctx.data("adapt", "book"), ctx.data("origin", "origins")
+    structure = ctx.data("structure", "structure")
+    annotations = ctx.data("annotations", "annotations").annotations
     decision = ctx.data("genre", "genre")
     detection = detect_entries(book, origins, ctx.config)
     result, issues = assemble_units(
         book,
         detection,
-        ctx.data("annotations", "annotations").annotations,
-        ctx.data("structure", "structure"),
+        annotations,
+        structure,
         ctx.config,
         genre=decision.primary or "biography",
         sub_type=decision.sub_type,
     )
+    result = with_rule_facts(book, result, origins, ctx.config)
+    model_outputs: dict = {}
+    if ctx.llm is not None and ctx.options.get("llm", "null") != "null":
+        result, llm_issues, model_outputs = with_llm_facts(
+            book,
+            result,
+            {a.annotation_id: a for a in annotations},
+            origins,
+            structure,
+            ctx.config,
+            ctx.llm,
+            verifier=ctx.options.get("verifier"),
+        )
+        issues += llm_issues
+    else:
+        issues.append(
+            make_issue(
+                book.book.pub_ref,
+                "needs_llm",
+                "info",
+                "book",
+                book.book.pub_ref,
+                f"LLM fact extraction (entry_facts) not run for {len(result)} units: no LLM provider; "
+                "only rule-based facts were extracted.",
+                "units",
+                details={"task": "entry_facts", "units": len(result)},
+                key="entry_facts",
+            )
+        )
     return StepResult(
         files={"knowledge_units.json": result},
-        data={"units": result, "entries": detection, "counts": {"units": len(result)}},
+        data={
+            "units": result,
+            "entries": detection,
+            "model_outputs": model_outputs,
+            "counts": {"units": len(result), "facts": sum(len(u.facts) for u in result)},
+        },
         issues=issues,
     )

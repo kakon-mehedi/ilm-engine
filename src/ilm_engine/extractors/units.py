@@ -11,15 +11,17 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from typing import Any
 
 from ilm_engine.canonical.models import Block, CanonicalBook
 from ilm_engine.config import Config
 from ilm_engine.enrichment.issues import make_issue
-from ilm_engine.enrichment.models import Anchor, Annotation, Issue, KnowledgeUnit, Origin, Provenance
+from ilm_engine.enrichment.models import Anchor, Annotation, Fact, Issue, KnowledgeUnit, Origin, Provenance
 from ilm_engine.extractors.genres.biography import UnitSchema as BiographyUnit
 from ilm_engine.ids import make_id, natural_key
-from ilm_engine.nlp.arabic_digits import to_int
+from ilm_engine.nlp.arabic_digits import to_int, words_to_int
 from ilm_engine.nlp.nasab import parse_name
+from ilm_engine.nlp.normalize import normalize_with_map
 from ilm_engine.processors.structure import Structure
 from ilm_engine.validation.confidence import decide, score
 
@@ -264,3 +266,156 @@ def assemble_units(
             )
         )
     return units, issues
+
+
+# --- Rule-based unit facts (T-072) -----------------------------------------------------------------------
+
+# (predicate, value or None for a computed value, pattern on the `match`-normalized text)
+_B, _E = r"(?<![\u0621-\u064a])", r"(?![\u0621-\u064a])"  # word boundaries for Arabic letters
+FACT_RULES: list[tuple[str, Any, re.Pattern[str]]] = [
+    ("converted_to_islam", True, re.compile(_B + r"[وف]?اسلم(?:ت)?" + _E)),
+    ("married", True, re.compile(_B + r"[وف]?تزوج(?:ت|ها|هم)?" + _E)),
+    ("has_narration", False, re.compile(_B + r"و?لم يرو عن(?:ه|ها|هما|هم) شي?ء")),
+    ("is_sahabi", False, re.compile(_B + r"و?لا صحبة له" + _E)),
+    ("is_sahabi", True, re.compile(_B + r"و?له صحبة" + _E)),
+    # Only a place ("بالطائف") or a time phrase ("في شهر ربيع الأول") may stand between the verb and the
+    # year, so "ومات أبو سفيان بن الحارث سنة عشرين" (another person's death) is not this entry's fact.
+    ("death_hijri", None, re.compile(_B + r"[وف]?(?:مات|توفي)(?: ب\S+| في(?: \S+){1,3})? سنة [^.،()]+")),
+]
+_YEAR = re.compile(r"سنة (?P<year>.+)$")
+
+
+def _fact_value(predicate: str, value: Any, matched: str) -> Any:
+    if value is not None:
+        return value
+    year = _YEAR.search(matched)
+    if year is None:
+        return None
+    digits = re.search(r"[٠-٩0-9]+", year.group("year"))
+    try:
+        return to_int(digits.group(0)) if digits else words_to_int(year.group("year"))
+    except ValueError:
+        return None
+
+
+def rule_facts(
+    book: CanonicalBook, unit: KnowledgeUnit, origins: dict[str, Origin], config: Config
+) -> list[Fact]:
+    """Facts the entry's own text states, matched on normalized text and anchored on the original."""
+    confidence = score(config, "rule").score
+    facts: list[Fact] = []
+    seen: set[tuple[str, str, int]] = set()
+    for span in unit.anchors:
+        block = book.block(span.block_id)
+        normalized = normalize_with_map(block.text, "match")
+        lo = next(
+            (i for i, start in enumerate(normalized.starts) if start >= span.start), len(normalized.text)
+        )
+        hi = next((i for i, start in enumerate(normalized.starts) if start >= span.end), len(normalized.text))
+        for predicate, value, pattern in FACT_RULES:
+            for match in pattern.finditer(normalized.text, lo, hi):
+                start, end = normalized.to_original(match.start(), match.end())
+                while end > start and block.text[end - 1].isspace():
+                    end -= 1
+                if (predicate, block.block_id, start) in seen or any(
+                    f.predicate == predicate
+                    and f.evidence[0].block_id == block.block_id
+                    and f.evidence[0].start <= start < f.evidence[0].end
+                    for f in facts
+                ):
+                    continue
+                fact_value = _fact_value(predicate, value, match.group(0))
+                if fact_value is None:
+                    continue
+                seen.add((predicate, block.block_id, start))
+                anchor = Anchor(
+                    pub_ref=span.pub_ref,
+                    page=block.page,
+                    scan_page=span.scan_page,
+                    block_id=block.block_id,
+                    start=start,
+                    end=end,
+                    quote=block.text[start:end],
+                    block_hash=block.block_hash,
+                )
+                facts.append(
+                    Fact(
+                        fact_id=f"{unit.unit_id}#f{len(facts) + 1}",
+                        predicate=predicate,
+                        object=fact_value,
+                        evidence=[anchor],
+                        origin=origins.get(block.block_id, unit.origin),
+                        assertion="stated",
+                        confidence=confidence,
+                        review_status=decide(config, confidence),
+                        provenance=Provenance(method="rule", step=STEP, step_version="1.0.0"),
+                    )
+                )
+    return sorted(facts, key=lambda f: (book.block(f.evidence[0].block_id).order, f.evidence[0].start))
+
+
+def with_rule_facts(
+    book: CanonicalBook, units: list[KnowledgeUnit], origins: dict[str, Origin], config: Config
+) -> list[KnowledgeUnit]:
+    updated = []
+    for unit in units:
+        facts = rule_facts(book, unit, origins, config)
+        renumbered = [
+            fact.model_copy(update={"fact_id": f"{unit.unit_id}#f{i}"}) for i, fact in enumerate(facts, 1)
+        ]
+        updated.append(unit.model_copy(update={"facts": renumbered}))
+    return updated
+
+
+def with_llm_facts(
+    book: CanonicalBook,
+    units: list[KnowledgeUnit],
+    annotations: dict[str, Annotation],
+    origins: dict[str, Origin],
+    structure: Structure,
+    config: Config,
+    gateway: Any,
+    verifier: Any = None,
+) -> tuple[list[KnowledgeUnit], list[Issue], dict[str, list[dict[str, Any]]]]:
+    """Add evidenced LLM facts (T-094, consensus T-102) for predicates the rules did not state.
+
+    Returns the units, the issues, and per-fact model outputs (for review items).
+    """
+    from ilm_engine.extractors.llm_extract import UnitInput, extract_unit_facts
+    from ilm_engine.validation.consensus import reconcile
+
+    scan_pages = {block_id: book.page(b.page, b.volume).scan_page for block_id, b in book.blocks.items()}
+    updated: list[KnowledgeUnit] = []
+    issues: list[Issue] = []
+    outputs: dict[str, list[dict[str, Any]]] = {}
+    for unit in units:
+        footnotes = [
+            book.block(target)
+            for annotation_id in unit.note_annotation_ids
+            for target in annotations[annotation_id].target_block_ids
+        ]
+        heading_id = structure.section(unit.section_id).heading_block_id
+        unit_input = UnitInput(
+            unit_id=unit.unit_id,
+            pub_ref=book.book.pub_ref,
+            entry=[book.block(anchor.block_id) for anchor in unit.anchors],
+            footnotes=footnotes,
+            heading=book.block(heading_id) if heading_id else None,
+        )
+        outcome = extract_unit_facts(gateway, unit_input, config, origins, scan_pages, verifier=verifier)
+        issues += outcome.issues
+        if outcome.result is None or outcome.result.output is None:
+            updated.append(unit)
+            continue
+        consensus = reconcile(outcome.facts, outcome.result, outcome.verifier, unit_input, config, scan_pages)
+        issues += consensus.issues
+        known = {fact.predicate for fact in unit.facts}
+        facts = list(unit.facts)
+        for item in consensus.facts:
+            if item.fact.predicate in known:
+                continue
+            fact_id = f"{unit.unit_id}#f{len(facts) + 1}"
+            facts.append(item.fact.model_copy(update={"fact_id": fact_id}))
+            outputs[fact_id] = item.model_outputs
+        updated.append(unit.model_copy(update={"facts": facts}))
+    return updated, issues, outputs

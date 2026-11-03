@@ -147,6 +147,35 @@ class FeaturesConfig(_Section):
     camel_tools: bool
 
 
+PageClass = Literal[
+    "cover", "publisher_page", "basmala", "blank", "title_page", "printed_indexes", "content", "unknown"
+]
+NON_CONTENT_PAGES = frozenset(
+    {"cover", "publisher_page", "basmala", "blank", "title_page", "printed_indexes"}
+)
+
+
+class PagesConfig(_Section):
+    gaps: dict[int, PageClass] = {}
+    pdf_extra: dict[str, PageClass] = {}
+
+    @field_validator("pdf_extra")
+    @classmethod
+    def _ranges(cls, value: dict[str, PageClass]) -> dict[str, PageClass]:
+        for key in value:
+            if not re.fullmatch(r"\d+(-\d+)?", key):
+                raise ValueError(f"pdf_extra keys are page ranges like '73-80', got {key!r}")
+        return value
+
+    def pdf_extra_pages(self) -> dict[int, PageClass]:
+        pages: dict[int, PageClass] = {}
+        for key, page_class in self.pdf_extra.items():
+            first, _, last = key.partition("-")
+            for page in range(int(first), int(last or first) + 1):
+                pages[page] = page_class
+        return pages
+
+
 class OriginOverride(_Section):
     pages: tuple[int, int] | None = None
     blocks: tuple[str, str] | None = None
@@ -176,6 +205,7 @@ class Config(_Section):
     entries: EntriesConfig
     llm: LlmConfig
     features: FeaturesConfig
+    pages: PagesConfig
     origin: OriginConfig
 
     _config_hash: str = PrivateAttr(default="")

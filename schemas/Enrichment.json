@@ -456,6 +456,14 @@
           "title": "Missing Printed Pages",
           "type": "array"
         },
+        "page_classes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "title": "Page Classes",
+          "type": "object"
+        },
         "page_count_claimed": {
           "anyOf": [
             {

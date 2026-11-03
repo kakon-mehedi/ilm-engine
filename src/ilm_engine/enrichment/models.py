@@ -173,6 +173,7 @@ class DocumentReport(Strict):
     duplicate_blocks: list[list[str]]
     source_quality: SourceQuality | None
     issues: list[str]
+    page_classes: dict[str, str] = {}  # printed gaps and extra scan pages → class (T-031)
 
 
 # §6 Section and origin

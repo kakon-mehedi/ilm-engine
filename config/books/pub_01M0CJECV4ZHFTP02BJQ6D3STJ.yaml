@@ -1,6 +1,17 @@
 # Overrides for al-Ikhwa wa al-Akhawat (al-Daraqutni), ed. al-Jawabira, revision 6.
 # Origin ranges follow DECISIONS §6 and were checked against the sample blocks.
 
+pages:
+  # Printed pages missing from the source, classified from the scan (scan_page == printed page here).
+  gaps:
+    1: cover
+    2: publisher_page
+    4: basmala
+    18: blank
+  # PDF pages 73–80 hold the editor's printed indexes (not part of the source text).
+  pdf_extra:
+    "73-80": printed_indexes
+
 origin:
   overrides:
     - pages: [3, 16]

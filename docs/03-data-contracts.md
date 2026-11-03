@@ -301,6 +301,7 @@ class DocumentReport(Strict):
     duplicate_blocks: list[list[str]]
     source_quality: SourceQuality | None
     issues: list[str]                   # issue_ids
+    page_classes: dict[str, str] = {}   # {"printed:1": "cover", …, "scan:73": "printed_indexes"}
 ```
 
 ---

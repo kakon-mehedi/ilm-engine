@@ -62,7 +62,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-022](T-022-integrity-invariant-tests.md) | Integrity invariant tests | E02 | P0 | T-021, T-143 | S | 13 | todo |
 | [T-023](T-023-revision-diff-stale-anchors.md) | Revision diff + stale anchor detection | E02 | P1 | T-020, T-110 | M | 3 | done |
 | [T-030](T-030-document-analysis-report.md) | Document analysis report (quality & stats) | E03 | P0 | T-012 | S | 4 | done |
-| [T-031](T-031-page-gap-classification.md) | Missing-page detection and classification | E03 | P1 | T-030 | S | 5 | todo |
+| [T-031](T-031-page-gap-classification.md) | Missing-page detection and classification | E03 | P1 | T-030 | S | 5 | done |
 | [T-032](T-032-structure-tree.md) | Structure tree from headings | E03 | P0 | T-012, T-003 | M | 4 | done |
 | [T-033](T-033-toc-alignment.md) | TOC alignment via source_ref.key | E03 | P0 | T-032 | S | 5 | todo |
 | [T-034](T-034-origin-assignment.md) | Origin layer assignment (+ per-book override) | E03 | P0 | T-032, T-002 | M | 5 | todo |

@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-030]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 5
 ---
 
@@ -34,9 +34,9 @@ Missing pages are not automatically missing content. Pages 1, 2, 4, 18 are cover
 - Without override the system must still report gaps, just unclassified.
 
 ## Acceptance criteria
-- [ ] Missing pages exactly [1, 2, 4, 18], each classified as in override.
-- [ ] `page_count_mismatch` downgraded to `info` with explanation 'no content pages missing'.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Missing pages exactly [1, 2, 4, 18], each classified as in override.
+- [x] `page_count_mismatch` downgraded to `info` with explanation 'no content pages missing'.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -45,3 +45,8 @@ uv run pytest tests/test_page_gaps.py -q
 
 ## Out of scope
 - Looking at the PDF automatically (no text layer).
+
+## Follow-ups
+- New config section `pages: {gaps: {n: class}, pdf_extra: {"a-b": class}}` (documented in `default.yaml`); the sample's override classifies 1 cover, 2 publisher_page, 4 basmala, 18 blank (DECISIONS §7) and PDF 73–80 printed_indexes.
+- Each gap raises `missing_page` (info when non-content with evidence `scan_page`, warning when unknown/content). `page_count_mismatch` becomes info with "No content pages missing" when every gap is non-content; without an override it stays a warning and gaps are `unknown`.
+- `DocumentReport.page_classes` (new, added to 03-data-contracts §5 and the exported schema) records `printed:<n>` gap classes and `scan:<n>` extra scan pages.

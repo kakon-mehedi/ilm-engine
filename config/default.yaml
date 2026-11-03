@@ -65,6 +65,14 @@ features:
   semantic_search: false  # BGE-M3 embeddings (needs the `semantic` extra)
   camel_tools: false      # CAMeL Tools morphology (needs the `nlp` extra)
 
+pages:
+  # Known reasons for printed page numbers missing from the source (per-book override), e.g.
+  # {1: cover, 2: publisher_page}. Classes cover, publisher_page, basmala, blank, title_page and
+  # printed_indexes are non-content; content or unknown gaps are warnings.
+  gaps: {}
+  # Scan pages beyond the source text, by range, e.g. {"73-80": printed_indexes}.
+  pdf_extra: {}
+
 origin:
   # Ordered origin overrides, applied after the origin rules; a later entry wins (ADR-010).
   # Each entry sets exactly one of `pages` or `blocks` (both inclusive [first, last]) plus

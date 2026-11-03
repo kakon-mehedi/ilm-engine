@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-011, T-020]
 estimate: M
 owner: agent
-status: todo
+status: done
 wave: 3
 ---
 
@@ -35,12 +35,12 @@ Convert the provided archive JSON into `CanonicalBook`. Source is Shamela, NOT O
 - PDF path is stored only as reference; no PDF parsing (no text layer).
 
 ## Acceptance criteria
-- [ ] Sample → 68 pages, `n` from 3 to 72, 594 blocks (text 260, footnote 317, heading 15, toc_heading 2).
-- [ ] Total refs = 300; 16 blocks have `continues=True`; 17 TOC entries.
-- [ ] `book_ref.pub_ref == 'pub_01M0CJECV4ZHFTP02BJQ6D3STJ@r6'`.
-- [ ] `book.block('b000135').text[60:65] == 'أسلمت'` and `len(text) == 102`.
-- [ ] Input dict is not mutated (deep-compare before/after).
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Sample → 68 pages, `n` from 3 to 72, 594 blocks (text 260, footnote 317, heading 15, toc_heading 2).
+- [x] Total refs = 300; 16 blocks have `continues=True`; 17 TOC entries.
+- [x] `book_ref.pub_ref == 'pub_01M0CJECV4ZHFTP02BJQ6D3STJ@r6'`.
+- [x] `book.block('b000135').text[60:65] == 'أسلمت'` and `len(text) == 102`.
+- [x] Input dict is not mutated (deep-compare before/after).
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -49,3 +49,10 @@ uv run pytest tests/test_shamela_v3.py -q
 
 ## Out of scope
 - Interpreting refs/footnotes (E05).
+
+## Follow-ups
+- Field names follow 03-data-contracts §2 (`source_declared_hash`, `SourceMetadata.toc`, `BookRef.source_work_id`, …) rather than this ticket's summary names (`declared_content_hash`, `metadata_raw`).
+- The adapter registers itself with the default registry when `ilm_engine.adapters` is imported; the sample resolves to `ShamelaV3Adapter` (T-011's deferred criterion is tested here).
+- `scan.page_count` counts PDF page objects in the raw bytes (80 for the sample); the PDF is not otherwise parsed.
+- A missing or malformed required field raises `SourceFormatError` with its JSON path (architecture L1: `schema_invalid`, stop).
+- `raw_extras` stays empty here; T-013 fills it.

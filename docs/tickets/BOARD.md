@@ -53,7 +53,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-004](T-004-logging.md) | Structured logging | E00 | P1 | T-001 | S | 1 | done |
 | [T-010](T-010-canonical-models.md) | Canonical book models (canonical/models.py) | E01 | P0 | T-001 | M | 1 | done |
 | [T-011](T-011-adapter-protocol-registry.md) | Adapter protocol + registry (fail-closed) | E01 | P0 | T-010 | S | 2 | done |
-| [T-012](T-012-shamela-v3-adapter.md) | ShamelaV3Adapter (src-shamela, af_schema 3.0) | E01 | P0 | T-011, T-020 | M | 3 | todo |
+| [T-012](T-012-shamela-v3-adapter.md) | ShamelaV3Adapter (src-shamela, af_schema 3.0) | E01 | P0 | T-011, T-020 | M | 3 | done |
 | [T-013](T-013-raw-extras.md) | Preserve unknown fields (raw_extras) | E01 | P1 | T-012 | S | 4 | todo |
 | [T-014](T-014-adapter-golden-tests.md) | Adapter golden-file contract tests | E01 | P0 | T-012 | S | 4 | todo |
 | [T-015](T-015-adapter-authoring-guide.md) | Adapter authoring guide + example OCR-team v1 adapter | E01 | P1 | T-014 | M | 5 | todo |

@@ -1,0 +1,63 @@
+# ILM Engine default configuration.
+# Every threshold, pattern and feature flag lives here, never in code (PRD adaptability requirement).
+# Per-book overrides: config/books/<pub_id>.yaml, deep-merged over this file (mappings merge, lists replace).
+# Unknown keys are rejected, so a typo fails the run instead of being silently ignored.
+
+review:
+  threshold:
+    # Items with confidence >= threshold (and not sensitive) are auto-approved (DECISIONS §8).
+    default: 0.80
+    # Per-category thresholds that replace the default.
+    overrides:
+      fiqh_ruling: 0.95
+  # Categories that always go to human review, whatever their confidence (DECISIONS §8, ADR-009).
+  sensitive_categories:
+    - prophetic_attribution
+    - hadith_grading
+    - fiqh_ruling
+    - aqeedah_proposition
+    - narrator_disambiguation
+
+# confidence = clamp01(base × evidence × schema × agreement × penalties)   (DECISIONS §8, ADR-008)
+confidence:
+  base:
+    rule: 0.95          # rule-based / structural extraction
+    llm: 0.75           # LLM extraction
+  evidence:
+    exact: 1.0          # quote equals the original text at [start:end]
+    normalized: 0.9     # quote matches only after search normalization
+    none: 0.0           # no match: the item is rejected (evidence_not_found)
+  schema:
+    valid: 1.0
+    repaired: 0.9       # valid after one repair retry
+    invalid: 0.0
+  agreement:
+    agree: 1.2          # two independent models agree
+    judge_resolved: 0.9 # disagreement settled by the judge model
+    single: 1.0         # only one model ran
+  penalties:
+    ambiguous_entity: 0.8
+    grammar_mismatch: 0.7
+    ocr_noise: 0.9
+
+entries:
+  # Biographical entry number at the start of an entry, e.g. "٣٢ - أروى" (Arabic-Indic digits).
+  # The lookbehind skips numbers inside locators such as "(٨/ ١٥٧)".
+  regex: '(?<![٠-٩(/])([٠-٩]+) ?- '
+  # Entry detection runs on author_text blocks from this page on.
+  start_page: 21
+
+llm:
+  # null (no key; emits needs_llm) | fixture (recorded responses, CI) | anthropic | litellm
+  provider: "null"
+  temperature: 0
+
+features:
+  semantic_search: false  # BGE-M3 embeddings (needs the `semantic` extra)
+  camel_tools: false      # CAMeL Tools morphology (needs the `nlp` extra)
+
+origin:
+  # Ordered origin overrides, applied after the origin rules; a later entry wins (ADR-010).
+  # Each entry sets exactly one of `pages` or `blocks` (both inclusive [first, last]) plus
+  # `origin` and a `note` explaining why. Footnote blocks are always editor_footnote.
+  overrides: []

@@ -32,6 +32,10 @@ packages = ["src/ilm_engine"]
 line-length = 110
 target-version = "py312"
 
+[tool.ruff.format]
+# Code samples in the Markdown specs are documentation, not formatted source.
+exclude = ["*.md"]
+
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
 

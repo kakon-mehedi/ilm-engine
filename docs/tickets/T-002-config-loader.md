@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-001]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 1
 ---
 
@@ -35,11 +35,11 @@ All thresholds, regexes and feature flags live in config, never hard-coded (adap
 - `config_hash` goes into `run_manifest.json` (T-141).
 
 ## Acceptance criteria
-- [ ] `load_config('pub_01M0CJECV4ZHFTP02BJQ6D3STJ').review.threshold.default == 0.80`.
-- [ ] Book override merges (origin ranges present) without dropping defaults.
-- [ ] Same config → same `config_hash` across runs; changing one value changes it.
-- [ ] Unknown key raises a clear error.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] `load_config('pub_01M0CJECV4ZHFTP02BJQ6D3STJ').review.threshold.default == 0.80`.
+- [x] Book override merges (origin ranges present) without dropping defaults.
+- [x] Same config → same `config_hash` across runs; changing one value changes it.
+- [x] Unknown key raises a clear error.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -48,3 +48,8 @@ uv run pytest tests/test_config.py -q
 
 ## Out of scope
 - Environment-specific secrets (API keys come from env vars in T-091/T-092).
+
+## Follow-ups
+- Origin override format (consumed by T-034): `origin.overrides` is an ordered list; each entry has exactly one of `pages: [first, last]` or `blocks: [first, last]` (inclusive), plus `origin` and a `note`. Later entries win. The sample book's ranges were checked against the blocks: p.3–16 editor_text, p.17 and b000093 transmission_isnad, b000098–b000587 author_text, b000588–b000589 (copyist sama' note) transmission_isnad.
+- `config_hash` uses the same `sha256:<hex>` form as `block_hash`.
+- `pyproject.toml`: `ruff format` now excludes `*.md`, so the Python samples in the specs are not reformatted.

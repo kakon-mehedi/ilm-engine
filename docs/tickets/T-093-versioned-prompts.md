@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-090]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 3
 ---
 
@@ -33,8 +33,8 @@ Repeatability: every output records the prompt version that produced it.
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] Loader returns (text, version); changing file content without bumping version fails a test (hash pinned in `prompts.lock`).
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Loader returns (text, version); changing file content without bumping version fails a test (hash pinned in `prompts.lock`).
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -43,3 +43,8 @@ uv run pytest tests/test_prompts.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- Loader: `load(task, version=None) -> (text, version)` and `load_prompt(...) -> Prompt{task, version, schema, text, sha256}`; the default is the highest version. Front matter must agree with the file name.
+- `prompts.lock` pins the sha256 of every prompt file; `test_prompt_files_match_the_lock` fails on any edit, so a change means a new `<task>.v<N+1>.md` plus `write_lock()`.
+- The schema names in the front matter (`EntryFacts`, `GroupBounds`, `EntityDisambiguation`, `GenreClassification`, `JudgeVerdict`, `MetadataVerification`) are defined by the tickets that use them (T-094, T-095, T-102, …).

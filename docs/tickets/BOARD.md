@@ -91,7 +91,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-090](T-090-llm-gateway-null-cache.md) | LLM gateway, null provider, response cache | E09 | P0 | T-002 | M | 2 | done |
 | [T-091](T-091-anthropic-provider.md) | Anthropic provider (primary extractor) | E09 | P1 | T-090 | S | 3 | done |
 | [T-092](T-092-litellm-provider.md) | LiteLLM provider (second, independent model family) | E09 | P1 | T-090 | S | 3 | done |
-| [T-093](T-093-versioned-prompts.md) | Versioned prompt files | E09 | P1 | T-090 | S | 3 | todo |
+| [T-093](T-093-versioned-prompts.md) | Versioned prompt files | E09 | P1 | T-090 | S | 3 | done |
 | [T-094](T-094-llm-extract-with-evidence.md) | LLM extraction with mandatory evidence | E09 | P1 | T-091, T-093, T-100 | M | 4 | todo |
 | [T-095](T-095-genre-schemas-router.md) | Genre plugin schemas (7) + genre router | E09 | P0 | T-040, T-010 | M | 5 | todo |
 | [T-100](T-100-evidence-guard.md) | Evidence guard (hallucination guard) | E10 | P0 | T-060 | S | 2 | done |

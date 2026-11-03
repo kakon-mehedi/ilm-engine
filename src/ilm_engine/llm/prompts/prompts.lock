@@ -1,0 +1,8 @@
+{
+  "entity_disambiguation.v1.md": "d59f3d6dcd1a6f397a16646b9a6e5b333fd046339b55e4e6c1d4d9e0727b138d",
+  "entry_facts.v1.md": "bca1487c807a64e184272753c5d006660cd0482ae2b4f5f4b1c975620448b3d2",
+  "genre_classify.v1.md": "9861cd961ca2fe908bd417667fd9b364bc7998e8158f10323033acecd67c732c",
+  "group_bounds.v1.md": "152413c965f37f158ddf40bf74df26f81e3e73276fe57d5942533ef186e47dab",
+  "judge.v1.md": "7911fd14495ffa8cd935128fc3f16817281aec7221229efbb2250e6e7f9d8ddc",
+  "metadata_verify.v1.md": "e68db1240e7b14a5969a29ab007302d8e9f02c2a2a876e85d28d56d38a17f112"
+}

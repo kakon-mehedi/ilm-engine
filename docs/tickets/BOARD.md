@@ -101,7 +101,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-104](T-104-sensitivity.md) | Sensitivity rules (always human review) | E10 | P0 | T-095 | S | 6 | todo |
 | [T-105](T-105-review-queue-viewer.md) | Review queue, decisions loop + static HTML reviewer view | E10 | P0 | T-103, T-104, T-101 | M | 10 | todo |
 | [T-110](T-110-json-store.md) | JSON enrichment store | E11 | P0 | T-003 | S | 2 | done |
-| [T-111](T-111-sqlite-store.md) | SQLite enrichment database | E11 | P1 | T-110 | M | 3 | todo |
+| [T-111](T-111-sqlite-store.md) | SQLite enrichment database | E11 | P1 | T-110 | M | 3 | done |
 | [T-112](T-112-consolidated-enrichment.md) | Consolidated enrichment.json | E11 | P0 | T-110, T-105 | S | 11 | todo |
 | [T-113](T-113-graph-html.md) | Knowledge graph export (graph.html) | E11 | P2 | T-112 | S | 12 | todo |
 | [T-120](T-120-lexical-search-index.md) | Normalized lexical search index | E12 | P1 | T-060, T-071 | S | 9 | todo |

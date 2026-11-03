@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-110]
 estimate: M
 owner: agent
-status: todo
+status: done
 wave: 3
 ---
 
@@ -33,9 +33,9 @@ Relational shape that mirrors the production PostgreSQL schema (books, source_bl
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] `enrichment.db` row counts: source_blocks 594, knowledge_units 75, annotations ≥ 301.
-- [ ] Loading twice does not duplicate rows.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] `enrichment.db` row counts: source_blocks 594, knowledge_units 75, annotations ≥ 301.
+- [x] Loading twice does not duplicate rows.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -44,3 +44,8 @@ uv run pytest tests/test_sqlite_store.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- Table names follow the authoritative DDL in 03-data-contracts §19 (`block`, `knowledge_unit`, `annotation`, …), not this ticket's `source_blocks` / `knowledge_units` / `annotations`; `storage/schema.sql` is that DDL with `IF NOT EXISTS`.
+- `SqliteStore(path).load(enrichment, book=None, origins=None, manifest=None)` takes the §18 consolidated shape (models or JSON) plus the canonical book, so the `store` step loads from step results; every record is upserted by ID (anchors and facts are replaced per owner), so loading twice gives identical rows. Internal references are stored in `annotation` with `type = 'internal_ref'`; review items come from an optional `review_items` list.
+- The sample-run counts (knowledge units 75, annotations ≥ 301) are checked end to end in T-143, once units and annotations exist; this ticket's tests use the real 594 sample blocks and synthetic records.

@@ -1,4 +1,4 @@
-"""Knowledge units of biography books (step `units`): entry detection (T-070).
+"""Knowledge units of biography books (step `units`): entry detection (T-070) and assembly (T-071).
 
 An entry starts at each match of `config.entries.regex` ("N - ") in `author_text` blocks from
 `config.entries.start_page` and ends before the next match or at the end of its block; when its block
@@ -15,9 +15,13 @@ from dataclasses import dataclass, field
 from ilm_engine.canonical.models import Block, CanonicalBook
 from ilm_engine.config import Config
 from ilm_engine.enrichment.issues import make_issue
-from ilm_engine.enrichment.models import Anchor, Issue, Origin
+from ilm_engine.enrichment.models import Anchor, Annotation, Issue, KnowledgeUnit, Origin, Provenance
+from ilm_engine.extractors.genres.biography import UnitSchema as BiographyUnit
 from ilm_engine.ids import make_id, natural_key
 from ilm_engine.nlp.arabic_digits import to_int
+from ilm_engine.nlp.nasab import parse_name
+from ilm_engine.processors.structure import Structure
+from ilm_engine.validation.confidence import decide, score
 
 STEP = "units"
 FALLBACK_REGEX = re.compile(r"([٠-٩]+)\s*[-–]\s*")
@@ -154,3 +158,109 @@ def _fallback(
                     number, [_anchor(book, block, match.start(), len(block.text), scan_pages)], "fallback"
                 )
     return None
+
+
+# --- Unit assembly (T-071) -------------------------------------------------------------------------------
+
+
+def _in_unit(anchor: Anchor, spans: list[Anchor]) -> bool:
+    return any(anchor.block_id == span.block_id and span.start <= anchor.start < span.end for span in spans)
+
+
+def assemble_units(
+    book: CanonicalBook,
+    detection: EntryDetection,
+    annotations: list[Annotation],
+    structure: Structure,
+    config: Config,
+    genre: str = "biography",
+    sub_type: str | None = "ansab",
+) -> tuple[list[KnowledgeUnit], list[Issue]]:
+    """One `biographical_entry` unit per detected entry, with its notes, section and parsed person."""
+    pub_ref = book.book.pub_ref
+    confidence = score(config, "rule").score
+    units: list[KnowledgeUnit] = []
+    issues: list[Issue] = list(detection.issues)
+    for entry in detection.entries:
+        identifier = unit_id(pub_ref, entry)
+        first = entry.anchors[0]
+        notes = sorted(
+            (
+                a
+                for a in annotations
+                if a.type != "nested_footnote" and _in_unit(a.marker_anchor, entry.anchors)
+            ),
+            key=lambda a: (not a.is_entry_note, book.block(a.source_block_id).order, a.marker_anchor.start),
+        )
+        entry_note = next(
+            (a for a in notes if a.is_entry_note and a.marker_anchor.start == first.start), None
+        )
+        unit_issues = []
+        if entry_note is None:
+            issue = make_issue(
+                pub_ref,
+                "entry_without_footnote",
+                "info",
+                "unit",
+                identifier,
+                f"Entry {entry.entry_no} ({first.block_id}) has no entry-level footnote.",
+                STEP,
+                details={"entry_no": entry.entry_no},
+                anchors=[first],
+            )
+            issues.append(issue)
+            unit_issues.append(issue.issue_id)
+
+        block_text = book.block(first.block_id).text
+        number = re.match(r"\s*[٠-٩0-9]+\s*-\s*", block_text[first.start : first.end])
+        name_start = first.start + (number.end() if number else 0)
+        name = parse_name(block_text[name_start : first.end], offset=name_start)
+        section_id = structure.block_section_id(first.block_id)
+        heading = structure.section(section_id).heading_block_id
+        person = (
+            {
+                "surface": name.raw,
+                "span": list(name.span),
+                "ism": name.ism,
+                "kunya": name.kunya,
+                "laqab": name.laqab,
+                "nisba": list(name.nisba),
+                "gender": name.gender,
+            }
+            if name
+            else {"surface": "", "gender": "unknown"}
+        )
+        payload = BiographyUnit.model_validate(
+            {
+                "entry_no": entry.entry_no,
+                "person": person,
+                "nasab": list(name.chain) if name else [],
+                "kunya": name.kunya if name else None,
+                "laqab": name.laqab if name else None,
+                "section_heading_block": heading,
+                "tarjama_annotation": entry_note.target_block_ids[0]
+                if entry_note and entry_note.target_block_ids
+                else None,
+            }
+        )
+        units.append(
+            KnowledgeUnit(
+                unit_id=identifier,
+                genre=genre,  # type: ignore[arg-type]
+                sub_type=sub_type,
+                unit_type="biographical_entry",
+                entry_no=entry.entry_no,
+                section_id=section_id,
+                anchors=entry.anchors,
+                note_annotation_ids=[a.annotation_id for a in notes],
+                subject_entity_id=None,  # linked by the entities step (T-080)
+                payload=payload.model_dump(mode="json", exclude_none=True),
+                facts=[],
+                origin="author_text",
+                confidence=confidence,
+                review_status=decide(config, confidence),
+                issues=unit_issues,
+                provenance=Provenance(method="rule", step=STEP, step_version="1.0.0"),
+            )
+        )
+    return units, issues

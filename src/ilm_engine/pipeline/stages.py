@@ -190,3 +190,25 @@ def related_works(ctx: RunContext) -> StepResult:
             "counts": {"works": len(result.works), "work_relations": len(result.relations)},
         },
     )
+
+
+def units(ctx: RunContext) -> StepResult:
+    from ilm_engine.extractors.units import assemble_units, detect_entries
+
+    book, origins = ctx.data("adapt", "book"), ctx.data("origin", "origins")
+    decision = ctx.data("genre", "genre")
+    detection = detect_entries(book, origins, ctx.config)
+    result, issues = assemble_units(
+        book,
+        detection,
+        ctx.data("annotations", "annotations").annotations,
+        ctx.data("structure", "structure"),
+        ctx.config,
+        genre=decision.primary or "biography",
+        sub_type=decision.sub_type,
+    )
+    return StepResult(
+        files={"knowledge_units.json": result},
+        data={"units": result, "entries": detection, "counts": {"units": len(result)}},
+        issues=issues,
+    )

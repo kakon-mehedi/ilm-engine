@@ -80,7 +80,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-062](T-062-nasab-parser.md) | Nasab (lineage chain) parser | E06 | P0 | T-060 | M | 2 | done |
 | [T-063](T-063-camel-tools-adapter.md) | Optional CAMeL Tools morphology adapter | E06 | P2 | T-060 | M | 2 | done |
 | [T-070](T-070-entry-detection.md) | Biographical entry detection (75 entries) | E07 | P0 | T-034, T-061 | M | 6 | done |
-| [T-071](T-071-unit-assembly.md) | Knowledge unit assembly (entry + footnotes + section) | E07 | P0 | T-070, T-050, T-051, T-035 | M | 8 | todo |
+| [T-071](T-071-unit-assembly.md) | Knowledge unit assembly (entry + footnotes + section) | E07 | P0 | T-070, T-050, T-051, T-035 | M | 8 | done |
 | [T-072](T-072-unit-facts-rules.md) | Rule-based unit facts | E07 | P1 | T-071, T-062 | M | 9 | todo |
 | [T-073](T-073-section-membership.md) | Section membership and group headings | E07 | P1 | T-071 | S | 9 | todo |
 | [T-080](T-080-person-entities.md) | Person entities from units and footnotes | E08 | P0 | T-072, T-062 | M | 10 | todo |

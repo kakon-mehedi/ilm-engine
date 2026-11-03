@@ -150,7 +150,7 @@ Column **MVP?**: **Built** = implemented and tested in this repository; **Design
 
 **FR-031 — Related works detection.** Detect related and fundamental works mentioned in the book: works cited in footnotes (الإصابة, أسد الغابة, …) and same-topic works named in the preface (e.g. Abu Dawud's "الأخوة الذين روي عنهم الحديث", in `b000018`). Store them as `wrk_*` with relations `cites` / `same_topic_as`.
 - Priority / MVP: P0 / Built.
-- Acceptance: at least 10 distinct cited works with counts (الإصابة 144, …); at least one `same_topic_as` relation anchored to `b000018`.
+- Acceptance: at least 10 distinct cited works with counts (الإصابة 145, …); at least one `same_topic_as` relation anchored to `b000018`.
 - Source: §2B.1, §4.4.
 
 **FR-032 — Work relation types.** Support `sharh_of`, `hashiyah_of`, `mukhtasar_of`, `translation_of`, `edition_of`, `tahqiq_of`, `cites` and `same_topic_as`, with direction and evidence.

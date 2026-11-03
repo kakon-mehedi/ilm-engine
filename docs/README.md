@@ -177,7 +177,7 @@ Legend: 🟦 deterministic code · 🟩 Arabic NLP · 🟧 LLM / agent · 🟥 h
 | 6 | **Metadata** | Card + introduction → title, author, death year 385 AH (`b000049`), editor, conflicts → `metadata.json` | 🟦 + 🟧 |
 | 7 | **Genre** | Category الأنساب + content → `biography/ansab`, secondary `hadith` → `metadata.json` | 🟦 + 🟧 (Genre Router) |
 | 8 | **Annotations** | 300 `refs`, 16 `continues`, nested footnote `b000215` → `annotations.json` | 🟦 |
-| 9 | **Citations** | Footnotes → cited works (الإصابة 144 times, …) and internal cross-references → `citations.json` | 🟦 + 🟩 |
+| 9 | **Citations** | Footnotes → cited works (الإصابة 145 times, …) and internal cross-references → `citations.json` | 🟦 + 🟩 |
 | 10 | **Knowledge units** | `author_text` → 75 biographical entries → `knowledge_units.json` | 🟦 + 🟧 (Genre Extractor) |
 | 11 | **Entities + Relations** | Nasab parsing + sibling groups ("ابنا أبي هالة") → `entities.json`, `relationships.json` | 🟩 + 🟧 |
 | 12 | **Related works** | Citations + introduction → book family (`cites`, `same_topic_as`, …) → `related_works.json` | 🟦 + 🟧 (Citation Resolver) |

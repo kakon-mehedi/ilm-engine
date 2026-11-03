@@ -8,7 +8,7 @@
 §2.B requires identifying original/fundamental books and related works, mapping relationships such as Sharh, Hashiyah, translation, summary and explanation, and mapping corresponding sections across books. §2.G requires connecting knowledge across books. Step 4 of the data flow is "Identify book genre and related works".
 
 This requirement is easy to under-specify. With a single sample book we cannot demonstrate Sharh↔Matn alignment. The sample is still rich in related-work signals:
-- **Cited works with locators in footnotes:** الإصابة 144 times, أسد الغابة 67, السير 59, الطبقات الكبرى 45, التهذيب 32, الاستيعاب 31. Example: `b000139` "قال الحافظ في "الإصابة" (٨/ ١٥٧)" (volume 8, page 157).
+- **Cited works with locators in footnotes:** الإصابة 145 times, أسد الغابة 67, السير 59, الطبقات الكبرى 45, التهذيب 32, الاستيعاب 31. Example: `b000139` "قال الحافظ في "الإصابة" (٨/ ١٥٧)" (volume 8, page 157).
 - **Same-topic works named by the editor** in `b000018`: "الأُخوة الذين رُويَ عنهم الحديث" لأبي داود السِّجِسْتاني (offsets 151–182) and "تسمية من رُويَ عنه من أولاد العشرة" (216–250), plus his combined edition "الرّواة من الأُخوة والأخوات".
 - **Another work by the same author:** `b000215` "انظر "المؤتلف" (٣/ ١٢٤٢) للمصنّف" (al-Daraqutni's al-Mu'talif wa al-Mukhtalif).
 - **Internal references:** `b000063` "ترجمة رقم (٣٣)" (p. 11, offset 60) points to entry 33 of this book.

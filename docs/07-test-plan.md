@@ -30,7 +30,7 @@ CI runs everything except `LIVE-*`. **No test may require network or an API key.
 | `tests/golden/shamela_v3/input_renamed_field.json` | `b` renamed to `id` (EC-003) |
 | `tests/fixtures/revision_r7.json` | Sample with `b000135` text changed and `b000590` removed (EC-012/013) |
 | `tests/llm/recordings/*.json` | Recorded provider responses keyed by cache key: good, invented-quote, invalid-JSON, timeout, disagree, injection |
-| `eval/gold_index_sample.json` | ≥ 30 persons hand-transcribed from PDF pp. 76–80 (فهرس الرواة المترجم لهم): name + printed page |
+| `eval/gold_index_sample.json` | ≥ 30 persons hand-transcribed from PDF pp. 76–79 (فهرس الرواة المترجم لهم): name + printed page |
 
 The recorded-fixture provider is `llm.provider = fixture` (a test-only provider that reads `tests/llm/recordings/`). It uses the same cache-key function as production. A missing recording fails the test loudly; it never falls through to the network.
 
@@ -65,7 +65,7 @@ These values were verified against the real file. Tests assert them **exactly** 
 | internal ref `ترجمة رقم (٣٣)` | 1 (`b000063`, page 11) → resolves to entry 33 |
 | `سيأتي` occurrences | 4 (unresolved forward refs) |
 | hadith grading statements (`إسناده ضعيف/صحيح/حسن`) in footnotes | 4 (all `sensitive_content`) |
-| top cited works | الإصابة 144, أسد الغابة 67, السير 59, الطبقات الكبرى 45, الطبقات 33, التهذيب 32, الاستيعاب 31 |
+| top cited works | الإصابة 145, أسد الغابة 67, السير 59, الطبقات الكبرى 45, الطبقات 33, التهذيب 32, الاستيعاب 31 |
 | origin: non-footnote blocks pages 3–16 / pages 17 + 19 / pages 20–72 | 77 / 13 / 187 (page 72's copyist tail goes to `transmission_isnad` via per-book YAML) |
 | entry #8 anchor | `b000135`, length 102; `أسلمت` [60, 65); `ولم يُروَ عنها شيءٌ` [78, 97) |
 | author death year | 385 AH, evidence `b000049` page 9 |

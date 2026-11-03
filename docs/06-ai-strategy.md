@@ -301,7 +301,7 @@ Classical Arabic specifics: no diacritics in most text, long nasab chains, kunya
 1. **Weak supervision:** Shamela structure gives free labels. Headings → section labels. `refs` → annotation links. Entry numbering → unit boundaries. Tarjama footnotes → person mentions.
 2. **Distillation:** a large model (Opus/Sonnet) extracts. Only human-approved outputs become training data. Rejected outputs become negative examples.
 3. **Reviewer corrections:** every `edited` review item is exported as a corrected pair (EC-103). This is active learning: low-confidence items are reviewed first, so they enter the training data first.
-4. **Gold (test only):** printed indexes (PDF pp. 76–80 sample → `eval/gold_index_sample.json`) and expert-annotated books. **Never** used for training.
+4. **Gold (test only):** printed indexes (PDF pp. 76–79 sample → `eval/gold_index_sample.json`) and expert-annotated books. **Never** used for training.
 5. **Split:** book-level (a book is entirely in train or entirely in test). Stratified by genre and century. Test books are frozen.
 6. **Annotation guidelines:** a document per genre with examples, especially for origin (author vs editor), assertion (stated vs inferred) and sibling kind.
 

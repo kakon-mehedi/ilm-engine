@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-152, T-132]
 estimate: L
 owner: agent
-status: todo
+status: done
 wave: 14
 ---
 
@@ -30,9 +30,9 @@ The main submission document. Must cover assignment §3 (9 items + method split)
 - Numbers must come from the latest run (SUMMARY.md), not typed by hand.
 
 ## Acceptance criteria
-- [ ] Every row of 09-coverage-matrix.md points to a section that exists.
-- [ ] No claim contradicts DECISIONS §7.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Every row of 09-coverage-matrix.md points to a section that exists.
+- [x] No claim contradicts DECISIONS §7.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -41,3 +41,8 @@ grep -c '^## ' deliverables/Technical_Proposal.md
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `deliverables/Technical_Proposal.md` (≈4,500 words, 15 sections): executive summary, scope, principles, architecture, data flow (12 steps → 21 pipeline steps), technology, Arabic NLP and model strategy, knowledge extraction, model training, MVP results, roadmap, compliance table, risks, assumptions/open questions, data-findings appendix. Embeds the PNG diagrams from T-152.
+- All MVP figures come from run `run_1bd3442413cc` (`SUMMARY.md`, `run_manifest.json`, `eval_report.json`); the section on known limitations states what was not run live (LLM extraction) and what is not built yet.
+- Data-verified corrections applied to the specs so the proposal does not contradict DECISIONS §7: "الإصابة" is quoted 145 times (not 144) in DECISIONS, PRD, test plan, ADR-018 and docs/README; the narrator index is on PDF pp. 76–79 (not 76–80) in DECISIONS, the AI strategy and the test plan. Ticket texts keep their original wording with the correction in their follow-ups.

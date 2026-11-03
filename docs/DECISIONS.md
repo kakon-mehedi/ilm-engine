@@ -109,7 +109,7 @@ ilm-engine/
   tests/
     golden/                      # adapter golden files
     ...
-  eval/gold_index_sample.json    # hand-transcribed from PDF pp. 76–80
+  eval/gold_index_sample.json    # hand-transcribed from PDF pp. 76–79
   output/                        # generated, git-ignored
   deliverables/
     Technical_Proposal.md
@@ -152,7 +152,7 @@ Origin is assigned per section by rules (`processors/origin.py`) + per-book over
 
 ## 7. Verified sample-data facts (use these numbers)
 
-594 blocks (text 260, footnote 317, heading 15, toc_heading 2) · 68 pages, `n` 3–72, missing 1, 2, 4, 18 (cover, publisher page, basmala, blank) · PDF 80 pages, `scan_page == PDF page`, PDF has no text layer · PDF pp. 73–80 = printed indexes: فهرس الأحاديث, فهرس الرواة المترجم لهم, الفهرس الإجمالي · source = Shamela (`src-shamela`), not OCR · 300 refs, all targets exist, 0 refs from footnotes · 16 `continues` footnotes · `b000215` (p.33, marker "أ") = nested footnote of `b000210` · TOC `source_page` = Shamela `source_ref.key`, offset to `n` varies (2→3→4) · 75 biographical entries numbered 1–75, no gap; #32 is mid-sentence in `b000294` ("وأختهم: ٣٢ - أروى"); 74 entry-level footnotes (#32 has none) · entry regex `(?<![٠-٩(/])([٠-٩]+) ?- ` on `author_text` blocks from page 21 · spans classes c2 (230, footnote markers), c5 (64, emphasis), c1 (8, Prophetic speech, inferred), c4 (2, editor bracket headings, inferred) · citations: الإصابة 144, أسد الغابة 67, السير 59, الطبقات الكبرى 45, الاستيعاب 31, التهذيب 32 … · quality record: claimed 72, held 68, short 5.6% > tolerance 5% yet `passed: true` · author death 385 AH stated in `b000049` (p.9).
+594 blocks (text 260, footnote 317, heading 15, toc_heading 2) · 68 pages, `n` 3–72, missing 1, 2, 4, 18 (cover, publisher page, basmala, blank) · PDF 80 pages, `scan_page == PDF page`, PDF has no text layer · PDF pp. 73–80 = printed indexes: فهرس الأحاديث, فهرس الرواة المترجم لهم, الفهرس الإجمالي · source = Shamela (`src-shamela`), not OCR · 300 refs, all targets exist, 0 refs from footnotes · 16 `continues` footnotes · `b000215` (p.33, marker "أ") = nested footnote of `b000210` · TOC `source_page` = Shamela `source_ref.key`, offset to `n` varies (2→3→4) · 75 biographical entries numbered 1–75, no gap; #32 is mid-sentence in `b000294` ("وأختهم: ٣٢ - أروى"); 74 entry-level footnotes (#32 has none) · entry regex `(?<![٠-٩(/])([٠-٩]+) ?- ` on `author_text` blocks from page 21 · spans classes c2 (230, footnote markers), c5 (64, emphasis), c1 (8, Prophetic speech, inferred), c4 (2, editor bracket headings, inferred) · citations: الإصابة 145, أسد الغابة 67, السير 59, الطبقات الكبرى 45, الاستيعاب 31, التهذيب 32 … · quality record: claimed 72, held 68, short 5.6% > tolerance 5% yet `passed: true` · author death 385 AH stated in `b000049` (p.9).
 
 ## 8. Confidence & review
 

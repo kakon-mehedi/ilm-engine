@@ -117,7 +117,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-150](T-150-architecture-diagram.md) | Deliverable 1: System architecture diagram | E15 | P0 | — | S | 0 | done |
 | [T-151](T-151-data-flow-diagram.md) | Deliverable 2: Automation & data-flow diagram | E15 | P0 | — | S | 0 | done |
 | [T-152](T-152-export-diagrams.md) | Export diagrams to SVG/PNG | E15 | P1 | T-150, T-151 | S | 1 | done |
-| [T-153](T-153-technical-proposal.md) | Technical_Proposal.md (all assignment deliverables) | E15 | P0 | T-152, T-132 | L | 14 | todo |
+| [T-153](T-153-technical-proposal.md) | Technical_Proposal.md (all assignment deliverables) | E15 | P0 | T-152, T-132 | L | 14 | done |
 | [T-154](T-154-submission-readme.md) | Submission README & checklist | E15 | P1 | T-153, T-143 | S | 15 | todo |
 | [T-160](T-160-prefect-flows.md) | Prefect flows for the book pipeline | E16 | P2 | T-143 | L | backlog | backlog |
 | [T-161](T-161-postgres-schema.md) | PostgreSQL schema + migrations (source of truth) | E16 | P2 | T-143 | L | backlog | backlog |

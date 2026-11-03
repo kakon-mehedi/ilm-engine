@@ -94,7 +94,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-093](T-093-versioned-prompts.md) | Versioned prompt files | E09 | P1 | T-090 | S | 3 | todo |
 | [T-094](T-094-llm-extract-with-evidence.md) | LLM extraction with mandatory evidence | E09 | P1 | T-091, T-093, T-100 | M | 4 | todo |
 | [T-095](T-095-genre-schemas-router.md) | Genre plugin schemas (7) + genre router | E09 | P0 | T-040, T-010 | M | 5 | todo |
-| [T-100](T-100-evidence-guard.md) | Evidence guard (hallucination guard) | E10 | P0 | T-060 | S | 2 | todo |
+| [T-100](T-100-evidence-guard.md) | Evidence guard (hallucination guard) | E10 | P0 | T-060 | S | 2 | done |
 | [T-101](T-101-rule-validation.md) | Rule-based validation | E10 | P0 | T-100, T-071 | S | 9 | todo |
 | [T-102](T-102-consensus.md) | Multi-model consensus & discrepancy detection | E10 | P1 | T-094 | M | 5 | todo |
 | [T-103](T-103-confidence.md) | Confidence scoring | E10 | P0 | T-100 | S | 3 | todo |

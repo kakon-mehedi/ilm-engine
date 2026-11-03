@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-010]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 2
 ---
 
@@ -33,10 +33,10 @@ Future JSON formats are supported by adding a new adapter, never by editing the 
 - Two adapters matching the same input → error (ambiguity).
 
 ## Acceptance criteria
-- [ ] Resolving the sample JSON returns `ShamelaV3Adapter` (after T-012).
-- [ ] A copy of the sample with `af_schema: '9.9'` raises `UnknownSchemaError`.
-- [ ] Registering two adapters for the same key raises.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Resolving the sample JSON returns `ShamelaV3Adapter` (after T-012).
+- [x] A copy of the sample with `af_schema: '9.9'` raises `UnknownSchemaError`.
+- [x] Registering two adapters for the same key raises.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -45,3 +45,9 @@ uv run pytest tests/test_registry.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- The protocol also carries `adapter_id` (the contract's `SourceInfo.adapter_id`, e.g. `shamela_v3`).
+- `UnknownSchemaError.issue` is a ready `Issue` (`unknown_schema_version`, severity error) that the `adapt` step records.
+- A declared key always wins over `detect()`: a declared but unknown key fails closed even if some adapter's `detect()` would accept the input.
+- `register = default_registry.register` / `resolve = default_registry.resolve`; T-012 registers `ShamelaV3Adapter` and adds the "sample resolves to ShamelaV3Adapter" test.

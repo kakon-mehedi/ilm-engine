@@ -104,3 +104,10 @@ def structure(ctx: RunContext) -> StepResult:
         data={"structure": result, "counts": {"sections": len(result.sections)}},
         issues=result.issues,
     )
+
+
+def metadata(ctx: RunContext) -> StepResult:
+    from ilm_engine.processors.metadata import card_metadata
+
+    record, issues = card_metadata(ctx.data("adapt", "book"), ctx.config)
+    return StepResult(files={"metadata.json": record}, data={"metadata": record}, issues=issues)

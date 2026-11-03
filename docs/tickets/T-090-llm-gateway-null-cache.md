@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-002]
 estimate: M
 owner: agent
-status: todo
+status: done
 wave: 2
 ---
 
@@ -36,10 +36,10 @@ All model calls go through one gateway so models can be swapped and runs repeate
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] With provider null, full pipeline completes and LLM-dependent items carry `needs_llm`.
-- [ ] Provider `fixture` replays a recorded response deterministically and raises on a missing fixture.
-- [ ] Second identical call returns `cached=True` without provider call (mock).
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] With provider null, full pipeline completes and LLM-dependent items carry `needs_llm`.
+- [x] Provider `fixture` replays a recorded response deterministically and raises on a missing fixture.
+- [x] Second identical call returns `cached=True` without provider call (mock).
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -48,3 +48,11 @@ uv run pytest tests/test_gateway.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- One result type reconciles the ticket, ADR-006 and 02-architecture §7: `LLMResult{output, model, provider, task, prompt_version, raw, cached, repaired, schema_valid, needs_llm, errors, usage}`. `task` is the prompt id.
+- Providers implement `complete(LLMRequest) -> ProviderResponse | None` (`llm/providers/base.py`) and only produce raw text; the gateway handles caching, JSON extraction (bare or fenced), Pydantic validation and the single repair retry.
+- The cache key is sha256 over provider + model + task + prompt version + canonical input; entries are written atomically, corrupt entries count as misses, and null results are never cached. A repaired answer is cached together with its repair, so replays make no calls.
+- `providers/fixture.py` names fixtures by the provider-independent `request_key` (`tests/fixtures/llm/<key>.json`, `<key>.repair.json` for repair turns); `record_fixture` writes them.
+- The gateway cannot know the affected record, so null results carry `needs_llm=True` and callers build the issue with `needs_llm_issue(...)`. "Full pipeline completes with provider null" is re-checked end to end in T-143.
+- `get_provider(name)` imports `ilm_engine.llm.providers.<name>` on demand, so T-091/T-092 providers register themselves.

@@ -6,7 +6,7 @@ priority: P0
 depends_on: []
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 0
 ---
 
@@ -33,8 +33,8 @@ Assignment §5.2 + §4 (12 steps) incl. agents, scripts, databases, human review
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] All 12 assignment steps present verbatim-numbered; renders without errors.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] All 12 assignment steps present verbatim-numbered; renders without errors.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash

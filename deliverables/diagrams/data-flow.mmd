@@ -1,0 +1,166 @@
+%% Deliverable 2 (assignment §5.2): Automation & data-flow diagram — the 12 steps of assignment §4
+%% Step numbering and titles follow assignment §4 (as mapped in docs/09-coverage-matrix.md §4 and docs/02-architecture.md §10).
+%% Pipeline step names in the node labels are the binding names of docs/DECISIONS.md §12b (pipeline/steps.py).
+%% Colour = method: script (deterministic programming) · NLP · LLM · agent · human. Cylinders = databases / stores.
+%% Arrows follow execution order (DECISIONS §12b), so related_works (step 4) runs after citations (step 6) and search_index (step 5) after relations (step 8).
+flowchart TD
+
+    subgraph LEG["Legend (colour = method)"]
+        direction LR
+        L1["Script / programming"]:::script
+        L2["Arabic NLP / embeddings"]:::nlp
+        L3["LLM call (via gateway)"]:::llm
+        L4["Agent (LangGraph; MVP: function)"]:::agent
+        L5["Human"]:::human
+        L6[("Database / store")]:::store
+    end
+
+    IN[/"Input package<br/>book JSON · PDF · identifiers (pub_id, work_id, edition_id, revision)"/]:::ext
+
+    %% ── Step 1 ──
+    subgraph S1["1 · Receive digitized text, PDF and identifiers"]
+        S1a["ingest<br/>load JSON + PDF (_meta.scan.saved_file)"]:::script
+        S1b["adapt<br/>Adapter Registry (source_code, schema_version)<br/>→ ShamelaV3Adapter → CanonicalBook"]:::script
+        S1c["integrity_register<br/>file sha256 · block_hash · canonical_content_hash"]:::script
+    end
+    ORIG[("Immutable original store<br/>store/originals/&lt;pub_ref&gt;/ read-only<br/>prod: MinIO / S3 object lock")]:::store
+
+    %% ── Step 2 ──
+    subgraph S2["2 · Analyse document structure"]
+        S2a["document_analysis<br/>page gaps · counts · quality → document_report.json"]:::script
+        S2b["structure<br/>section tree · TOC alignment → structure.json"]:::script
+        S2c["origin<br/>origin layers by rules + per-book YAML → origin_map.json"]:::script
+    end
+
+    %% ── Step 3 ──
+    subgraph S3["3 · Extract and enrich metadata"]
+        S3a["metadata (card)<br/>labelled fields · conflict detection"]:::script
+        S3b["metadata (preface prose)<br/>death year, manuscript info, with quote evidence"]:::llm
+    end
+
+    %% ── Step 4 ──
+    subgraph S4["4 · Identify genre and related works"]
+        S4a["genre<br/>Genre Router: category prior → content sample<br/>→ biography/ansab + hadith"]:::agent
+        S4b["related_works<br/>Related-Works / Citation Resolver<br/>tool: catalog search → related_works.json"]:::agent
+    end
+    CAT[("Work catalogue / authority data")]:::store
+
+    %% ── Step 5 ──
+    subgraph S5["5 · Structural and semantic indexes"]
+        S5a["structural index (from structure)<br/>section tree + block ranges"]:::script
+        S5b["search_index<br/>normalized lexical index (nlp/normalize.py)<br/>optional BGE-M3 embeddings → search_index.json"]:::nlp
+    end
+
+    %% ── Step 6 ──
+    subgraph S6["6 · Identify and map annotations and references"]
+        S6a["annotations<br/>refs · continued footnotes · nested footnotes → annotations.json"]:::script
+        S6b["citations<br/>external works (regex + works_aliases.yaml) · internal refs → citations.json"]:::script
+    end
+
+    %% ── Step 7 ──
+    subgraph S7["7 · Extract genre-specific knowledge units"]
+        S7a["units (segmentation)<br/>entry regex on author_text → 75 entries"]:::script
+        S7b["units (facts)<br/>Genre Extractor per genre schema<br/>structured output + verbatim quote"]:::agent
+    end
+
+    %% ── Step 8 ──
+    subgraph S8["8 · Identify entities and relationships"]
+        S8a["entities<br/>nasab parser · NER · alias clustering → entities.json"]:::nlp
+        S8b["relations (patterned)<br/>closing phrases ابنا… / بنو… · لأم ولد"]:::script
+        S8c["relations (free prose)<br/>LLM with evidence → relationships.json"]:::llm
+    end
+
+    %% ── Step 9 ──
+    subgraph S9["9 · Validate with AI-based quality checks"]
+        S9a["validate · evidence guard<br/>text[start:end] == quote on original"]:::script
+        S9b["validate · consensus<br/>model A vs model B (different family)"]:::llm
+        S9c["Discrepancy Resolver<br/>tools: re-read source, second model"]:::agent
+        S9d["validate · confidence + sensitivity<br/>DECISIONS §8 formula → validation_report.json"]:::script
+    end
+    REJ["Rejected<br/>evidence_not_found / schema_invalid"]:::script
+
+    %% ── Step 10 ──
+    subgraph S10["10 · Send uncertain or sensitive results to human review"]
+        S10a["review_queue<br/>context + PDF page → review_queue.json · review.html"]:::script
+        S10b["Reviewer<br/>editor_reviewer · scholar_reviewer (sensitive)<br/>approve · edit · reject · reprocess<br/>prod: Argilla"]:::human
+        S10c["review apply<br/>review_decisions.json → enrichment layer<br/>approved/edited → training_examples.jsonl"]:::script
+    end
+
+    %% ── Step 11 ──
+    subgraph S11["11 · Store approved information in the enrichment layer"]
+        S11a["store"]:::script
+    end
+    DB[("Enrichment layer (source of truth)<br/>MVP: output/&lt;pub_ref&gt;/*.json + enrichment.db (SQLite)<br/>prod: PostgreSQL")]:::store
+
+    %% ── Step 12 ──
+    subgraph S12["12 · Make enriched books and knowledge available for publishing and search"]
+        S12a["export<br/>enrichment.json · graph.html"]:::script
+        S12b["Projection jobs (prod)<br/>rebuild-derived"]:::script
+        S12c["Library API · digital library<br/>reader · search · discovery"]:::script
+    end
+    QD[("Qdrant<br/>vectors (derived)")]:::store
+    NEO[("Neo4j<br/>graph (derived)")]:::store
+    OS[("OpenSearch<br/>Arabic search (derived)")]:::store
+
+    FIN["integrity_verify → manifest<br/>originals unchanged · anchors valid · run_manifest.json"]:::script
+
+    %% LLM gateway shared by all LLM / agent nodes
+    GW["LLM Gateway<br/>null | fixture | anthropic | litellm · temp 0"]:::llm
+    CACHE[("Response cache<br/>cache/&lt;sha256&gt;.json")]:::store
+
+    %% ── Main flow ──
+    IN --> S1a --> S1b --> S1c
+    S1c --> ORIG
+    S1c --> S2a --> S2b --> S2c
+    S2c --> S3a --> S3b
+    S3b --> S4a
+    S4a --> S5a
+    S5a --> S6a --> S6b
+    S6b --> S4b
+    S4b <-->|"catalog search"| CAT
+    S4b --> S7a
+    S4a -->|"selects genre schema"| S7b
+    S7a --> S7b --> S8a --> S8b --> S8c
+    S8c --> S5b
+    S5b --> S9a
+    S9a -->|"quote not found"| REJ
+    S9a -->|"quotes verified"| S9b
+    S9b -->|"agree ×1.2"| S9d
+    S9b -->|"disagree"| S9c
+    S9c -->|"resolved ×0.9"| S9d
+    S9c -->|"unresolved: model_disagreement"| S10a
+
+    %% ── Routing: auto-approve vs human review; sensitive path ──
+    S9d -->|"auto_approved<br/>confidence ≥ 0.80 and not sensitive"| S11a
+    S9d -->|"pending_review<br/>confidence &lt; threshold"| S10a
+    S9d ==>|"SENSITIVE → always review<br/>prophetic_attribution · hadith_grading · fiqh_ruling<br/>aqeedah_proposition · narrator_disambiguation"| S10a
+    S4a -->|"low-confidence genre"| S10a
+
+    %% ── Human review loop ──
+    S10a --> S10b --> S10c
+    S10c -->|"approved / edited"| S11a
+    S10c -->|"rejected"| REJ
+    S10c -.->|"reprocess_requested"| S7b
+
+    S11a --> DB
+    DB --> S12a
+    DB --> S12b --> QD & NEO & OS
+    QD & NEO & OS --> S12c
+    S12a --> S12c
+    S12a --> FIN
+
+    %% ── LLM gateway usage ──
+    S3b & S4a & S4b & S7b & S8c & S9b & S9c -.-> GW
+    GW <-.-> CACHE
+    ORIG -.->|"original text (read-only)"| S12b
+
+    %% Sensitive path emphasis
+    linkStyle 31 stroke:#b91c1c,stroke-width:3px
+
+    classDef script fill:#dbeafe,stroke:#1d4ed8,color:#000
+    classDef nlp fill:#dcfce7,stroke:#15803d,color:#000
+    classDef llm fill:#ffedd5,stroke:#c2410c,color:#000
+    classDef agent fill:#fde68a,stroke:#a16207,stroke-width:2px,color:#000
+    classDef human fill:#fee2e2,stroke:#b91c1c,color:#000
+    classDef store fill:#f3f4f6,stroke:#374151,color:#000
+    classDef ext fill:#ffffff,stroke:#6b7280,stroke-dasharray:3 3,color:#000

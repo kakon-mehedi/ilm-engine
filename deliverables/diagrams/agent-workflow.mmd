@@ -1,0 +1,94 @@
+%% Agent workflow: the only four agents + their tools (DECISIONS §12, ADR-014, docs/02-architecture.md §8, docs/06-ai-strategy.md)
+%% Production: LangGraph graphs (src/ilm_engine/agents/). MVP: plain functions behind the same interface.
+%% Every agent has a step budget (max tool calls, max tokens) and ends with a schema-valid output or an issue.
+flowchart TD
+
+    subgraph LEG["Legend"]
+        direction LR
+        LA["Agent"]:::agent
+        LT["Tool (deterministic)"]:::tool
+        LS["Script / worker"]:::script
+        LL["LLM call"]:::llm
+        LH["Human"]:::human
+        LD[("Store")]:::store
+    end
+
+    IN["Canonical blocks + metadata + annotations<br/>(from deterministic workers)"]:::script
+
+    %% ── Agent 1 ──
+    subgraph AG1["Agent 1 · Genre Router — MVP processors/genre.py"]
+        GR["Genre Router<br/>decides: primary / secondary genre per section,<br/>which genre schemas and extractors to run"]:::agent
+        GRT1["metadata reader<br/>category (الأنساب) · title"]:::tool
+        GRT2["block sampler<br/>heading text · 20 author_text blocks"]:::tool
+        GRT3["genre classifier<br/>(Haiku-class / small model)"]:::llm
+    end
+
+    %% ── Agent 2 ──
+    subgraph AG2["Agent 2 · Genre Extractor (one per genre schema) — MVP extractors/llm_extract.py"]
+        GE["Genre Extractor<br/>decides: which candidates become units,<br/>how to fill the schema"]:::agent
+        GET1["candidate list<br/>(units from entry regex)"]:::tool
+        GET2["block reader · footnote reader"]:::tool
+        GET3["schema validator<br/>Pydantic genre schema · 1 repair retry"]:::tool
+        GES["Genre schemas: fiqh · hadith · tafsir · seerah ·<br/>aqeedah · history · biography (ansab)"]:::script
+    end
+
+    EVG["Evidence guard (worker)<br/>quote must equal original text[start:end]"]:::script
+    CON["Consensus (worker)<br/>model A vs model B (different family)"]:::script
+
+    %% ── Agent 4 ──
+    subgraph AG4["Agent 4 · Discrepancy Resolver — MVP validation/consensus.py"]
+        DR["Discrepancy Resolver<br/>decides: how to settle model disagreement<br/>or a validation / metadata conflict"]:::agent
+        DRT1["re-read source blocks"]:::tool
+        DRT2["call second model / judge<br/>(Opus-class or other family)"]:::llm
+        DRT3["open issue<br/>model_disagreement · metadata_conflict"]:::tool
+    end
+
+    %% ── Agent 3 ──
+    subgraph AG3["Agent 3 · Related-Works / Citation Resolver — MVP extractors/related_works.py"]
+        CR["Citation Resolver<br/>decides: which catalogued work a citation<br/>or mention refers to (e.g. الإصابة)"]:::agent
+        CRT1["catalog search"]:::tool
+        CRT2["normalized title matcher<br/>config/works_aliases.yaml"]:::tool
+        CRT3["author lookup"]:::tool
+    end
+    CAT[("Work catalogue / authority data")]:::store
+
+    CONF["Confidence + sensitivity (worker)<br/>DECISIONS §8 formula · threshold 0.80"]:::script
+    HR["Human review<br/>review_queue.json · prod: Argilla"]:::human
+    OK["auto_approved → enrichment layer"]:::script
+    REJ["Rejected<br/>evidence_not_found"]:::script
+
+    GW["LLM Gateway — llm/gateway.py<br/>null | fixture | anthropic | litellm · temperature 0"]:::llm
+    CACHE[("Response cache<br/>cache/&lt;sha256&gt;.json")]:::store
+
+    %% ── Flow (state machine of 02-architecture §8) ──
+    IN --> GR
+    GR --- GRT1 & GRT2 & GRT3
+    GR -->|"genre + schema chosen"| GE
+    GR -->|"low-confidence genre"| HR
+    GE --- GET1 & GET2 & GET3
+    GES -.-> GET3
+    GE --> EVG
+    EVG -->|"quote not found"| REJ
+    EVG -->|"quotes verified"| CON
+    CON -->|"agreed ×1.2"| CR
+    CON -->|"disagreement"| DR
+    DR --- DRT1 & DRT2 & DRT3
+    DR -->|"resolved (judge ×0.9)"| CR
+    DR -->|"unresolved"| HR
+    CR --- CRT1 & CRT2 & CRT3
+    CRT1 <--> CAT
+    CR -->|"resolved work / unresolved title → review"| CONF
+    CONF -->|"≥ threshold and not sensitive"| OK
+    CONF -->|"below threshold or sensitive"| HR
+    HR -->|"approved / edited"| OK
+    HR -->|"rejected"| REJ
+
+    GR & GE & CR & DR -.->|"LLM calls"| GW
+    GW <-.-> CACHE
+
+    classDef agent fill:#fde68a,stroke:#a16207,stroke-width:2px,color:#000
+    classDef tool fill:#f5f5f4,stroke:#57534e,color:#000
+    classDef script fill:#dbeafe,stroke:#1d4ed8,color:#000
+    classDef llm fill:#ffedd5,stroke:#c2410c,color:#000
+    classDef human fill:#fee2e2,stroke:#b91c1c,color:#000
+    classDef store fill:#f3f4f6,stroke:#374151,color:#000

@@ -283,3 +283,28 @@ def search(
             f"{rank:>2}. {hit.kind:<6} p.{anchor.get('page', '?'):<3} {anchor.get('block_id', '-'):<8} "
             f"{origin:<18} {hit.score:7.3f}  {anchor.get('quote', '')}"
         )
+
+
+@app.command("eval")
+def eval_command(
+    book: Annotated[
+        str | None, typer.Option("--book", help="pub_ref (default: the only run in --out).")
+    ] = None,
+    out: Annotated[Path, typer.Option("--out", help="Output root.")] = Path("output"),
+    gold: Annotated[Path | None, typer.Option("--gold", help="Gold sample JSON.")] = None,
+) -> None:
+    """Evaluate extracted entry subjects against the printed-index gold sample; writes eval_report.json."""
+    from ilm_engine.enrichment.models import Enrichment
+    from ilm_engine.eval.gold import DEFAULT_GOLD, evaluate, load_gold
+    from ilm_engine.storage.json_store import JsonStore
+
+    directory = _book_dir(out, book)
+    enrichment = Enrichment.model_validate_json((directory / "enrichment.json").read_text(encoding="utf-8"))
+    report = evaluate(enrichment, load_gold(gold or DEFAULT_GOLD))
+    JsonStore(enrichment.pub_ref, out).write("eval_report.json", report)
+    typer.echo(
+        f"precision {report['precision']:.3f}  recall {report['recall']:.3f}  f1 {report['f1']:.3f}  "
+        f"({report['matched']}/{report['gold']['entries']} gold entries matched)"
+    )
+    for miss in report["missed"]:
+        typer.echo(f"  missed #{miss['entry_no']}: gold {miss['gold']!r}, extracted {miss['extracted']!r}")

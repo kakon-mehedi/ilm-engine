@@ -194,7 +194,13 @@ def related_works(ctx: RunContext) -> StepResult:
 
 def units(ctx: RunContext) -> StepResult:
     from ilm_engine.enrichment.issues import make_issue
-    from ilm_engine.extractors.units import assemble_units, detect_entries, with_llm_facts, with_rule_facts
+    from ilm_engine.extractors.units import (
+        assemble_units,
+        detect_entries,
+        with_llm_facts,
+        with_rule_facts,
+        with_section_membership,
+    )
 
     book, origins = ctx.data("adapt", "book"), ctx.data("origin", "origins")
     structure = ctx.data("structure", "structure")
@@ -210,7 +216,7 @@ def units(ctx: RunContext) -> StepResult:
         genre=decision.primary or "biography",
         sub_type=decision.sub_type,
     )
-    result = with_rule_facts(book, result, origins, ctx.config)
+    result = with_section_membership(book, with_rule_facts(book, result, origins, ctx.config), structure)
     model_outputs: dict = {}
     if ctx.llm is not None and ctx.options.get("llm", "null") != "null":
         result, llm_issues, model_outputs = with_llm_facts(

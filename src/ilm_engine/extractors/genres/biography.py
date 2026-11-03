@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from ilm_engine.extractors.genres._base import Payload
 
@@ -48,6 +48,9 @@ class UnitSchema(Payload):
     companion_status: Literal["sahabi", "not_sahabi", "unknown"] = "unknown"
     narration_status: bool | None = None  # has narration
     section_heading_block: str | None = None
+    section_subject: str | None = None  # person whose children the section lists ("العباس بن عبد المطلب")
+    section_mother: str | None = None  # "من أمهم خديجة"
+    section_heading_anchor: dict[str, Any] | None = None  # evidence for inferred relations (T-084)
     tarjama_annotation: str | None = None  # footnote block of the entry's biography note
 
 

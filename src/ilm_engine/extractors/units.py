@@ -20,7 +20,7 @@ from ilm_engine.enrichment.models import Anchor, Annotation, Fact, Issue, Knowle
 from ilm_engine.extractors.genres.biography import UnitSchema as BiographyUnit
 from ilm_engine.ids import make_id, natural_key
 from ilm_engine.nlp.arabic_digits import to_int, words_to_int
-from ilm_engine.nlp.nasab import parse_name
+from ilm_engine.nlp.nasab import clean, parse_name
 from ilm_engine.nlp.normalize import normalize_with_map
 from ilm_engine.processors.structure import Structure
 from ilm_engine.validation.confidence import decide, score
@@ -419,3 +419,74 @@ def with_llm_facts(
             outputs[fact_id] = item.model_outputs
         updated.append(unit.model_copy(update={"facts": facts}))
     return updated, issues, outputs
+
+
+# --- Section membership (T-073) --------------------------------------------------------------------------
+
+_GROUP = re.compile(r"(?:أولاد|ولد|ذرية|بنو|بني)\s+(?P<rest>.+)$")
+_HONORIFIC = re.compile(r"\s*-?\s*صلى\s+الله\s+عليه\s+(?:وآله\s+)?وسلم\s*-?")
+_MOTHER = re.compile(r"من\s+أمهم\s+(?P<mother>[^\s:؛،.]+)")
+_HEADING_DECORATION = re.compile(r"[*\[\]]")
+
+
+def section_subject(title: str) -> tuple[str | None, str | None]:
+    """(subject, mother) of a group heading.
+
+    "* الأُخوة من ولد العباس بن عبد المطلب:" → ("العباس بن عبد المطلب", None).
+    """
+    text = clean(_HEADING_DECORATION.sub(" ", title)).strip()
+    mother = _MOTHER.search(text)
+    group = _GROUP.search(text)
+    if group is None:
+        return None, mother.group("mother") if mother else None
+    rest = group.group("rest")
+    honorific = bool(_HONORIFIC.match(rest[len("رسول الله") :])) if rest.startswith("رسول الله") else False
+    name = parse_name(_HONORIFIC.sub(" ", rest).split(" من أمهم")[0])
+    if name is None:
+        return None, mother.group("mother") if mother else None
+    subject = clean(name.raw).strip()
+    return (f"{subject} ﷺ" if honorific else subject), (mother.group("mother") if mother else None)
+
+
+def with_section_membership(
+    book: CanonicalBook, units: list[KnowledgeUnit], structure: Structure
+) -> list[KnowledgeUnit]:
+    """Attach the section's subject, mother and heading anchor to each unit's payload."""
+    updated = []
+    for unit in units:
+        section = structure.section(unit.section_id)
+        payload = dict(unit.payload)
+        if section.heading_block_id:
+            heading = book.block(section.heading_block_id)
+            subject, mother = section_subject(heading.text)
+            anchor = Anchor(
+                pub_ref=book.book.pub_ref,
+                page=heading.page,
+                scan_page=book.page(heading.page, heading.volume).scan_page,
+                block_id=heading.block_id,
+                start=0,
+                end=len(heading.text),
+                quote=heading.text,
+                block_hash=heading.block_hash,
+            )
+            payload.update(
+                {
+                    k: v
+                    for k, v in {
+                        "section_subject": subject,
+                        "section_mother": mother,
+                        "section_heading_anchor": anchor.model_dump(mode="json"),
+                    }.items()
+                    if v is not None
+                }
+            )
+        updated.append(
+            unit.model_copy(
+                update={
+                    "payload": BiographyUnit.model_validate(payload).model_dump(
+                        mode="json", exclude_none=True
+                    )
+                }
+            )
+        )
+    return updated

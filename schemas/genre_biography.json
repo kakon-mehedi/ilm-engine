@@ -266,6 +266,19 @@
       "title": "Relatives",
       "type": "array"
     },
+    "section_heading_anchor": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Heading Anchor"
+    },
     "section_heading_block": {
       "anyOf": [
         {
@@ -277,6 +290,30 @@
       ],
       "default": null,
       "title": "Section Heading Block"
+    },
+    "section_mother": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Mother"
+    },
+    "section_subject": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Subject"
     },
     "students": {
       "default": [],

@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-050]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 7
 ---
 
@@ -32,9 +32,9 @@ JSON has 0 refs from footnotes. b000215 (p.33, marker 'أ') is the note of '(أ)
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] Exactly 1 candidate: b000215, linked to b000210 at the '(أ)' offset.
-- [ ] 0 remaining `unlinked_footnote` on the sample.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Exactly 1 candidate: b000215, linked to b000210 at the '(أ)' offset.
+- [x] 0 remaining `unlinked_footnote` on the sample.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -43,3 +43,7 @@ uv run pytest tests/test_nested.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- Candidates are footnotes targeted by no annotation and not continuation parts: exactly one on the sample, b000215. It links to "(أ)" at b000210 [30:33] as a `nested_footnote` annotation (`link_method: marker_match`, rule provenance, status `verified` for a single match, `candidate` for several), with issue `nested_footnote` (warning, as in 03-data-contracts §4).
+- A footnote that stays unreferenced raises `unlinked_footnote` (none on the sample). With the 300 ref annotations this gives 301 annotations covering all 317 footnotes (16 as continuation parts).

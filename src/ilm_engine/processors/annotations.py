@@ -206,6 +206,80 @@ def join_continuations(book: CanonicalBook, result: Annotations) -> Annotations:
     return Annotations(updated, [*result.issues, *issues], continuation_of)
 
 
+def link_nested(book: CanonicalBook, result: Annotations) -> Annotations:
+    """Footnotes no ref points to (and not continuation parts) are looked up as "(marker)" inside the
+    other footnotes of their page: a single match is a nested footnote (EC-042); otherwise the
+    footnote is `unlinked_footnote` and goes to review (EC-043)."""
+    ctx = _Context(book)
+    targeted = set(result.by_target())
+    added: list[Annotation] = []
+    issues: list[Issue] = []
+    for block in book.blocks_in_order():
+        if block.kind != "footnote" or block.block_id in targeted or block.block_id in result.continuation_of:
+            continue
+        hits: list[tuple[Block, int]] = []
+        if block.marker:
+            needle = f"({block.marker.strip()})"
+            for other_id in book.page(block.page, block.volume).block_ids:
+                other = book.block(other_id)
+                if other.kind == "footnote" and other_id != block.block_id:
+                    hits += [(other, match.start()) for match in re.finditer(re.escape(needle), other.text)]
+        if not hits:
+            issues.append(
+                make_issue(
+                    ctx.pub_ref,
+                    "unlinked_footnote",
+                    "warning",
+                    "annotation",
+                    block.block_id,
+                    f"Footnote {block.block_id} (p.{block.page}, marker {block.marker!r}) is not referenced.",
+                    STEP,
+                    details={"marker": block.marker},
+                )
+            )
+            continue
+        parent, start = hits[0]
+        end = start + len(f"({block.marker.strip()})")  # type: ignore[union-attr]
+        status = "verified" if len(hits) == 1 else "candidate"
+        added.append(
+            Annotation(
+                annotation_id=make_id(
+                    "ann", ctx.pub_ref, natural_key(parent.block_id, start, block.block_id)
+                ),
+                type="nested_footnote",
+                source_block_id=parent.block_id,
+                marker_anchor=ctx.anchor(parent, start, end),
+                target_block_ids=[block.block_id],
+                marker_text=block.marker,
+                link_method="marker_match",
+                is_entry_note=False,
+                status=status,  # type: ignore[arg-type]
+                provenance=Provenance(method="rule", step=STEP, step_version="1.0.0"),
+            )
+        )
+        issues.append(
+            make_issue(
+                ctx.pub_ref,
+                "nested_footnote",
+                "warning",
+                "annotation",
+                block.block_id,
+                f"Footnote with marker {block.marker!r} has no incoming ref; matched to "
+                f"{parent.block_id} [{start}:{end}]"
+                + ("" if status == "verified" else f" ({len(hits)} candidates)")
+                + ".",
+                STEP,
+                details={
+                    "parent_footnote": parent.block_id,
+                    "parent_start": start,
+                    "parent_end": end,
+                    "candidates": len(hits),
+                },
+            )
+        )
+    return Annotations([*result.annotations, *added], [*result.issues, *issues], result.continuation_of)
+
+
 def build(book: CanonicalBook) -> Annotations:
-    """All annotation passes of the step."""
-    return join_continuations(book, resolve_refs(book))
+    """All annotation passes of the step: source refs, continued footnotes, nested footnotes."""
+    return link_nested(book, join_continuations(book, resolve_refs(book)))

@@ -47,7 +47,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 
 | ID | Title | Epic | Priority | Depends on | Est. | Wave | Status |
 |---|---|---|---|---|---|---|---|
-| [T-001](T-001-repo-scaffold.md) | Repository scaffold (uv, pyproject, ruff, pytest) | E00 | P0 | — | S | 0 | todo |
+| [T-001](T-001-repo-scaffold.md) | Repository scaffold (uv, pyproject, ruff, pytest) | E00 | P0 | — | S | 0 | done |
 | [T-002](T-002-config-loader.md) | Config loader (default.yaml + per-book overrides) | E00 | P0 | T-001 | S | 1 | todo |
 | [T-003](T-003-deterministic-ids.md) | Deterministic ID generation (ids.py) | E00 | P0 | T-001 | S | 1 | todo |
 | [T-004](T-004-logging.md) | Structured logging | E00 | P1 | T-001 | S | 1 | todo |

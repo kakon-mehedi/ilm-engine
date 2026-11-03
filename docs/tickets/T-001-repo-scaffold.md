@@ -6,7 +6,7 @@ priority: P0
 depends_on: []
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 0
 ---
 
@@ -39,12 +39,12 @@ Create the MVP Python project exactly as laid out in DECISIONS.md §3 so every l
 - ruff config: line-length 110, target py312, select E,F,I,B,UP.
 
 ## Acceptance criteria
-- [ ] `uv sync` succeeds.
-- [ ] `uv run ilm-engine version` prints the package version.
-- [ ] `uv run pytest` runs and `test_smoke.py` passes.
-- [ ] `uv run ruff check .` is clean.
-- [ ] Directory tree matches DECISIONS §3 (all sub-packages exist).
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] `uv sync` succeeds.
+- [x] `uv run ilm-engine version` prints the package version.
+- [x] `uv run pytest` runs and `test_smoke.py` passes.
+- [x] `uv run ruff check .` is clean.
+- [x] Directory tree matches DECISIONS §3 (all sub-packages exist).
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash

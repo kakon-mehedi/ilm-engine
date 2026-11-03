@@ -35,3 +35,6 @@ htmlcov/
 # Logs
 *.log
 logs/
+
+# Claude Code agent worktrees
+.claude/worktrees/

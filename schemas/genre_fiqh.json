@@ -1,0 +1,224 @@
+{
+  "$defs": {
+    "Dalil": {
+      "additionalProperties": false,
+      "properties": {
+        "block_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Block Id"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ref"
+        },
+        "type": {
+          "enum": [
+            "quran",
+            "hadith",
+            "ijma",
+            "qiyas",
+            "athar"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Dalil",
+      "type": "object"
+    },
+    "Hukm": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        }
+      },
+      "title": "Hukm",
+      "type": "object"
+    },
+    "Khilaf": {
+      "additionalProperties": false,
+      "properties": {
+        "dalil": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dalil"
+        },
+        "madhhab": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Madhhab"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Position"
+        },
+        "scholar": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scholar"
+        }
+      },
+      "title": "Khilaf",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dalil": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Dalil"
+      },
+      "title": "Dalil",
+      "type": "array"
+    },
+    "hukm": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Hukm"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "sensitive": true,
+      "sensitive_category": "fiqh_ruling"
+    },
+    "khilaf": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Khilaf"
+      },
+      "title": "Khilaf",
+      "type": "array"
+    },
+    "madhhab": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Madhhab"
+    },
+    "masala": {
+      "title": "Masala",
+      "type": "string"
+    },
+    "qail": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Qail"
+    },
+    "rajih": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rajih"
+    }
+  },
+  "required": [
+    "masala"
+  ],
+  "title": "UnitSchema",
+  "type": "object"
+}

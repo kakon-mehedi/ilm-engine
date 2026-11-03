@@ -41,10 +41,19 @@ TOP_LEVEL_MODELS: tuple[type[BaseModel], ...] = (
 )
 
 
+def _models() -> dict[str, type[BaseModel]]:
+    from ilm_engine.extractors.genres import registry
+
+    named = {model.__name__: model for model in TOP_LEVEL_MODELS}
+    named.update({f"genre_{genre}": plugin.unit_schema for genre, plugin in registry().items()})
+    return named
+
+
 def schemas() -> dict[str, bytes]:
-    """File name → canonical JSON bytes of each model's JSON Schema (serialization mode, by alias)."""
+    """File name → canonical JSON bytes of each model's JSON Schema (serialization mode, by alias),
+    plus one schema per genre payload (`genre_<genre>.json`)."""
     return {
-        f"{model.__name__}.json": (
+        f"{name}.json": (
             json.dumps(
                 model.model_json_schema(by_alias=True, mode="serialization"),
                 indent=2,
@@ -53,7 +62,7 @@ def schemas() -> dict[str, bytes]:
             )
             + "\n"
         ).encode("utf-8")
-        for model in TOP_LEVEL_MODELS
+        for name, model in _models().items()
     }
 
 

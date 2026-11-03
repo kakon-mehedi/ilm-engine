@@ -118,7 +118,10 @@ def test_schema_export_writes_one_file_per_model(tmp_path):
     result = runner.invoke(app, ["schema", "export", "--out", str(tmp_path / "schemas")])
     assert result.exit_code == 0
     files = sorted(path.name for path in (tmp_path / "schemas").iterdir())
-    assert files == sorted(f"{model.__name__}.json" for model in TOP_LEVEL_MODELS)
+    genres = ["aqeedah", "biography", "fiqh", "hadith", "history", "seerah", "tafsir"]
+    assert files == sorted(
+        [f"{model.__name__}.json" for model in TOP_LEVEL_MODELS] + [f"genre_{g}.json" for g in genres]
+    )
     span = json.loads((tmp_path / "schemas" / "CanonicalBook.json").read_text(encoding="utf-8"))["$defs"][
         "Span"
     ]

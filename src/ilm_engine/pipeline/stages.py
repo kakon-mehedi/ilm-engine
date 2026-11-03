@@ -120,3 +120,11 @@ def origin(ctx: RunContext) -> StepResult:
     return StepResult(
         files={"origin_map.json": result.to_json()}, data={"origins": result.blocks, "origin_map": result}
     )
+
+
+def genre(ctx: RunContext) -> StepResult:
+    from ilm_engine.processors.genre import metadata_fields, route
+
+    decision = route(ctx.data("adapt", "book"), ctx.config)
+    primary, secondary = metadata_fields(decision, ctx.config)
+    return StepResult(data={"genre": decision, "genre_primary": primary, "genre_secondary": secondary})

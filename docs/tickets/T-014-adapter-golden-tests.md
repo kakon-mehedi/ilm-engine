@@ -6,7 +6,7 @@ priority: P0
 depends_on: [T-012]
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 4
 ---
 
@@ -34,9 +34,9 @@ Contract tests prove an adapter keeps producing the same canonical output; they 
 
 ## Acceptance criteria
 
-- [ ] Golden files are regenerated only via `ilm-engine dev regen-goldens` (explicit human request); normal test runs never rewrite them.
-- [ ] Golden test passes; changing adapter mapping makes it fail with a readable diff.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Golden files are regenerated only via `ilm-engine dev regen-goldens` (explicit human request); normal test runs never rewrite them.
+- [x] Golden test passes; changing adapter mapping makes it fail with a readable diff.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -45,3 +45,8 @@ uv run pytest tests/test_golden_adapters.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- **Golden files are git-ignored**, not committed: the excerpt (pages 21 and 25) is text of the client's confidential sample, which `.gitignore` already keeps out of the repository. They are generated locally with `uv run ilm-engine dev regen-goldens --yes` (or `python -m ilm_engine.tools.update_golden`); the golden test skips when they are absent, like every other test that needs `data/`. If redistribution is cleared with the client, remove the `.gitignore` entry and commit them.
+- `dev regen-goldens` refuses to run without `--yes` (explicit human request); tests never rewrite the files.
+- Comparison is byte-identical canonical JSON; a mismatch prints a unified diff (first 60 lines).

@@ -38,3 +38,6 @@ logs/
 
 # Claude Code agent worktrees
 .claude/worktrees/
+
+# Adapter golden files are excerpts of the confidential sample (regenerate: ilm-engine dev regen-goldens --yes)
+tests/golden/shamela_v3/

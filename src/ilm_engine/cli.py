@@ -16,6 +16,8 @@ from ilm_engine.log import logging_setup
 app = typer.Typer(help="Post-OCR knowledge enrichment for digitized Islamic books.", no_args_is_help=True)
 schema_app = typer.Typer(help="Contract JSON Schemas.", no_args_is_help=True)
 app.add_typer(schema_app, name="schema")
+dev_app = typer.Typer(help="Developer-only commands.", no_args_is_help=True)
+app.add_typer(dev_app, name="dev")
 
 EXIT_OK, EXIT_FAILED, EXIT_UNKNOWN_SCHEMA = 0, 1, 2
 LLM_PROVIDERS = ("null", "fixture", "anthropic", "litellm")
@@ -164,4 +166,18 @@ def schema_export(
     from ilm_engine.schema_export import export
 
     for path in export(out):
+        typer.echo(str(path))
+
+
+@dev_app.command("regen-goldens")
+def regen_goldens(
+    yes: Annotated[bool, typer.Option("--yes", help="Confirm: overwrite the adapter golden files.")] = False,
+) -> None:
+    """Regenerate the adapter golden files from the sample (only on explicit request)."""
+    from ilm_engine.tools.update_golden import regenerate
+
+    if not yes:
+        typer.echo("Refusing to overwrite golden files without --yes.", err=True)
+        raise typer.Exit(EXIT_FAILED)
+    for path in regenerate():
         typer.echo(str(path))

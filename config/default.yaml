@@ -39,6 +39,7 @@ confidence:
     ambiguous_entity: 0.8
     grammar_mismatch: 0.7
     ocr_noise: 0.9
+    ambiguous_quote: 0.9  # quote occurs several times in the block and no position hint (ADR-007)
 
 entries:
   # Biographical entry number at the start of an entry, e.g. "٣٢ - أروى" (Arabic-Indic digits).

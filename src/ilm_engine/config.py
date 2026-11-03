@@ -90,6 +90,7 @@ class PenaltyFactors(_Section):
     ambiguous_entity: float
     grammar_mismatch: float
     ocr_noise: float
+    ambiguous_quote: float
 
 
 class ConfidenceConfig(_Section):

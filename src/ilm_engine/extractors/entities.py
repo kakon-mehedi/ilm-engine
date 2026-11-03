@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 
 from ilm_engine.canonical.models import CanonicalBook
 from ilm_engine.config import Config
+from ilm_engine.enrichment.issues import make_issue
 from ilm_engine.enrichment.models import (
     Anchor,
     BookMetadata,
@@ -25,7 +26,7 @@ from ilm_engine.enrichment.models import (
 )
 from ilm_engine.ids import make_id, natural_key
 from ilm_engine.nlp.nasab import clean, parse_name
-from ilm_engine.nlp.normalize import normalize
+from ilm_engine.nlp.normalize import normalize, normalize_with_map
 from ilm_engine.validation.confidence import decide, score
 
 STEP = "entities"
@@ -213,4 +214,135 @@ def build_entities(
 ) -> Entities:
     subjects, unit_subjects = subject_entities(book, units, config)
     entities = [prophet_entity(book, origins, config), *book_people(book, metadata, config), *subjects]
-    return Entities(entities, unit_subjects)
+    return resolve_aliases(book, Entities(entities, unit_subjects))
+
+
+# --- Alias resolution and de-duplication (T-081) ----------------------------------------------------------
+
+FRONT_MATTER_LAST_PAGE = 19
+
+
+def same_person(a: PersonName, b: PersonName) -> bool:
+    """Same ism and ≥ 2 shared chain names, or same kunya and nisba. Never the ism alone."""
+    if a.ism and a.ism == b.ism and len(a.nasab) >= 2 and len(b.nasab) >= 2 and a.nasab[:2] == b.nasab[:2]:
+        return True
+    return bool(a.kunya and a.kunya == b.kunya and a.nisba and set(a.nisba) & set(b.nisba))
+
+
+def _name_mentions(book: CanonicalBook, entity: Entity) -> list[tuple[Anchor, PersonName]]:
+    """Full-name mentions of `entity` in the front matter (its ism followed by its first ancestor)."""
+    name = entity.name
+    if name is None or not name.ism or not name.nasab:
+        return []
+    needle = f"{normalize(name.ism)} بن {normalize(name.nasab[0])}"
+    found = []
+    for block in book.blocks_in_order():
+        if block.page > FRONT_MATTER_LAST_PAGE or block.kind == "footnote":
+            continue
+        mapped = normalize_with_map(block.text)
+        for match in re.finditer(re.escape(needle), mapped.text.replace("ابن ", "بن ")):
+            start = mapped.starts[match.start()]
+            kunya = re.search(r"(?:أبو|أبي|أبا)\s+\S+\s+$", block.text[:start])
+            start = kunya.start() if kunya else start
+            parsed = parse_name(block.text[start:], offset=start)
+            if parsed is not None:
+                found.append(
+                    (_anchor(book, block.block_id, parsed.span[0], parsed.span[1]), parsed.to_person_name())
+                )
+    return found
+
+
+def _nisba_mentions(book: CanonicalBook, nisba: str) -> list[Anchor]:
+    pattern = re.compile(rf"(?<![ء-ي]){re.escape(normalize(nisba))}(?![ء-ي])")
+    found = []
+    for block in book.blocks_in_order():
+        mapped = normalize_with_map(block.text)
+        for match in pattern.finditer(mapped.text):
+            start, end = mapped.to_original(match.start(), match.end())
+            found.append(_anchor(book, block.block_id, start, end))
+    return found
+
+
+def resolve_aliases(book: CanonicalBook, result: Entities) -> Entities:
+    """Merge duplicate persons, collect alias spellings, flag same-name people with conflicting chains."""
+    entities = list(result.entities)
+    merged: dict[str, str] = {}  # removed entity id → kept entity id
+    for i, keep in enumerate(entities):
+        if keep.entity_id in merged or keep.name is None:
+            continue
+        for other in entities[i + 1 :]:
+            if (
+                other.entity_id not in merged
+                and other.name is not None
+                and same_person(keep.name, other.name)
+            ):
+                merged[other.entity_id] = keep.entity_id
+
+    nisba_owners: dict[str, list[str]] = {}
+    for entity in entities:
+        if entity.entity_id not in merged and entity.name:
+            for nisba in entity.name.nisba:
+                nisba_owners.setdefault(normalize(nisba), []).append(entity.entity_id)
+
+    by_id = {e.entity_id: e for e in entities}
+    updated: dict[str, Entity] = {}
+    for entity in entities:
+        if entity.entity_id in merged:
+            continue
+        mentions = list(entity.mentions)
+        aliases = set(entity.aliases)
+        for removed, kept in merged.items():
+            if kept == entity.entity_id:
+                mentions += by_id[removed].mentions
+                aliases.add(by_id[removed].canonical_name)
+        for anchor, _ in _name_mentions(book, entity):
+            mentions.append(anchor)
+            aliases.add(anchor.quote)
+        for nisba in entity.name.nisba if entity.name else []:
+            if nisba_owners.get(normalize(nisba)) == [entity.entity_id]:  # the only person with this nisba
+                for anchor in _nisba_mentions(book, nisba)[:MAX_MENTIONS]:
+                    mentions.append(anchor)
+                    aliases.add(anchor.quote)
+        unique = {(m.block_id, m.start, m.end): m for m in mentions}
+        aliases.discard(entity.canonical_name)
+        updated[entity.entity_id] = entity.model_copy(
+            update={
+                "mentions": sorted(unique.values(), key=lambda m: (book.block(m.block_id).order, m.start)),
+                "aliases": sorted(aliases),
+            }
+        )
+
+    issues = list(result.issues)
+    named = [(e, e.name) for e in updated.values() if e.name and e.name.ism and len(e.name.nasab) >= 2]
+    people = [e for e, _ in named]
+    names = {e.entity_id: name for e, name in named}
+    for i, a in enumerate(people):
+        for b in people[i + 1 :]:
+            left_name, right_name = names[a.entity_id], names[b.entity_id]
+            if (
+                left_name.ism == right_name.ism
+                and left_name.nasab[0] == right_name.nasab[0]
+                and left_name.nasab[:2] != right_name.nasab[:2]
+            ):
+                for left, right in ((a, b), (b, a)):
+                    updated[left.entity_id] = updated[left.entity_id].model_copy(
+                        update={
+                            "disambiguation": "ambiguous",
+                            "candidates": sorted({*updated[left.entity_id].candidates, right.entity_id}),
+                        }
+                    )
+                issues.append(
+                    make_issue(
+                        book.book.pub_ref,
+                        "ambiguous_entity",
+                        "warning",
+                        "entity",
+                        a.entity_id,
+                        f"{a.canonical_name!r} and {b.canonical_name!r}: same name, conflicting lineages.",
+                        STEP,
+                        details={"candidates": [a.entity_id, b.entity_id]},
+                        key=b.entity_id,
+                    )
+                )
+    subjects = {unit: merged.get(entity, entity) for unit, entity in result.unit_subjects.items()}
+    return Entities([updated[e.entity_id] for e in entities if e.entity_id in updated], subjects, issues)

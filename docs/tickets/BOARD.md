@@ -84,7 +84,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-072](T-072-unit-facts-rules.md) | Rule-based unit facts | E07 | P1 | T-071, T-062 | M | 9 | done |
 | [T-073](T-073-section-membership.md) | Section membership and group headings | E07 | P1 | T-071 | S | 9 | done |
 | [T-080](T-080-person-entities.md) | Person entities from units and footnotes | E08 | P0 | T-072, T-062 | M | 10 | done |
-| [T-081](T-081-alias-dedup.md) | Alias resolution and de-duplication | E08 | P1 | T-080 | M | 11 | todo |
+| [T-081](T-081-alias-dedup.md) | Alias resolution and de-duplication | E08 | P1 | T-080 | M | 11 | done |
 | [T-082](T-082-sibling-groups.md) | Sibling grouping by closing phrases | E08 | P0 | T-080 | M | 11 | todo |
 | [T-083](T-083-relation-kinds.md) | Relation kinds (full/paternal/maternal) incl. لأم ولد rule | E08 | P0 | T-082 | S | 12 | todo |
 | [T-084](T-084-inferred-relations.md) | Inferred relations from headings (assertion=inferred) | E08 | P1 | T-073, T-083 | S | 13 | todo |

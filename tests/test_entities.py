@@ -53,7 +53,7 @@ def test_entry_9_is_a_separate_hind(built):
 
 def test_prophet_authority(built, sample_book):
     prophet = built[0].by_id()[PROPHET_ID]
-    assert prophet.aliases == ["رسول الله", "النبي", "ﷺ"] and prophet.gender == "m"
+    assert set(prophet.aliases) == {"رسول الله", "النبي", "ﷺ"} and prophet.gender == "m"
     assert prophet.mentions and all(
         sample_book.block(a.block_id).text[a.start : a.end] == a.quote for a in prophet.mentions
     )

@@ -6,7 +6,7 @@ priority: P0
 depends_on: []
 estimate: S
 owner: agent
-status: todo
+status: done
 wave: 0
 ---
 
@@ -30,8 +30,8 @@ Assignment §5.1. Source: docs/02-architecture.md.
 - Follow DECISIONS.md; no extra notes.
 
 ## Acceptance criteria
-- [ ] Renders with mermaid-cli without errors; every component in 02-architecture.md appears.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Renders with mermaid-cli without errors; every component in 02-architecture.md appears.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash

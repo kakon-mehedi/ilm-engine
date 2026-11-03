@@ -114,7 +114,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-141](T-141-run-manifest.md) | Run manifest (provenance of a run) | E14 | P0 | T-140 | S | 3 | todo |
 | [T-142](T-142-cli.md) | CLI: run | verify | search | eval | review apply | E14 | P0 | T-140, T-021 | S | 3 | todo |
 | [T-143](T-143-e2e-determinism.md) | End-to-end integration test + determinism | E14 | P0 | T-142, T-112 | S | 12 | todo |
-| [T-150](T-150-architecture-diagram.md) | Deliverable 1: System architecture diagram | E15 | P0 | — | S | 0 | todo |
+| [T-150](T-150-architecture-diagram.md) | Deliverable 1: System architecture diagram | E15 | P0 | — | S | 0 | done |
 | [T-151](T-151-data-flow-diagram.md) | Deliverable 2: Automation & data-flow diagram | E15 | P0 | — | S | 0 | todo |
 | [T-152](T-152-export-diagrams.md) | Export diagrams to SVG/PNG | E15 | P1 | T-150, T-151 | S | 1 | todo |
 | [T-153](T-153-technical-proposal.md) | Technical_Proposal.md (all assignment deliverables) | E15 | P0 | T-152, T-132 | L | 14 | todo |

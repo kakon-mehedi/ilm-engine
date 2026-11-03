@@ -107,7 +107,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-120](T-120-lexical-search-index.md) | Normalized lexical search index | E12 | P1 | T-060, T-071 | S | 9 | todo |
 | [T-121](T-121-semantic-search-optional.md) | Optional semantic search (BGE-M3) | E12 | P2 | T-120 | M | 10 | todo |
 | [T-122](T-122-search-cli.md) | Search CLI | E12 | P1 | T-120, T-142 | S | 10 | todo |
-| [T-130](T-130-gold-index-sample.md) | Gold sample from printed index (PDF pp. 76–80) | E13 | P1 | T-001 | M | 1 | todo |
+| [T-130](T-130-gold-index-sample.md) | Gold sample from printed index (PDF pp. 76–80) | E13 | P1 | T-001 | M | 1 | done |
 | [T-131](T-131-eval-precision-recall.md) | Entity evaluation (precision/recall vs gold) | E13 | P1 | T-130, T-081 | S | 12 | todo |
 | [T-132](T-132-eval-report.md) | Evaluation & run summary report | E13 | P1 | T-131, T-141 | S | 13 | todo |
 | [T-140](T-140-step-runner.md) | Step registry & DAG runner (cached, idempotent) | E14 | P0 | T-002, T-003, T-020 | M | 2 | todo |

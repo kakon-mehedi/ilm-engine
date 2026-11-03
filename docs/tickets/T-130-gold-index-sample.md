@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-001]
 estimate: M
 owner: agent
-status: todo
+status: done
 wave: 1
 ---
 
@@ -31,9 +31,9 @@ The editor's printed index of narrators with biographies (فهرس الرواة 
 - Verify which pages hold فهرس الرواة first (pp. 73–80 contain all three indexes).
 
 ## Acceptance criteria
-- [ ] ≥ 40 entries with page numbers; each spot-checked against the rendered image.
-- [ ] README explains it is evaluation data, not pipeline input.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] ≥ 40 entries with page numbers; each spot-checked against the rendered image.
+- [x] README explains it is evaluation data, not pipeline input.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -42,3 +42,9 @@ python3 -c "import json;d=json.load(open('eval/gold_index_sample.json'));assert 
 
 ## Out of scope
 - Building an OCR pipeline.
+
+## Follow-ups
+- **Data differs from this ticket (reported, not silently changed):** the narrator index is on PDF pp. **76–79** (p. 80 is the general contents, الفهرس الإجمالي), and its number column is **رقم الترجمة, the entry number (1–75), not a page in the book**. Entries therefore carry `entry_no` instead of `page_in_book`; this links them directly to knowledge units for T-131. DECISIONS §3 ("pp. 76–80") should read pp. 76–79.
+- All 75 rows were transcribed (not just ≥40). Every entry number 1–75 occurs once, and every name was confirmed against the text after its `N - ` entry marker in the book (75/75).
+- Page renders were made in a scratch folder only; no image of the scan is committed (`data/` content is confidential).
+- `tests/test_gold_sample.py` guards the file's structure.

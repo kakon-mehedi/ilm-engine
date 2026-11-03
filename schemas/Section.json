@@ -1,0 +1,188 @@
+{
+  "$defs": {
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "How a value was produced. Attached to every derived record.",
+      "properties": {
+        "method": {
+          "enum": [
+            "structural",
+            "rule",
+            "nlp",
+            "llm",
+            "llm_consensus",
+            "human"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Id"
+        },
+        "prompt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Id"
+        },
+        "prompt_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Version"
+        },
+        "step": {
+          "title": "Step",
+          "type": "string"
+        },
+        "step_version": {
+          "title": "Step Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "step",
+        "step_version"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "children": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Children",
+      "type": "array"
+    },
+    "end_block_id": {
+      "title": "End Block Id",
+      "type": "string"
+    },
+    "end_page": {
+      "title": "End Page",
+      "type": "integer"
+    },
+    "heading_block_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Heading Block Id"
+    },
+    "level": {
+      "minimum": 0,
+      "title": "Level",
+      "type": "integer"
+    },
+    "origin": {
+      "enum": [
+        "author_text",
+        "transmission_isnad",
+        "editor_text",
+        "editor_footnote",
+        "ai_generated"
+      ],
+      "title": "Origin",
+      "type": "string"
+    },
+    "parent_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Parent Id"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "section_id": {
+      "title": "Section Id",
+      "type": "string"
+    },
+    "start_block_id": {
+      "title": "Start Block Id",
+      "type": "string"
+    },
+    "start_page": {
+      "title": "Start Page",
+      "type": "integer"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "toc_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Toc Index"
+    },
+    "toc_source_page_key": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Toc Source Page Key"
+    }
+  },
+  "required": [
+    "section_id",
+    "title",
+    "level",
+    "heading_block_id",
+    "toc_index",
+    "toc_source_page_key",
+    "start_block_id",
+    "end_block_id",
+    "start_page",
+    "end_page",
+    "parent_id",
+    "origin",
+    "provenance"
+  ],
+  "title": "Section",
+  "type": "object"
+}

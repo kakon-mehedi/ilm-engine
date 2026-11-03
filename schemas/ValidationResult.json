@@ -1,0 +1,152 @@
+{
+  "$defs": {
+    "ConfidenceFactors": {
+      "additionalProperties": false,
+      "properties": {
+        "agreement": {
+          "title": "Agreement",
+          "type": "number"
+        },
+        "base": {
+          "title": "Base",
+          "type": "number"
+        },
+        "evidence": {
+          "title": "Evidence",
+          "type": "number"
+        },
+        "penalties": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "default": {},
+          "title": "Penalties",
+          "type": "object"
+        },
+        "schema": {
+          "title": "Schema",
+          "type": "number"
+        }
+      },
+      "required": [
+        "base",
+        "evidence",
+        "schema",
+        "agreement"
+      ],
+      "title": "ConfidenceFactors",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "agreement": {
+      "default": "single",
+      "enum": [
+        "agree",
+        "disagree",
+        "judge_resolved",
+        "single"
+      ],
+      "title": "Agreement",
+      "type": "string"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "decision": {
+      "enum": [
+        "auto_approved",
+        "pending_review",
+        "approved",
+        "rejected",
+        "edited",
+        "reprocess_requested"
+      ],
+      "title": "Decision",
+      "type": "string"
+    },
+    "evidence_found": {
+      "title": "Evidence Found",
+      "type": "boolean"
+    },
+    "evidence_match": {
+      "enum": [
+        "exact",
+        "normalized",
+        "none"
+      ],
+      "title": "Evidence Match",
+      "type": "string"
+    },
+    "factors": {
+      "$ref": "#/$defs/ConfidenceFactors"
+    },
+    "issues": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Issues",
+      "type": "array"
+    },
+    "model_outputs": {
+      "default": [],
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Model Outputs",
+      "type": "array"
+    },
+    "schema_valid": {
+      "title": "Schema Valid",
+      "type": "boolean"
+    },
+    "sensitive": {
+      "default": [],
+      "items": {
+        "enum": [
+          "prophetic_attribution",
+          "hadith_grading",
+          "fiqh_ruling",
+          "aqeedah_proposition",
+          "narrator_disambiguation"
+        ],
+        "type": "string"
+      },
+      "title": "Sensitive",
+      "type": "array"
+    },
+    "target_id": {
+      "title": "Target Id",
+      "type": "string"
+    },
+    "target_kind": {
+      "title": "Target Kind",
+      "type": "string"
+    },
+    "threshold": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Threshold",
+      "type": "number"
+    }
+  },
+  "required": [
+    "target_kind",
+    "target_id",
+    "schema_valid",
+    "evidence_found",
+    "evidence_match",
+    "factors",
+    "confidence",
+    "threshold",
+    "decision"
+  ],
+  "title": "ValidationResult",
+  "type": "object"
+}

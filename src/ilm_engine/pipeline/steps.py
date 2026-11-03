@@ -3,7 +3,7 @@
 Each step declares the steps it needs, the output files it writes (DECISIONS §10) and the config
 sections it reads; together these form its cache key (ADR-004). A step whose implementation has not
 been wired yet runs as a placeholder and is reported as `skipped`. Implementations are attached with
-`PIPELINE.replace(name, fn)` by `ilm_engine.pipeline.wiring`.
+`_wire`, from `ilm_engine.pipeline.stages`.
 """
 
 from __future__ import annotations
@@ -99,12 +99,17 @@ def build_registry() -> StepRegistry:
     )
 
 
-def _manifest(ctx: RunContext) -> StepResult:
+def _wire(registry: StepRegistry) -> StepRegistry:
+    """Attach the implemented steps (imported here to keep module imports light)."""
+    from ilm_engine.pipeline import stages
     from ilm_engine.pipeline.manifest import manifest_step
 
-    return manifest_step(ctx)
+    registry.replace("ingest", stages.ingest)
+    registry.replace("adapt", stages.adapt)
+    registry.replace("integrity_register", stages.integrity_register)
+    registry.replace("manifest", manifest_step)
+    return registry
 
 
-PIPELINE = build_registry()
+PIPELINE = _wire(build_registry())
 assert tuple(PIPELINE.names()) == STEP_NAMES
-PIPELINE.replace("manifest", _manifest)

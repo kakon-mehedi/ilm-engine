@@ -1,0 +1,83 @@
+{
+  "additionalProperties": false,
+  "description": "Pointer to an exact span of an original block. `block.text[start:end] == quote` is checked by\n`validation/evidence.py`, which needs the block text.",
+  "properties": {
+    "bbox": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Bbox"
+    },
+    "block_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Block Hash",
+      "type": "string"
+    },
+    "block_id": {
+      "title": "Block Id",
+      "type": "string"
+    },
+    "end": {
+      "minimum": 0,
+      "title": "End",
+      "type": "integer"
+    },
+    "page": {
+      "title": "Page",
+      "type": "integer"
+    },
+    "pub_ref": {
+      "title": "Pub Ref",
+      "type": "string"
+    },
+    "quote": {
+      "title": "Quote",
+      "type": "string"
+    },
+    "quote_truncated": {
+      "default": false,
+      "title": "Quote Truncated",
+      "type": "boolean"
+    },
+    "scan_page": {
+      "title": "Scan Page",
+      "type": "integer"
+    },
+    "start": {
+      "minimum": 0,
+      "title": "Start",
+      "type": "integer"
+    },
+    "status": {
+      "default": "valid",
+      "enum": [
+        "valid",
+        "stale",
+        "orphaned"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "pub_ref",
+    "page",
+    "scan_page",
+    "block_id",
+    "start",
+    "end",
+    "quote",
+    "block_hash"
+  ],
+  "title": "Anchor",
+  "type": "object"
+}

@@ -1,0 +1,720 @@
+{
+  "$defs": {
+    "Block": {
+      "additionalProperties": false,
+      "properties": {
+        "block_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Block Hash",
+          "type": "string"
+        },
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        },
+        "continues": {
+          "default": false,
+          "title": "Continues",
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "text",
+            "heading",
+            "toc_heading",
+            "footnote"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "marker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Marker"
+        },
+        "order": {
+          "minimum": 0,
+          "title": "Order",
+          "type": "integer"
+        },
+        "page": {
+          "title": "Page",
+          "type": "integer"
+        },
+        "raw_extras": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Raw Extras",
+          "type": "object"
+        },
+        "refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Ref"
+          },
+          "title": "Refs",
+          "type": "array"
+        },
+        "spans": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Span"
+          },
+          "title": "Spans",
+          "type": "array"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "volume": {
+          "title": "Volume",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "block_id",
+        "order",
+        "page",
+        "volume",
+        "kind",
+        "text",
+        "block_hash"
+      ],
+      "title": "Block",
+      "type": "object"
+    },
+    "BookRef": {
+      "additionalProperties": false,
+      "properties": {
+        "edition_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Edition Id"
+        },
+        "pub_id": {
+          "title": "Pub Id",
+          "type": "string"
+        },
+        "pub_ref": {
+          "title": "Pub Ref",
+          "type": "string"
+        },
+        "revision": {
+          "minimum": 0,
+          "title": "Revision",
+          "type": "integer"
+        },
+        "source_work_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Work Id"
+        }
+      },
+      "required": [
+        "pub_id",
+        "revision",
+        "pub_ref",
+        "source_work_id",
+        "edition_id"
+      ],
+      "title": "BookRef",
+      "type": "object"
+    },
+    "Page": {
+      "additionalProperties": false,
+      "properties": {
+        "block_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Block Ids",
+          "type": "array"
+        },
+        "n": {
+          "title": "N",
+          "type": "integer"
+        },
+        "raw_extras": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Raw Extras",
+          "type": "object"
+        },
+        "scan_page": {
+          "title": "Scan Page",
+          "type": "integer"
+        },
+        "source_key": {
+          "title": "Source Key",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Url"
+        },
+        "volume": {
+          "title": "Volume",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "volume",
+        "n",
+        "scan_page",
+        "source_key",
+        "source_url",
+        "block_ids"
+      ],
+      "title": "Page",
+      "type": "object"
+    },
+    "Ref": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "to": {
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "to"
+      ],
+      "title": "Ref",
+      "type": "object"
+    },
+    "SourceInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter_id": {
+          "title": "Adapter Id",
+          "type": "string"
+        },
+        "adapter_version": {
+          "title": "Adapter Version",
+          "type": "string"
+        },
+        "claim_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Claim Type"
+        },
+        "schema_version": {
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_adapter_semver": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Adapter Semver"
+        },
+        "source_book_key": {
+          "title": "Source Book Key",
+          "type": "string"
+        },
+        "source_code": {
+          "title": "Source Code",
+          "type": "string"
+        },
+        "source_declared_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Declared Hash"
+        },
+        "source_declared_hash_verified": {
+          "default": false,
+          "title": "Source Declared Hash Verified",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source_code",
+        "source_book_key",
+        "schema_version",
+        "source_adapter_semver",
+        "adapter_id",
+        "adapter_version",
+        "claim_type",
+        "source_declared_hash"
+      ],
+      "title": "SourceInfo",
+      "type": "object"
+    },
+    "SourceMetadata": {
+      "additionalProperties": false,
+      "description": "Bibliographic data exactly as the source states it (not yet validated).",
+      "properties": {
+        "author_as_source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Author As Source"
+        },
+        "author_death_hijri": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Author Death Hijri"
+        },
+        "author_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Author Name"
+        },
+        "card": {
+          "default": [],
+          "items": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "title": "Card",
+          "type": "array"
+        },
+        "category_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Category Id"
+        },
+        "category_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Category Name"
+        },
+        "claimed_page_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Claimed Page Count"
+        },
+        "edition": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Edition"
+        },
+        "editor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Editor"
+        },
+        "page_numbering": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Page Numbering"
+        },
+        "publisher": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Publisher"
+        },
+        "title_as_source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Title As Source"
+        },
+        "toc": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/TocEntry"
+          },
+          "title": "Toc",
+          "type": "array"
+        },
+        "year_gregorian": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Year Gregorian"
+        },
+        "year_hijri": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Year Hijri"
+        }
+      },
+      "required": [
+        "title_as_source",
+        "author_as_source",
+        "author_name",
+        "author_death_hijri",
+        "editor",
+        "publisher",
+        "edition",
+        "year_hijri",
+        "year_gregorian",
+        "category_id",
+        "category_name",
+        "claimed_page_count",
+        "page_numbering"
+      ],
+      "title": "SourceMetadata",
+      "type": "object"
+    },
+    "SourceQuality": {
+      "additionalProperties": false,
+      "properties": {
+        "archive_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Archive Code"
+        },
+        "claimed_pages": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Claimed Pages"
+        },
+        "held_pages": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Held Pages"
+        },
+        "passed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Passed"
+        },
+        "short_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Short Pct"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Status"
+        },
+        "tolerance": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tolerance"
+        }
+      },
+      "required": [
+        "status",
+        "passed",
+        "claimed_pages",
+        "held_pages",
+        "short_pct",
+        "tolerance",
+        "archive_code"
+      ],
+      "title": "SourceQuality",
+      "type": "object"
+    },
+    "Span": {
+      "additionalProperties": false,
+      "properties": {
+        "class": {
+          "title": "Class",
+          "type": "string"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "meaning": {
+          "default": "unknown",
+          "enum": [
+            "footnote_marker",
+            "emphasis",
+            "prophetic_speech",
+            "editor_bracket_heading",
+            "unknown"
+          ],
+          "title": "Meaning",
+          "type": "string"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "class",
+        "start",
+        "end",
+        "text"
+      ],
+      "title": "Span",
+      "type": "object"
+    },
+    "TocEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "depth": {
+          "title": "Depth",
+          "type": "integer"
+        },
+        "index": {
+          "title": "Index",
+          "type": "integer"
+        },
+        "source_page_key": {
+          "title": "Source Page Key",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "index",
+        "title",
+        "source_page_key",
+        "depth"
+      ],
+      "title": "TocEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "blocks": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Block"
+      },
+      "title": "Blocks",
+      "type": "object"
+    },
+    "book": {
+      "$ref": "#/$defs/BookRef"
+    },
+    "canonical_content_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Canonical Content Hash",
+      "type": "string"
+    },
+    "canonical_schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Canonical Schema Version",
+      "type": "string"
+    },
+    "metadata": {
+      "$ref": "#/$defs/SourceMetadata"
+    },
+    "pages": {
+      "items": {
+        "$ref": "#/$defs/Page"
+      },
+      "title": "Pages",
+      "type": "array"
+    },
+    "quality": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SourceQuality"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "raw_extras": {
+      "additionalProperties": true,
+      "default": {},
+      "title": "Raw Extras",
+      "type": "object"
+    },
+    "scan": {
+      "additionalProperties": true,
+      "title": "Scan",
+      "type": "object"
+    },
+    "source": {
+      "$ref": "#/$defs/SourceInfo"
+    }
+  },
+  "required": [
+    "book",
+    "source",
+    "metadata",
+    "quality",
+    "scan",
+    "pages",
+    "blocks",
+    "canonical_content_hash"
+  ],
+  "title": "CanonicalBook",
+  "type": "object"
+}

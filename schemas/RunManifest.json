@@ -1,0 +1,182 @@
+{
+  "$defs": {
+    "FileHash": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes": {
+          "minimum": 0,
+          "title": "Bytes",
+          "type": "integer"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "title": "FileHash",
+      "type": "object"
+    },
+    "StepRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "cache_key": {
+          "title": "Cache Key",
+          "type": "string"
+        },
+        "duration_ms": {
+          "minimum": 0,
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "outputs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Outputs",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "ran",
+            "cached",
+            "skipped",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "status",
+        "cache_key",
+        "duration_ms",
+        "outputs"
+      ],
+      "title": "StepRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adapter": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Adapter",
+      "type": "object"
+    },
+    "canonical_schema_version": {
+      "title": "Canonical Schema Version",
+      "type": "string"
+    },
+    "code_version": {
+      "title": "Code Version",
+      "type": "string"
+    },
+    "config_hash": {
+      "title": "Config Hash",
+      "type": "string"
+    },
+    "counts": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Counts",
+      "type": "object"
+    },
+    "enrichment_schema_version": {
+      "title": "Enrichment Schema Version",
+      "type": "string"
+    },
+    "finished_at": {
+      "title": "Finished At",
+      "type": "string"
+    },
+    "inputs": {
+      "items": {
+        "$ref": "#/$defs/FileHash"
+      },
+      "title": "Inputs",
+      "type": "array"
+    },
+    "integrity": {
+      "additionalProperties": true,
+      "title": "Integrity",
+      "type": "object"
+    },
+    "llm": {
+      "additionalProperties": true,
+      "title": "Llm",
+      "type": "object"
+    },
+    "normalizer_version": {
+      "title": "Normalizer Version",
+      "type": "string"
+    },
+    "outputs": {
+      "items": {
+        "$ref": "#/$defs/FileHash"
+      },
+      "title": "Outputs",
+      "type": "array"
+    },
+    "pub_ref": {
+      "title": "Pub Ref",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "started_at": {
+      "title": "Started At",
+      "type": "string"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/StepRecord"
+      },
+      "title": "Steps",
+      "type": "array"
+    }
+  },
+  "required": [
+    "run_id",
+    "pub_ref",
+    "started_at",
+    "finished_at",
+    "code_version",
+    "config_hash",
+    "canonical_schema_version",
+    "enrichment_schema_version",
+    "normalizer_version",
+    "adapter",
+    "llm",
+    "steps",
+    "inputs",
+    "outputs",
+    "integrity",
+    "counts"
+  ],
+  "title": "RunManifest",
+  "type": "object"
+}

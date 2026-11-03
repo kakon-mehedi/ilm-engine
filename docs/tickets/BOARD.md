@@ -6,11 +6,11 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 
 1. **One ticket per agent.** Pick a ticket whose `depends_on` are all `done` and that belongs to the current wave.
 2. **Read first:** `docs/DECISIONS.md`, the ticket, its dependency tickets, and the docs referenced in its Context (`docs/01-PRD.md`, `02-architecture.md`, `03-data-contracts.md`, `04-edge-cases.md` when present). **Precedence:** DECISIONS.md > 03-data-contracts.md (all model/field names) > ADRs > ticket text.
-3. **Branch:** `ticket/<id>-<slug>` (e.g. `ticket/T-070-entry-detection`). Small commits; message `T-070: <imperative summary>`.
+3. **Branch:** `feature/<id>-<slug>` (e.g. `feature/T-070-entry-detection`), created from the branch of the ticket it depends on. Small commits; message `T-070: <imperative summary>`. Commits use the repository owner's git identity, with no tool attribution trailers.
 4. **Stay in scope:** only the files listed (plus tests). If something outside scope is needed, add a note to the ticket under `## Follow-ups` instead of doing it.
 5. **Never write to `data/`** or `store/originals/`. Read the sample from `data/demo_book_daraqutni.json`.
 6. **Use exact sample numbers** in tests (594 blocks, 300 refs, 16 continuations, 75 entries, b000135 offsets 60–65 / 78–97, …). If the data disagrees with a ticket, stop and report — do not change the expectation silently.
-7. **Finish:** run the ticket's test commands + full suite, set `status: done` in the front matter, open a PR / merge to `main`.
+7. **Finish:** run the ticket's test commands + full suite, set `status: done` in the front matter, and leave the feature branch for review. Only the repository owner merges into `main` and pushes.
 
 ### Definition of Done (every ticket)
 
@@ -481,7 +481,7 @@ You are implementing ticket <ID> of the ilm-engine MVP in the repository at <REP
 1. Read docs/DECISIONS.md fully. Its names, paths, ID formats, anchor rules, issue codes and thresholds are binding. Model and field names come from docs/03-data-contracts.md (it wins over ticket text).
 2. Read docs/tickets/<ID>-*.md and every ticket in its depends_on (they are already done; reuse their code, do not rewrite it).
 3. Read the requirement docs referenced in the ticket Context (docs/01-PRD.md, 02-architecture.md, 03-data-contracts.md, 04-edge-cases.md).
-4. Create branch ticket/<ID>-<slug>. Implement ONLY the Scope, in the listed Files, with tests.
+4. Create branch feature/<ID>-<slug>. Implement ONLY the Scope, in the listed Files, with tests.
 5. Never modify data/ or store/originals/. Use the sample book data/demo_book_daraqutni.json for tests with the exact expected numbers in the ticket.
 6. Run the ticket's Test commands, then `uv run pytest -q && uv run ruff check .`.
 7. If an acceptance criterion contradicts the real data, stop and report the evidence instead of changing the criterion.
@@ -491,4 +491,4 @@ You are implementing ticket <ID> of the ilm-engine MVP in the repository at <REP
 
 ## Parallel run recipe
 
-For wave N: start one agent per ticket listed under *Wave N* with the template above (worktree isolation recommended, one branch per ticket). Merge all branches of the wave, run the full test suite on `main`, then start wave N+1.
+For wave N: start one agent per ticket listed under *Wave N* with the template above (worktree isolation recommended, one branch per ticket). When every branch of the wave passes the full test suite, the repository owner reviews and merges them into `main`; then start wave N+1.

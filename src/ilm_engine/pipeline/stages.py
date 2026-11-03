@@ -128,3 +128,14 @@ def genre(ctx: RunContext) -> StepResult:
     decision = route(ctx.data("adapt", "book"), ctx.config)
     primary, secondary = metadata_fields(decision, ctx.config)
     return StepResult(data={"genre": decision, "genre_primary": primary, "genre_secondary": secondary})
+
+
+def annotate(ctx: RunContext) -> StepResult:
+    from ilm_engine.processors.annotations import build
+
+    result = build(ctx.data("adapt", "book"))
+    return StepResult(
+        files={"annotations.json": result.to_json()},
+        data={"annotations": result, "counts": {"annotations": len(result.annotations)}},
+        issues=result.issues,
+    )

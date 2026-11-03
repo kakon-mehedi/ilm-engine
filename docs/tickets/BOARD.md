@@ -70,7 +70,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-040](T-040-metadata-card.md) | Bibliographic metadata from source card | E04 | P0 | T-012 | S | 4 | done |
 | [T-041](T-041-metadata-from-content.md) | Metadata derived from book content | E04 | P1 | T-040, T-034, T-060 | M | 6 | todo |
 | [T-042](T-042-metadata-conflicts.md) | Metadata conflict & variant detection | E04 | P1 | T-041 | S | 7 | todo |
-| [T-050](T-050-refs-resolution.md) | Footnote reference resolution | E05 | P0 | T-012, T-034 | S | 6 | todo |
+| [T-050](T-050-refs-resolution.md) | Footnote reference resolution | E05 | P0 | T-012, T-034 | S | 6 | done |
 | [T-051](T-051-continued-footnotes.md) | Join footnotes continued across pages | E05 | P0 | T-050 | S | 7 | todo |
 | [T-052](T-052-nested-footnotes.md) | Nested footnotes and unlinked footnotes | E05 | P1 | T-050 | S | 7 | todo |
 | [T-053](T-053-citations.md) | Citations + related works (book family) extraction | E05 | P0 | T-050, T-060 | M | 7 | todo |

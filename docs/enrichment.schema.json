@@ -1,0 +1,2403 @@
+{
+  "$defs": {
+    "Anchor": {
+      "additionalProperties": false,
+      "description": "Pointer to an exact span of an original block. `block.text[start:end] == quote` is checked by\n`validation/evidence.py`, which needs the block text.",
+      "properties": {
+        "bbox": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "block_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Block Hash",
+          "type": "string"
+        },
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "page": {
+          "title": "Page",
+          "type": "integer"
+        },
+        "pub_ref": {
+          "title": "Pub Ref",
+          "type": "string"
+        },
+        "quote": {
+          "title": "Quote",
+          "type": "string"
+        },
+        "quote_truncated": {
+          "default": false,
+          "title": "Quote Truncated",
+          "type": "boolean"
+        },
+        "scan_page": {
+          "title": "Scan Page",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "status": {
+          "default": "valid",
+          "enum": [
+            "valid",
+            "stale",
+            "orphaned"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pub_ref",
+        "page",
+        "scan_page",
+        "block_id",
+        "start",
+        "end",
+        "quote",
+        "block_hash"
+      ],
+      "title": "Anchor",
+      "type": "object"
+    },
+    "Annotation": {
+      "additionalProperties": false,
+      "properties": {
+        "annotation_id": {
+          "title": "Annotation Id",
+          "type": "string"
+        },
+        "is_entry_note": {
+          "title": "Is Entry Note",
+          "type": "boolean"
+        },
+        "link_method": {
+          "enum": [
+            "source_ref",
+            "marker_match",
+            "llm_candidate"
+          ],
+          "title": "Link Method",
+          "type": "string"
+        },
+        "marker_anchor": {
+          "$ref": "#/$defs/Anchor"
+        },
+        "marker_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Marker Text"
+        },
+        "origin": {
+          "default": "editor_footnote",
+          "enum": [
+            "author_text",
+            "transmission_isnad",
+            "editor_text",
+            "editor_footnote",
+            "ai_generated"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "source_block_id": {
+          "title": "Source Block Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "candidate",
+            "unlinked"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "target_block_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Block Ids",
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "footnote",
+            "endnote",
+            "sidenote",
+            "nested_footnote"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "annotation_id",
+        "type",
+        "source_block_id",
+        "marker_anchor",
+        "target_block_ids",
+        "marker_text",
+        "link_method",
+        "is_entry_note",
+        "status",
+        "provenance"
+      ],
+      "title": "Annotation",
+      "type": "object"
+    },
+    "BookMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "$ref": "#/$defs/MetadataField"
+        },
+        "category": {
+          "$ref": "#/$defs/MetadataField"
+        },
+        "edition": {
+          "$ref": "#/$defs/MetadataField"
+        },
+        "editor": {
+          "$ref": "#/$defs/MetadataField"
+        },
+        "genre_primary": {
+          "$ref": "#/$defs/MetadataField"
+        },
+        "genre_secondary": {
+          "items": {
+            "$ref": "#/$defs/MetadataField"
+          },
+          "title": "Genre Secondary",
+          "type": "array"
+        },
+        "issues": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Issues",
+          "type": "array"
+        },
+        "language": {
+          "$ref": "#/$defs/MetadataField"
+        },
+        "missing_fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing Fields",
+          "type": "array"
+        },
+        "pub_ref": {
+          "title": "Pub Ref",
+          "type": "string"
+        },
+        "publisher": {
+          "$ref": "#/$defs/MetadataField"
+        },
+        "title": {
+          "$ref": "#/$defs/MetadataField"
+        },
+        "title_variants": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Title Variants",
+          "type": "array"
+        },
+        "volume_note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MetadataField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "volumes": {
+          "$ref": "#/$defs/MetadataField"
+        },
+        "year_gregorian": {
+          "$ref": "#/$defs/MetadataField"
+        },
+        "year_hijri": {
+          "$ref": "#/$defs/MetadataField"
+        }
+      },
+      "required": [
+        "pub_ref",
+        "title",
+        "title_variants",
+        "author",
+        "editor",
+        "publisher",
+        "edition",
+        "year_hijri",
+        "year_gregorian",
+        "volumes",
+        "language",
+        "category",
+        "genre_primary",
+        "genre_secondary",
+        "missing_fields",
+        "issues"
+      ],
+      "title": "BookMetadata",
+      "type": "object"
+    },
+    "Citation": {
+      "additionalProperties": false,
+      "properties": {
+        "anchor": {
+          "$ref": "#/$defs/Anchor"
+        },
+        "author_hint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Author Hint"
+        },
+        "citation_id": {
+          "title": "Citation Id",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "context": {
+          "enum": [
+            "footnote",
+            "body"
+          ],
+          "title": "Context",
+          "type": "string"
+        },
+        "locators": {
+          "items": {
+            "$ref": "#/$defs/Locator"
+          },
+          "title": "Locators",
+          "type": "array"
+        },
+        "origin": {
+          "enum": [
+            "author_text",
+            "transmission_isnad",
+            "editor_text",
+            "editor_footnote",
+            "ai_generated"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "resolution": {
+          "enum": [
+            "alias_table",
+            "agent",
+            "unresolved"
+          ],
+          "title": "Resolution",
+          "type": "string"
+        },
+        "title_normalized": {
+          "title": "Title Normalized",
+          "type": "string"
+        },
+        "title_raw": {
+          "title": "Title Raw",
+          "type": "string"
+        },
+        "work_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Work Id"
+        }
+      },
+      "required": [
+        "citation_id",
+        "title_raw",
+        "title_normalized",
+        "work_id",
+        "author_hint",
+        "locators",
+        "anchor",
+        "context",
+        "origin",
+        "resolution",
+        "confidence",
+        "provenance"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "ConfidenceFactors": {
+      "additionalProperties": false,
+      "properties": {
+        "agreement": {
+          "title": "Agreement",
+          "type": "number"
+        },
+        "base": {
+          "title": "Base",
+          "type": "number"
+        },
+        "evidence": {
+          "title": "Evidence",
+          "type": "number"
+        },
+        "penalties": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "default": {},
+          "title": "Penalties",
+          "type": "object"
+        },
+        "schema": {
+          "title": "Schema",
+          "type": "number"
+        }
+      },
+      "required": [
+        "base",
+        "evidence",
+        "schema",
+        "agreement"
+      ],
+      "title": "ConfidenceFactors",
+      "type": "object"
+    },
+    "DocumentReport": {
+      "additionalProperties": false,
+      "properties": {
+        "block_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Block Counts",
+          "type": "object"
+        },
+        "block_total": {
+          "title": "Block Total",
+          "type": "integer"
+        },
+        "continued_footnotes": {
+          "title": "Continued Footnotes",
+          "type": "integer"
+        },
+        "duplicate_blocks": {
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Duplicate Blocks",
+          "type": "array"
+        },
+        "empty_blocks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Empty Blocks",
+          "type": "array"
+        },
+        "issues": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Issues",
+          "type": "array"
+        },
+        "missing_printed_pages": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Missing Printed Pages",
+          "type": "array"
+        },
+        "page_classes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "title": "Page Classes",
+          "type": "object"
+        },
+        "page_count_claimed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Page Count Claimed"
+        },
+        "page_count_held": {
+          "title": "Page Count Held",
+          "type": "integer"
+        },
+        "pdf_page_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Pdf Page Count"
+        },
+        "pdf_pages_not_in_json": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Pdf Pages Not In Json",
+          "type": "array"
+        },
+        "printed_page_range": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Printed Page Range",
+          "type": "array"
+        },
+        "pub_ref": {
+          "title": "Pub Ref",
+          "type": "string"
+        },
+        "ref_count": {
+          "title": "Ref Count",
+          "type": "integer"
+        },
+        "refs_from_footnotes": {
+          "title": "Refs From Footnotes",
+          "type": "integer"
+        },
+        "source_quality": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceQuality"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "span_class_counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Span Class Counts",
+          "type": "object"
+        }
+      },
+      "required": [
+        "pub_ref",
+        "page_count_held",
+        "page_count_claimed",
+        "printed_page_range",
+        "missing_printed_pages",
+        "pdf_page_count",
+        "pdf_pages_not_in_json",
+        "block_counts",
+        "block_total",
+        "ref_count",
+        "refs_from_footnotes",
+        "continued_footnotes",
+        "span_class_counts",
+        "empty_blocks",
+        "duplicate_blocks",
+        "source_quality",
+        "issues"
+      ],
+      "title": "DocumentReport",
+      "type": "object"
+    },
+    "EnrichmentSource": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter": {
+          "title": "Adapter",
+          "type": "string"
+        },
+        "canonical_content_hash": {
+          "title": "Canonical Content Hash",
+          "type": "string"
+        },
+        "schema_version": {
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_code": {
+          "title": "Source Code",
+          "type": "string"
+        },
+        "source_declared_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Declared Hash"
+        },
+        "source_declared_hash_verified": {
+          "title": "Source Declared Hash Verified",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source_code",
+        "schema_version",
+        "adapter",
+        "canonical_content_hash",
+        "source_declared_hash",
+        "source_declared_hash_verified"
+      ],
+      "title": "EnrichmentSource",
+      "type": "object"
+    },
+    "Entity": {
+      "additionalProperties": false,
+      "properties": {
+        "aliases": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Aliases",
+          "type": "array"
+        },
+        "candidates": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Candidates",
+          "type": "array"
+        },
+        "canonical_name": {
+          "title": "Canonical Name",
+          "type": "string"
+        },
+        "canonical_name_normalized": {
+          "title": "Canonical Name Normalized",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "disambiguation": {
+          "default": "unique",
+          "enum": [
+            "unique",
+            "resolved",
+            "ambiguous"
+          ],
+          "title": "Disambiguation",
+          "type": "string"
+        },
+        "entity_id": {
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "entity_type": {
+          "enum": [
+            "person",
+            "place",
+            "work",
+            "event",
+            "concept",
+            "group"
+          ],
+          "title": "Entity Type",
+          "type": "string"
+        },
+        "external_ids": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "title": "External Ids",
+          "type": "object"
+        },
+        "gender": {
+          "default": "unknown",
+          "enum": [
+            "m",
+            "f",
+            "unknown"
+          ],
+          "title": "Gender",
+          "type": "string"
+        },
+        "mentions": {
+          "items": {
+            "$ref": "#/$defs/Anchor"
+          },
+          "title": "Mentions",
+          "type": "array"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PersonName"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "review_status": {
+          "enum": [
+            "auto_approved",
+            "pending_review",
+            "approved",
+            "rejected",
+            "edited",
+            "reprocess_requested"
+          ],
+          "title": "Review Status",
+          "type": "string"
+        },
+        "roles": {
+          "default": [],
+          "items": {
+            "enum": [
+              "author",
+              "editor",
+              "narrator",
+              "sahabi",
+              "scholar",
+              "subject"
+            ],
+            "type": "string"
+          },
+          "title": "Roles",
+          "type": "array"
+        }
+      },
+      "required": [
+        "entity_id",
+        "entity_type",
+        "canonical_name",
+        "canonical_name_normalized",
+        "name",
+        "mentions",
+        "confidence",
+        "review_status",
+        "provenance"
+      ],
+      "title": "Entity",
+      "type": "object"
+    },
+    "Fact": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion": {
+          "enum": [
+            "stated",
+            "inferred"
+          ],
+          "title": "Assertion",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Anchor"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "fact_id": {
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "object": {
+          "title": "Object"
+        },
+        "object_entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Entity Id"
+        },
+        "origin": {
+          "enum": [
+            "author_text",
+            "transmission_isnad",
+            "editor_text",
+            "editor_footnote",
+            "ai_generated"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "predicate": {
+          "title": "Predicate",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "review_status": {
+          "enum": [
+            "auto_approved",
+            "pending_review",
+            "approved",
+            "rejected",
+            "edited",
+            "reprocess_requested"
+          ],
+          "title": "Review Status",
+          "type": "string"
+        },
+        "sensitive": {
+          "default": [],
+          "items": {
+            "enum": [
+              "prophetic_attribution",
+              "hadith_grading",
+              "fiqh_ruling",
+              "aqeedah_proposition",
+              "narrator_disambiguation"
+            ],
+            "type": "string"
+          },
+          "title": "Sensitive",
+          "type": "array"
+        }
+      },
+      "required": [
+        "fact_id",
+        "predicate",
+        "object",
+        "evidence",
+        "origin",
+        "assertion",
+        "confidence",
+        "review_status",
+        "provenance"
+      ],
+      "title": "Fact",
+      "type": "object"
+    },
+    "InternalRef": {
+      "additionalProperties": false,
+      "properties": {
+        "anchor": {
+          "$ref": "#/$defs/Anchor"
+        },
+        "internal_ref_id": {
+          "title": "Internal Ref Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "entry_number",
+            "forward",
+            "backward"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "status": {
+          "enum": [
+            "resolved",
+            "unresolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "target_entry_no": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Target Entry No"
+        },
+        "target_unit_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Target Unit Id"
+        }
+      },
+      "required": [
+        "internal_ref_id",
+        "kind",
+        "anchor",
+        "target_unit_id",
+        "target_entry_no",
+        "status",
+        "provenance"
+      ],
+      "title": "InternalRef",
+      "type": "object"
+    },
+    "Issue": {
+      "additionalProperties": false,
+      "properties": {
+        "anchors": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Anchor"
+          },
+          "title": "Anchors",
+          "type": "array"
+        },
+        "code": {
+          "enum": [
+            "unknown_schema_version",
+            "page_count_mismatch",
+            "missing_page",
+            "toc_without_block",
+            "toc_page_offset",
+            "heading_without_toc",
+            "unlinked_footnote",
+            "nested_footnote",
+            "continued_footnote_joined",
+            "broken_ref",
+            "numbering_gap",
+            "numbering_duplicate",
+            "entry_without_footnote",
+            "title_variant",
+            "metadata_conflict",
+            "evidence_not_found",
+            "schema_invalid",
+            "model_disagreement",
+            "ambiguous_entity",
+            "needs_llm",
+            "sensitive_content",
+            "unresolved_internal_ref",
+            "anchor_stale",
+            "source_hash_unverified"
+          ],
+          "title": "Code",
+          "type": "string"
+        },
+        "details": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Details",
+          "type": "object"
+        },
+        "issue_id": {
+          "title": "Issue Id",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "target_id": {
+          "title": "Target Id",
+          "type": "string"
+        },
+        "target_kind": {
+          "enum": [
+            "book",
+            "page",
+            "block",
+            "section",
+            "annotation",
+            "citation",
+            "unit",
+            "fact",
+            "entity",
+            "relationship",
+            "metadata_field",
+            "work"
+          ],
+          "title": "Target Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "issue_id",
+        "code",
+        "severity",
+        "target_kind",
+        "target_id",
+        "message",
+        "provenance"
+      ],
+      "title": "Issue",
+      "type": "object"
+    },
+    "KnowledgeUnit": {
+      "additionalProperties": false,
+      "properties": {
+        "anchors": {
+          "items": {
+            "$ref": "#/$defs/Anchor"
+          },
+          "title": "Anchors",
+          "type": "array"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "entry_no": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Entry No"
+        },
+        "facts": {
+          "items": {
+            "$ref": "#/$defs/Fact"
+          },
+          "title": "Facts",
+          "type": "array"
+        },
+        "genre": {
+          "enum": [
+            "fiqh",
+            "hadith",
+            "tafsir",
+            "seerah",
+            "aqeedah",
+            "history",
+            "biography"
+          ],
+          "title": "Genre",
+          "type": "string"
+        },
+        "issues": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Issues",
+          "type": "array"
+        },
+        "note_annotation_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Note Annotation Ids",
+          "type": "array"
+        },
+        "origin": {
+          "enum": [
+            "author_text",
+            "transmission_isnad",
+            "editor_text",
+            "editor_footnote",
+            "ai_generated"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "payload": {
+          "additionalProperties": true,
+          "title": "Payload",
+          "type": "object"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "review_status": {
+          "enum": [
+            "auto_approved",
+            "pending_review",
+            "approved",
+            "rejected",
+            "edited",
+            "reprocess_requested"
+          ],
+          "title": "Review Status",
+          "type": "string"
+        },
+        "section_id": {
+          "title": "Section Id",
+          "type": "string"
+        },
+        "sub_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sub Type"
+        },
+        "subject_entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subject Entity Id"
+        },
+        "unit_id": {
+          "title": "Unit Id",
+          "type": "string"
+        },
+        "unit_type": {
+          "title": "Unit Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "unit_id",
+        "genre",
+        "sub_type",
+        "unit_type",
+        "entry_no",
+        "section_id",
+        "anchors",
+        "note_annotation_ids",
+        "subject_entity_id",
+        "payload",
+        "facts",
+        "origin",
+        "confidence",
+        "review_status",
+        "issues",
+        "provenance"
+      ],
+      "title": "KnowledgeUnit",
+      "type": "object"
+    },
+    "Locator": {
+      "additionalProperties": false,
+      "properties": {
+        "number": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Number"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Page"
+        },
+        "page_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Label"
+        },
+        "raw": {
+          "title": "Raw",
+          "type": "string"
+        },
+        "volume": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Volume"
+        }
+      },
+      "required": [
+        "raw",
+        "volume",
+        "page"
+      ],
+      "title": "Locator",
+      "type": "object"
+    },
+    "MetadataField": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion": {
+          "enum": [
+            "stated",
+            "inferred"
+          ],
+          "title": "Assertion",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "conflicts": {
+          "default": [],
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Conflicts",
+          "type": "array"
+        },
+        "normalized": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized"
+        },
+        "origin": {
+          "enum": [
+            "author_text",
+            "transmission_isnad",
+            "editor_text",
+            "editor_footnote",
+            "ai_generated"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "review_status": {
+          "enum": [
+            "auto_approved",
+            "pending_review",
+            "approved",
+            "rejected",
+            "edited",
+            "reprocess_requested"
+          ],
+          "title": "Review Status",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/MetadataSource"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "value": {
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "sources",
+        "assertion",
+        "origin",
+        "confidence",
+        "review_status"
+      ],
+      "title": "MetadataField",
+      "type": "object"
+    },
+    "MetadataSource": {
+      "additionalProperties": false,
+      "properties": {
+        "anchors": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Anchor"
+          },
+          "title": "Anchors",
+          "type": "array"
+        },
+        "kind": {
+          "enum": [
+            "existing_metadata",
+            "book_content",
+            "pdf_visual",
+            "external_catalog"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "MetadataSource",
+      "type": "object"
+    },
+    "OriginSpan": {
+      "additionalProperties": false,
+      "description": "Contiguous run of blocks sharing an origin (origin_map.json).",
+      "properties": {
+        "block_count": {
+          "minimum": 0,
+          "title": "Block Count",
+          "type": "integer"
+        },
+        "end_block_id": {
+          "title": "End Block Id",
+          "type": "string"
+        },
+        "end_page": {
+          "title": "End Page",
+          "type": "integer"
+        },
+        "origin": {
+          "enum": [
+            "author_text",
+            "transmission_isnad",
+            "editor_text",
+            "editor_footnote",
+            "ai_generated"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "rule": {
+          "title": "Rule",
+          "type": "string"
+        },
+        "start_block_id": {
+          "title": "Start Block Id",
+          "type": "string"
+        },
+        "start_page": {
+          "title": "Start Page",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "origin",
+        "start_block_id",
+        "end_block_id",
+        "start_page",
+        "end_page",
+        "rule",
+        "block_count"
+      ],
+      "title": "OriginSpan",
+      "type": "object"
+    },
+    "PersonName": {
+      "additionalProperties": false,
+      "properties": {
+        "full_surface": {
+          "title": "Full Surface",
+          "type": "string"
+        },
+        "ism": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ism"
+        },
+        "kunya": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kunya"
+        },
+        "laqab": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Laqab"
+        },
+        "nasab": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Nasab",
+          "type": "array"
+        },
+        "nisba": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Nisba",
+          "type": "array"
+        }
+      },
+      "required": [
+        "full_surface"
+      ],
+      "title": "PersonName",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "How a value was produced. Attached to every derived record.",
+      "properties": {
+        "method": {
+          "enum": [
+            "structural",
+            "rule",
+            "nlp",
+            "llm",
+            "llm_consensus",
+            "human"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Id"
+        },
+        "prompt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Id"
+        },
+        "prompt_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Version"
+        },
+        "step": {
+          "title": "Step",
+          "type": "string"
+        },
+        "step_version": {
+          "title": "Step Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "step",
+        "step_version"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "Relationship": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion": {
+          "enum": [
+            "stated",
+            "inferred"
+          ],
+          "title": "Assertion",
+          "type": "string"
+        },
+        "attrs": {
+          "$ref": "#/$defs/RelationshipAttrs",
+          "default": {
+            "group_id": null,
+            "kind": null,
+            "mother_status": null,
+            "via_parent_entity_id": null
+          }
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Anchor"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "object_entity_id": {
+          "title": "Object Entity Id",
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "author_text",
+            "transmission_isnad",
+            "editor_text",
+            "editor_footnote",
+            "ai_generated"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "relation_id": {
+          "title": "Relation Id",
+          "type": "string"
+        },
+        "review_status": {
+          "enum": [
+            "auto_approved",
+            "pending_review",
+            "approved",
+            "rejected",
+            "edited",
+            "reprocess_requested"
+          ],
+          "title": "Review Status",
+          "type": "string"
+        },
+        "sensitive": {
+          "default": [],
+          "items": {
+            "enum": [
+              "prophetic_attribution",
+              "hadith_grading",
+              "fiqh_ruling",
+              "aqeedah_proposition",
+              "narrator_disambiguation"
+            ],
+            "type": "string"
+          },
+          "title": "Sensitive",
+          "type": "array"
+        },
+        "subject_entity_id": {
+          "title": "Subject Entity Id",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "child_of",
+            "parent_of",
+            "sibling_of",
+            "spouse_of",
+            "mother_is",
+            "teacher_of",
+            "student_of",
+            "narrated_from"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "relation_id",
+        "type",
+        "subject_entity_id",
+        "object_entity_id",
+        "evidence",
+        "origin",
+        "assertion",
+        "confidence",
+        "review_status",
+        "provenance"
+      ],
+      "title": "Relationship",
+      "type": "object"
+    },
+    "RelationshipAttrs": {
+      "additionalProperties": false,
+      "properties": {
+        "group_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Group Id"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "enum": [
+                "full",
+                "paternal",
+                "maternal",
+                "unknown"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kind"
+        },
+        "mother_status": {
+          "anyOf": [
+            {
+              "enum": [
+                "umm_walad",
+                "named",
+                "unknown"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mother Status"
+        },
+        "via_parent_entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Via Parent Entity Id"
+        }
+      },
+      "title": "RelationshipAttrs",
+      "type": "object"
+    },
+    "Section": {
+      "additionalProperties": false,
+      "properties": {
+        "children": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Children",
+          "type": "array"
+        },
+        "end_block_id": {
+          "title": "End Block Id",
+          "type": "string"
+        },
+        "end_page": {
+          "title": "End Page",
+          "type": "integer"
+        },
+        "heading_block_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Heading Block Id"
+        },
+        "level": {
+          "minimum": 0,
+          "title": "Level",
+          "type": "integer"
+        },
+        "origin": {
+          "enum": [
+            "author_text",
+            "transmission_isnad",
+            "editor_text",
+            "editor_footnote",
+            "ai_generated"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Parent Id"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "section_id": {
+          "title": "Section Id",
+          "type": "string"
+        },
+        "start_block_id": {
+          "title": "Start Block Id",
+          "type": "string"
+        },
+        "start_page": {
+          "title": "Start Page",
+          "type": "integer"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "toc_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Toc Index"
+        },
+        "toc_source_page_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Toc Source Page Key"
+        }
+      },
+      "required": [
+        "section_id",
+        "title",
+        "level",
+        "heading_block_id",
+        "toc_index",
+        "toc_source_page_key",
+        "start_block_id",
+        "end_block_id",
+        "start_page",
+        "end_page",
+        "parent_id",
+        "origin",
+        "provenance"
+      ],
+      "title": "Section",
+      "type": "object"
+    },
+    "SourceQuality": {
+      "additionalProperties": false,
+      "properties": {
+        "archive_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Archive Code"
+        },
+        "claimed_pages": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Claimed Pages"
+        },
+        "held_pages": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Held Pages"
+        },
+        "passed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Passed"
+        },
+        "short_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Short Pct"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Status"
+        },
+        "tolerance": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tolerance"
+        }
+      },
+      "required": [
+        "status",
+        "passed",
+        "claimed_pages",
+        "held_pages",
+        "short_pct",
+        "tolerance",
+        "archive_code"
+      ],
+      "title": "SourceQuality",
+      "type": "object"
+    },
+    "Structure": {
+      "additionalProperties": false,
+      "properties": {
+        "root_section_id": {
+          "title": "Root Section Id",
+          "type": "string"
+        },
+        "sections": {
+          "items": {
+            "$ref": "#/$defs/Section"
+          },
+          "title": "Sections",
+          "type": "array"
+        }
+      },
+      "required": [
+        "root_section_id",
+        "sections"
+      ],
+      "title": "Structure",
+      "type": "object"
+    },
+    "ValidationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "agreement": {
+          "default": "single",
+          "enum": [
+            "agree",
+            "disagree",
+            "judge_resolved",
+            "single"
+          ],
+          "title": "Agreement",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "decision": {
+          "enum": [
+            "auto_approved",
+            "pending_review",
+            "approved",
+            "rejected",
+            "edited",
+            "reprocess_requested"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "evidence_found": {
+          "title": "Evidence Found",
+          "type": "boolean"
+        },
+        "evidence_match": {
+          "enum": [
+            "exact",
+            "normalized",
+            "none"
+          ],
+          "title": "Evidence Match",
+          "type": "string"
+        },
+        "factors": {
+          "$ref": "#/$defs/ConfidenceFactors"
+        },
+        "issues": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Issues",
+          "type": "array"
+        },
+        "model_outputs": {
+          "default": [],
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Model Outputs",
+          "type": "array"
+        },
+        "schema_valid": {
+          "title": "Schema Valid",
+          "type": "boolean"
+        },
+        "sensitive": {
+          "default": [],
+          "items": {
+            "enum": [
+              "prophetic_attribution",
+              "hadith_grading",
+              "fiqh_ruling",
+              "aqeedah_proposition",
+              "narrator_disambiguation"
+            ],
+            "type": "string"
+          },
+          "title": "Sensitive",
+          "type": "array"
+        },
+        "target_id": {
+          "title": "Target Id",
+          "type": "string"
+        },
+        "target_kind": {
+          "title": "Target Kind",
+          "type": "string"
+        },
+        "threshold": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Threshold",
+          "type": "number"
+        }
+      },
+      "required": [
+        "target_kind",
+        "target_id",
+        "schema_valid",
+        "evidence_found",
+        "evidence_match",
+        "factors",
+        "confidence",
+        "threshold",
+        "decision"
+      ],
+      "title": "ValidationResult",
+      "type": "object"
+    },
+    "Work": {
+      "additionalProperties": false,
+      "properties": {
+        "aliases": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Aliases",
+          "type": "array"
+        },
+        "author_entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Author Entity Id"
+        },
+        "author_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Author Name"
+        },
+        "source_work_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Work Id"
+        },
+        "status": {
+          "enum": [
+            "catalog",
+            "stub",
+            "this_book"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "title_normalized": {
+          "title": "Title Normalized",
+          "type": "string"
+        },
+        "work_id": {
+          "pattern": "^wrk_[0-9a-f]{12}$",
+          "title": "Work Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "work_id",
+        "source_work_id",
+        "title",
+        "title_normalized",
+        "aliases",
+        "author_name",
+        "author_entity_id",
+        "status"
+      ],
+      "title": "Work",
+      "type": "object"
+    },
+    "WorkRelation": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion": {
+          "enum": [
+            "stated",
+            "inferred"
+          ],
+          "title": "Assertion",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "count": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Count",
+          "type": "integer"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Anchor"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "object_work_id": {
+          "title": "Object Work Id",
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "author_text",
+            "transmission_isnad",
+            "editor_text",
+            "editor_footnote",
+            "ai_generated"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "relation_id": {
+          "title": "Relation Id",
+          "type": "string"
+        },
+        "review_status": {
+          "enum": [
+            "auto_approved",
+            "pending_review",
+            "approved",
+            "rejected",
+            "edited",
+            "reprocess_requested"
+          ],
+          "title": "Review Status",
+          "type": "string"
+        },
+        "subject_work_id": {
+          "title": "Subject Work Id",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "sharh_of",
+            "hashiyah_of",
+            "mukhtasar_of",
+            "translation_of",
+            "edition_of",
+            "tahqiq_of",
+            "cites",
+            "same_topic_as"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "relation_id",
+        "type",
+        "subject_work_id",
+        "object_work_id",
+        "evidence",
+        "origin",
+        "assertion",
+        "confidence",
+        "review_status",
+        "provenance"
+      ],
+      "title": "WorkRelation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "`enrichment.json`: the merge of the per-type output files, each list sorted by ID.",
+  "properties": {
+    "annotations": {
+      "items": {
+        "$ref": "#/$defs/Annotation"
+      },
+      "title": "Annotations",
+      "type": "array"
+    },
+    "citations": {
+      "items": {
+        "$ref": "#/$defs/Citation"
+      },
+      "title": "Citations",
+      "type": "array"
+    },
+    "document_report": {
+      "$ref": "#/$defs/DocumentReport"
+    },
+    "enrichment_schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Enrichment Schema Version",
+      "type": "string"
+    },
+    "entities": {
+      "items": {
+        "$ref": "#/$defs/Entity"
+      },
+      "title": "Entities",
+      "type": "array"
+    },
+    "internal_refs": {
+      "items": {
+        "$ref": "#/$defs/InternalRef"
+      },
+      "title": "Internal Refs",
+      "type": "array"
+    },
+    "issues": {
+      "items": {
+        "$ref": "#/$defs/Issue"
+      },
+      "title": "Issues",
+      "type": "array"
+    },
+    "knowledge_units": {
+      "items": {
+        "$ref": "#/$defs/KnowledgeUnit"
+      },
+      "title": "Knowledge Units",
+      "type": "array"
+    },
+    "metadata": {
+      "$ref": "#/$defs/BookMetadata"
+    },
+    "origin_map": {
+      "items": {
+        "$ref": "#/$defs/OriginSpan"
+      },
+      "title": "Origin Map",
+      "type": "array"
+    },
+    "pub_ref": {
+      "title": "Pub Ref",
+      "type": "string"
+    },
+    "relationships": {
+      "items": {
+        "$ref": "#/$defs/Relationship"
+      },
+      "title": "Relationships",
+      "type": "array"
+    },
+    "review_queue_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Review Queue Ids",
+      "type": "array"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "source": {
+      "$ref": "#/$defs/EnrichmentSource"
+    },
+    "stats": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Stats",
+      "type": "object"
+    },
+    "structure": {
+      "$ref": "#/$defs/Structure"
+    },
+    "validation": {
+      "items": {
+        "$ref": "#/$defs/ValidationResult"
+      },
+      "title": "Validation",
+      "type": "array"
+    },
+    "work_relations": {
+      "items": {
+        "$ref": "#/$defs/WorkRelation"
+      },
+      "title": "Work Relations",
+      "type": "array"
+    },
+    "works": {
+      "items": {
+        "$ref": "#/$defs/Work"
+      },
+      "title": "Works",
+      "type": "array"
+    }
+  },
+  "required": [
+    "pub_ref",
+    "run_id",
+    "source",
+    "document_report",
+    "metadata",
+    "structure",
+    "origin_map",
+    "annotations",
+    "internal_refs",
+    "citations",
+    "works",
+    "work_relations",
+    "knowledge_units",
+    "entities",
+    "relationships",
+    "validation",
+    "issues",
+    "review_queue_ids",
+    "stats"
+  ],
+  "title": "Enrichment",
+  "type": "object"
+}

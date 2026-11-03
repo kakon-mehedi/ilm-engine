@@ -118,3 +118,101 @@ class JsonStore:
         return sorted(
             path for path in self.directory.glob("*") if path.is_file() and not path.name.startswith(".")
         )
+
+
+# --- Consolidated enrichment.json (T-112) ---------------------------------------------------------------
+
+
+def _by(items: list[Any], attribute: str) -> list[Any]:
+    return sorted(items, key=lambda item: getattr(item, attribute))
+
+
+def consolidate(
+    *,
+    book: Any,
+    run_id: str,
+    report: Any,
+    metadata: Any,
+    genre_primary: Any,
+    genre_secondary: list[Any],
+    structure: Any,
+    origin_spans: list[Any],
+    annotations: list[Any],
+    internal_refs: list[Any],
+    citations: list[Any],
+    works: list[Any],
+    work_relations: list[Any],
+    units: list[Any],
+    entities: list[Any],
+    relationships: list[Any],
+    validation: list[Any],
+    issues: list[Any],
+    review_items: list[Any],
+) -> Any:
+    """The `Enrichment` record (03-data-contracts §18): every output in one object, lists sorted by ID.
+
+    Review decisions already applied to the queue are reflected in the targets' `review_status`.
+    """
+    from ilm_engine.enrichment.models import Enrichment, EnrichmentSource, Structure
+
+    decided = {item.target_id: item.status for item in review_items if item.status != "pending_review"}
+
+    def reviewed(record: Any, identifier: str) -> Any:
+        return (
+            record.model_copy(update={"review_status": decided[identifier]})
+            if identifier in decided
+            else record
+        )
+
+    units = [
+        reviewed(unit, unit.unit_id).model_copy(
+            update={"facts": [reviewed(f, f.fact_id) for f in unit.facts]}
+        )
+        for unit in units
+    ]
+    unique_issues = {issue.issue_id: issue for issue in issues}
+    stats = {
+        "blocks": len(book.blocks),
+        "pages": len(book.pages),
+        "sections": len(structure.sections),
+        "units": len(units),
+        "facts": sum(len(unit.facts) for unit in units),
+        "annotations": len(annotations),
+        "citations": len(citations),
+        "entities": len(entities),
+        "relationships": len(relationships),
+        "review_items": len(review_items),
+        "issues": len(unique_issues),
+    }
+    return Enrichment(
+        pub_ref=book.book.pub_ref,
+        run_id=run_id,
+        source=EnrichmentSource(
+            source_code=book.source.source_code,
+            schema_version=book.source.schema_version,
+            adapter=f"{book.source.adapter_id}@{book.source.adapter_version}",
+            canonical_content_hash=book.canonical_content_hash,
+            source_declared_hash=book.source.source_declared_hash,
+            source_declared_hash_verified=book.source.source_declared_hash_verified,
+        ),
+        document_report=report,
+        metadata=metadata.model_copy(
+            update={"genre_primary": genre_primary, "genre_secondary": genre_secondary}
+        ),
+        structure=Structure(
+            root_section_id=structure.root_section_id, sections=_by(structure.sections, "section_id")
+        ),
+        origin_map=origin_spans,
+        annotations=_by(annotations, "annotation_id"),
+        internal_refs=_by(internal_refs, "internal_ref_id"),
+        citations=_by(citations, "citation_id"),
+        works=_by(works, "work_id"),
+        work_relations=_by(work_relations, "relation_id"),
+        knowledge_units=_by(units, "unit_id"),
+        entities=_by([reviewed(e, e.entity_id) for e in entities], "entity_id"),
+        relationships=_by([reviewed(r, r.relation_id) for r in relationships], "relation_id"),
+        validation=sorted(validation, key=lambda v: (v.target_kind, v.target_id)),
+        issues=sorted(unique_issues.values(), key=lambda issue: issue.issue_id),
+        review_queue_ids=[item.review_id for item in review_items],
+        stats=stats,
+    )

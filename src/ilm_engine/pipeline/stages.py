@@ -388,3 +388,48 @@ def review_queue(ctx: RunContext) -> StepResult:
         files={"review_queue.json": items},
         data={"review_items": items, "counts": {"review_items": len(items)}},
     )
+
+
+def store(ctx: RunContext) -> StepResult:
+    from ilm_engine.pipeline.manifest import run_id
+    from ilm_engine.storage.json_store import consolidate
+    from ilm_engine.storage.sqlite_store import DB_NAME, SqliteStore
+
+    book = ctx.data("adapt", "book")
+    validation = ctx.data("validate", "validation")
+    records = validation.records
+    related = ctx.data("related_works", "related_works")
+    enrichment = consolidate(
+        book=book,
+        run_id=run_id(ctx),
+        report=ctx.data("document_analysis", "report"),
+        metadata=ctx.data("metadata", "metadata"),
+        genre_primary=ctx.data("genre", "genre_primary"),
+        genre_secondary=ctx.data("genre", "genre_secondary"),
+        structure=ctx.data("structure", "structure"),
+        origin_spans=ctx.data("origin", "origin_map").spans,
+        annotations=ctx.data("annotations", "annotations").annotations,
+        internal_refs=ctx.data("citations", "internal_refs").refs,
+        citations=ctx.data("citations", "citations").citations,
+        works=related.works,
+        work_relations=related.relations,
+        units=records.units,
+        entities=records.entities,
+        relationships=records.relationships,
+        validation=validation.results,
+        issues=[issue for result in ctx.results.values() for issue in result.issues],
+        review_items=ctx.data("review_queue", "review_items"),
+    )
+    database = SqliteStore(ctx.store.directory / DB_NAME)
+    database.path.unlink(missing_ok=True)  # rebuilt from this run's records (idempotent upserts within)
+    payload = enrichment.model_dump(mode="json", by_alias=True)
+    payload["review_items"] = [
+        item.model_dump(mode="json") for item in ctx.data("review_queue", "review_items")
+    ]
+    counts = database.load(payload, book=book, origins=ctx.data("origin", "origins"))
+    return StepResult(data={"enrichment": enrichment, "db_counts": counts})
+
+
+def export(ctx: RunContext) -> StepResult:
+    enrichment = ctx.data("store", "enrichment")
+    return StepResult(files={"enrichment.json": enrichment}, data={"counts": dict(enrichment.stats)})

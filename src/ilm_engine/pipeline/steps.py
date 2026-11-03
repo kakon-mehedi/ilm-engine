@@ -120,7 +120,20 @@ def build_registry() -> StepRegistry:
                 outputs=("review_queue.json",),
                 config=("review",),
             ),
-            _step("store", "review_queue", "search_index"),
+            _step(
+                "store",
+                "review_queue",
+                "search_index",
+                "document_analysis",
+                "metadata",
+                "genre",
+                "structure",
+                "origin",
+                "annotations",
+                "citations",
+                "related_works",
+                "validate",
+            ),
             _step("export", "store", outputs=("enrichment.json",)),
             _step("integrity_verify", "export", "integrity_register"),
             _step("manifest", "integrity_verify", outputs=("run_manifest.json",)),
@@ -150,6 +163,8 @@ def _wire(registry: StepRegistry) -> StepRegistry:
     registry.replace("search_index", stages.search_index)
     registry.replace("validate", stages.validate)
     registry.replace("review_queue", stages.review_queue)
+    registry.replace("store", stages.store)
+    registry.replace("export", stages.export)
     registry.replace("manifest", manifest_step)
     return registry
 

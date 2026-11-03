@@ -59,6 +59,14 @@ def llm_info(config: Config) -> dict[str, Any]:
     }
 
 
+def run_id(ctx: RunContext, code: str | None = None) -> str:
+    """Deterministic run ID: `run` + `config_hash|input hashes|code version` (ADR-011)."""
+    if ctx.pub_ref is None:
+        raise RuntimeError("run_id needs pub_ref (set by the adapt step)")
+    input_key = "|".join(file_sha256(path) for _, path in sorted(ctx.inputs.items()))
+    return make_id("run", ctx.pub_ref, natural_key(ctx.config.config_hash, input_key, code or code_version()))
+
+
 def build_manifest(
     ctx: RunContext,
     steps: list[StepRecord],
@@ -69,7 +77,6 @@ def build_manifest(
         raise RuntimeError("cannot build a run manifest before the adapt step set pub_ref")
     code = code or code_version()
     inputs = [file_hash(path) for _, path in sorted(ctx.inputs.items())]
-    input_key = "|".join(item.sha256 for item in inputs)
     outputs = [file_hash(path, path.name) for path in ctx.store.files() if path.name != MANIFEST_FILE]
 
     adapter: dict[str, str] = {}
@@ -81,7 +88,7 @@ def build_manifest(
         integrity.update(result.data.get("integrity", {}))
 
     return RunManifest(
-        run_id=make_id("run", ctx.pub_ref, natural_key(ctx.config.config_hash, input_key, code)),
+        run_id=run_id(ctx, code),
         pub_ref=ctx.pub_ref,
         started_at=ctx.started_at,
         finished_at=finished_at or datetime.now(UTC).isoformat(timespec="seconds"),

@@ -96,7 +96,7 @@ This board is the execution plan for coding agents. Each ticket is self-containe
 | [T-095](T-095-genre-schemas-router.md) | Genre plugin schemas (7) + genre router | E09 | P0 | T-040, T-010 | M | 5 | done |
 | [T-100](T-100-evidence-guard.md) | Evidence guard (hallucination guard) | E10 | P0 | T-060 | S | 2 | done |
 | [T-101](T-101-rule-validation.md) | Rule-based validation | E10 | P0 | T-100, T-071 | S | 9 | todo |
-| [T-102](T-102-consensus.md) | Multi-model consensus & discrepancy detection | E10 | P1 | T-094 | M | 5 | todo |
+| [T-102](T-102-consensus.md) | Multi-model consensus & discrepancy detection | E10 | P1 | T-094 | M | 5 | done |
 | [T-103](T-103-confidence.md) | Confidence scoring | E10 | P0 | T-100 | S | 3 | done |
 | [T-104](T-104-sensitivity.md) | Sensitivity rules (always human review) | E10 | P0 | T-095 | S | 6 | todo |
 | [T-105](T-105-review-queue-viewer.md) | Review queue, decisions loop + static HTML reviewer view | E10 | P0 | T-103, T-104, T-101 | M | 10 | todo |

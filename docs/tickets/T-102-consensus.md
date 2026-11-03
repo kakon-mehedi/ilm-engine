@@ -6,7 +6,7 @@ priority: P1
 depends_on: [T-094]
 estimate: M
 owner: agent
-status: todo
+status: done
 wave: 5
 ---
 
@@ -32,8 +32,8 @@ Section 3.7: model comparison, independent validation, consensus, discrepancy de
 - Example: born 1200 vs 1205 AH → disagreement → review.
 
 ## Acceptance criteria
-- [ ] Fake providers agreeing → factor 1.2; disagreeing (1200 vs 1205) → `model_disagreement` and `pending_review`.
-- [ ] Definition of Done (BOARD.md) satisfied.
+- [x] Fake providers agreeing → factor 1.2; disagreeing (1200 vs 1205) → `model_disagreement` and `pending_review`.
+- [x] Definition of Done (BOARD.md) satisfied.
 
 ## Test commands
 ```bash
@@ -42,3 +42,9 @@ uv run pytest tests/test_consensus.py -q
 
 ## Out of scope
 - Anything not listed in Scope.
+
+## Follow-ups
+- `reconcile(facts, primary_result, verifier_result, unit, config, scan_pages, judge=None) -> ConsensusOutcome{facts: [FactConsensus{fact, agreement, model_outputs}], issues}`; agreement is one of agree / disagree / judge_resolved / single.
+- Matching: same predicate and equal normalized value (`comparable`: Arabic normalization, Arabic-Indic digits, numbers as floats). A fact the verifier did not produce stays `single` (no bonus, no penalty).
+- Confidence swaps the single-model factor for the configured agreement factor (agree ×1.2 → 0.90; judge 0.9). On disagreement the extractor's value stays only as a proposal: `pending_review`, issue `model_disagreement` with both model outputs (also kept on `FactConsensus.model_outputs` for the review item).
+- The judge (`judge.v1`, schema `JudgeVerdict`) settles a disagreement only if it chooses a side **and** every evidence quote passes the evidence guard; otherwise the disagreement stands.

@@ -1,0 +1,67 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "decided_at": {
+      "title": "Decided At",
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "approved",
+        "rejected",
+        "edited",
+        "reprocess_requested"
+      ],
+      "title": "Decision",
+      "type": "string"
+    },
+    "new_value": {
+      "anyOf": [
+        {},
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "New Value"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reason"
+    },
+    "review_id": {
+      "title": "Review Id",
+      "type": "string"
+    },
+    "reviewer_id": {
+      "title": "Reviewer Id",
+      "type": "string"
+    },
+    "reviewer_role": {
+      "enum": [
+        "editor_reviewer",
+        "scholar_reviewer",
+        "admin"
+      ],
+      "title": "Reviewer Role",
+      "type": "string"
+    }
+  },
+  "required": [
+    "review_id",
+    "decision",
+    "reviewer_id",
+    "reviewer_role",
+    "decided_at"
+  ],
+  "title": "ReviewDecision",
+  "type": "object"
+}

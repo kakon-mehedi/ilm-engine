@@ -1,0 +1,58 @@
+%% Adapter flow: JSON variants → adapters → canonical (ADR-002, docs/02-architecture.md §5)
+%% Only adapters know source formats; everything downstream consumes CanonicalBook. Fail closed on unknown versions.
+flowchart LR
+
+    subgraph VAR["Source JSON variants"]
+        J1[/"Shamela JSON<br/>pub.source_code = src-shamela<br/>revision.content.schema_version = 3.0<br/>(sample book)"/]:::ext
+        J2[/"Shamela JSON, future version<br/>src-shamela · schema_version 4.0"/]:::ext
+        J3[/"OCR team JSON (hypothetical)<br/>src-ocr-team · schema_version 1.0"/]:::ext
+        J4[/"Other archives (future)"/]:::ext
+    end
+
+    KEY["Read resolution key<br/>(source_code, schema_version)"]:::script
+
+    subgraph REGB["Adapter Registry — adapters/registry.py"]
+        REG{"resolve(source_code,<br/>schema_version)"}:::script
+    end
+
+    subgraph ADS["Adapters — adapters/*.py (SourceAdapter protocol, adapters/base.py)"]
+        A1["ShamelaV3Adapter<br/>adapters/shamela_v3.py<br/>source_code src-shamela · schema 3.0 · adapter_version 1.0.0"]:::script
+        A2["Shamela v4 adapter (future)<br/>new file + one registry.register line"]:::future
+        A3["OCR-team adapter (future)<br/>adapters/&lt;source&gt;_v&lt;N&gt;.py"]:::future
+    end
+
+    FAIL["Fail closed<br/>UnknownSchemaVersion → issue unknown_schema_version<br/>pipeline stops, nothing guessed"]:::stop
+
+    subgraph MAP["Mapping inside each adapter"]
+        M1["Field mapping<br/>b → id · kind · text · marker · continues · spans · refs<br/>page n → page · scan_page · source_ref.key → source_key"]:::script
+        M2["Source quirks resolved<br/>TOC source_page = Shamela key · continues footnotes<br/>raw span classes c1 / c2 / c4 / c5 kept"]:::script
+        M3["raw_extras<br/>unmapped fields kept verbatim<br/>(book · page · block level)"]:::script
+        M4{"Required fields present?"}:::script
+    end
+
+    INV["Issue schema_invalid<br/>step stops"]:::stop
+
+    CAN["CanonicalBook<br/>canonical/models.py · canonical_schema_version 1.0<br/>pages[] · blocks[] · refs[] · spans[] · metadata_raw · raw_extras"]:::canon
+
+    GOLD[("Golden tests<br/>tests/golden/&lt;adapter&gt;/&lt;case&gt;.input.json<br/>→ &lt;case&gt;.canonical.json")]:::store
+    MANI[("run_manifest.json<br/>adapter + adapter_version<br/>canonical schema version")]:::store
+    DOWN["Downstream pipeline steps<br/>integrity_register → document_analysis → … → manifest<br/>(source-agnostic)"]:::script
+
+    J1 & J2 & J3 & J4 --> KEY --> REG
+    REG -->|"(src-shamela, 3.0)"| A1
+    REG -.->|"(src-shamela, 4.0) once registered"| A2
+    REG -.->|"(src-ocr-team, 1.0) once registered"| A3
+    REG -->|"no match"| FAIL
+    A1 & A2 & A3 --> M1 --> M2 --> M3 --> M4
+    M4 -->|"no"| INV
+    M4 -->|"yes"| CAN
+    CAN --> DOWN
+    A1 -.->|"verified by"| GOLD
+    CAN -.-> MANI
+
+    classDef script fill:#dbeafe,stroke:#1d4ed8,color:#000
+    classDef future fill:#eff6ff,stroke:#1d4ed8,stroke-dasharray:5 3,color:#000
+    classDef canon fill:#e0e7ff,stroke:#312e81,stroke-width:3px,color:#000
+    classDef stop fill:#fee2e2,stroke:#b91c1c,color:#000
+    classDef store fill:#f3f4f6,stroke:#374151,color:#000
+    classDef ext fill:#ffffff,stroke:#6b7280,stroke-dasharray:3 3,color:#000

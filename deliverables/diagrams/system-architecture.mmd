@@ -1,0 +1,170 @@
+%% Deliverable 1 (assignment §5.1): System architecture — ilm-engine (production design; MVP module paths in brackets)
+%% Source: docs/02-architecture.md (§2 context, §3 components, §5–§9, §11 deployment). Names follow docs/DECISIONS.md.
+%% Colour legend: script = deterministic programming · NLP = Arabic NLP / embeddings · LLM-agent = LLM calls and the 4 agents · human = reviewers / operators
+flowchart TB
+
+    %% ───────────── Legend ─────────────
+    subgraph LEG["Legend"]
+        direction LR
+        LG_S["Script / deterministic code"]:::script
+        LG_N["Arabic NLP / embeddings"]:::nlp
+        LG_L["LLM / agent"]:::llm
+        LG_H["Human"]:::human
+        LG_D[("Store")]:::store
+        LG_E["External system"]:::ext
+    end
+
+    %% ───────────── External actors ─────────────
+    subgraph EXTL["External sources & actors"]
+        SRC["Source archives<br/>Shamela (src-shamela v3.0) · OCR team · future sources<br/>JSON + PDF + identifiers"]:::ext
+        AUTHD["Authority data<br/>narrator DBs · work catalogues"]:::ext
+        CLLM["Commercial LLM APIs<br/>Anthropic Claude (Opus / Sonnet / Haiku) · GPT · Gemini"]:::ext
+        OPS["Operators<br/>runs · config · monitoring"]:::human
+    end
+
+    %% ───────────── Ingestion ─────────────
+    subgraph ING["1 · Ingestion (source-agnostic core, ADR-002)"]
+        GW["Input Gateway<br/>FastAPI · MVP: ilm-engine CLI (typer)"]:::script
+        REG["Adapter Registry<br/>(source_code, schema_version) → adapter<br/>[adapters/registry.py] · fail closed: unknown_schema_version"]:::script
+        ADP["Source adapters<br/>ShamelaV3Adapter 1.0.0 · future OCR adapter<br/>[adapters/shamela_v3.py] · raw_extras kept"]:::script
+        CAN["Canonical model<br/>CanonicalBook → pages → blocks · refs · spans<br/>canonical_schema_version 1.0 [canonical/models.py]"]:::script
+        INTG["Integrity<br/>block_hash · canonical_content_hash · verify<br/>[integrity/hashing.py · integrity/store.py]"]:::script
+        OBJ[("Immutable original store<br/>MinIO / S3 object lock<br/>MVP: store/originals/&lt;pub_ref&gt;/ read-only")]:::store
+    end
+
+    %% ───────────── Orchestration ─────────────
+    subgraph ORC["2 · Orchestration (ADR-004)"]
+        PF["Prefect server<br/>MVP: pipeline/runner.py in-process DAG<br/>steps = idempotent, cached by input hash"]:::script
+        CPUW["CPU worker pool (k8s)<br/>processors · NLP · autoscale on queue depth"]:::script
+        LLMW["LLM worker pool<br/>gateway clients · agents"]:::llm
+        MAN["Run manifest<br/>run_manifest.json: code sha · config hash · models · prompt versions · hashes<br/>[pipeline/manifest.py]"]:::script
+    end
+
+    %% ───────────── Processing workers ─────────────
+    subgraph PROC["3 · Processing workers (deterministic first)"]
+        DA["document_analysis<br/>page gaps · counts · quality<br/>[processors/document_analysis.py]"]:::script
+        STR["structure + origin<br/>section tree · TOC alignment · origin layers<br/>[processors/structure.py · origin.py]"]:::script
+        MDG["metadata + genre<br/>[processors/metadata.py · genre.py]"]:::script
+        ANC["annotations + citations<br/>refs · continued / nested footnotes · internal refs<br/>[processors/annotations.py · citations.py]"]:::script
+        EXT["extractors<br/>units · entities · relations · related_works · llm_extract<br/>genre schemas: fiqh · hadith · tafsir · seerah · aqeedah · history · biography<br/>[extractors/*]"]:::script
+        NLP["Arabic NLP<br/>normalize · arabic_digits · nasab parser · CAMeL Tools / Farasa<br/>[nlp/*]"]:::nlp
+        SRCH["Search index builders<br/>lexical (normalized) · semantic (BGE-M3)<br/>[search/lexical.py · search/semantic.py]"]:::nlp
+        EMB["Embedding server<br/>BGE-M3 (GPU)"]:::nlp
+    end
+
+    %% ───────────── AI layer ─────────────
+    subgraph AIL["4 · AI layer (ADR-006, ADR-014)"]
+        subgraph AGS["LangGraph agents — only four [MVP: plain functions]"]
+            A1["Genre Router<br/>[processors/genre.py]"]:::llm
+            A2["Genre Extractor (one per genre schema)<br/>[extractors/llm_extract.py]"]:::llm
+            A3["Related-Works / Citation Resolver<br/>tool: catalog search<br/>[extractors/related_works.py]"]:::llm
+            A4["Discrepancy Resolver<br/>tools: re-read source, second model<br/>[validation/consensus.py]"]:::llm
+        end
+        LGW["LLM Gateway<br/>LiteLLM proxy · providers null | fixture | anthropic | litellm<br/>temperature 0 [llm/gateway.py]"]:::llm
+        PRR["Prompt & schema registry<br/>llm/prompts/&lt;task&gt;.v&lt;N&gt;.md · Pydantic genre schemas"]:::script
+        CACHE[("Response cache<br/>sha256(provider+model+prompt_version+input)<br/>[llm/cache.py]")]:::store
+        VLLM["vLLM GPU pool<br/>open-weight base + multi-LoRA (Qwen · Jais · ALLaM)"]:::llm
+    end
+
+    %% ───────────── Validation ─────────────
+    subgraph VAL["5 · Validation (ADR-007, ADR-008, ADR-009)"]
+        EVG["Evidence guard<br/>quote must match original text[start:end]<br/>[validation/evidence.py]"]:::script
+        RUL["Rules<br/>[validation/rules.py]"]:::script
+        CON["Consensus + judge<br/>model A vs model B (different family)<br/>[validation/consensus.py]"]:::llm
+        CONF["Confidence + sensitivity<br/>DECISIONS §8 formula · threshold 0.80<br/>sensitive → always review<br/>[validation/confidence.py · sensitivity.py]"]:::script
+        RQ["Review queue builder<br/>[validation/review_queue.py] → review_queue.json"]:::script
+    end
+
+    %% ───────────── Human review ─────────────
+    subgraph REV["6 · Human review (ADR-016)"]
+        ARG["Argilla<br/>MVP: review_queue.json + static review.html"]:::human
+        RVW["Reviewers<br/>editor_reviewer · scholar_reviewer (sensitive) · admin<br/>approve · edit · reject · reprocess"]:::human
+    end
+
+    %% ───────────── Knowledge store ─────────────
+    subgraph KS["7 · Knowledge store (ADR-005)"]
+        PG[("PostgreSQL<br/>SOURCE OF TRUTH<br/>enrichment layer: units · facts · anchors · entities · relations · issues · reviews<br/>MVP: JSON files + SQLite enrichment.db [storage/*]")]:::sot
+        PROJ["Projection jobs<br/>rebuild-derived (drop &amp; rebuild any time)"]:::script
+        subgraph DER["Derived, rebuildable stores"]
+            QD[("Qdrant<br/>vectors")]:::derived
+            NEO[("Neo4j<br/>knowledge graph")]:::derived
+            OSR[("OpenSearch<br/>Arabic search · BM25 + vector")]:::derived
+        end
+    end
+
+    %% ───────────── Serving ─────────────
+    subgraph SRV["8 · Serving & publishing"]
+        API["Library API (FastAPI)<br/>MVP: enrichment.json · search_index.json · graph.html"]:::script
+        PUB["Digital library<br/>reader · search · discovery"]:::ext
+    end
+
+    %% ───────────── Cross-cutting ─────────────
+    subgraph XC["Cross-cutting"]
+        OTEL["OpenTelemetry + Grafana<br/>MVP: structured logs"]:::script
+        LF["Langfuse<br/>LLM traces · cost"]:::script
+        AUD[("Audit log<br/>REVIEW_ACTION append-only")]:::store
+        EVAL["Evaluation harness<br/>gold = printed index sample [eval/gold.py]"]:::script
+        SEC["Security<br/>secrets manager · read-only originals"]:::script
+    end
+
+    %% ───────────── Flows ─────────────
+    SRC -->|"JSON + PDF + identifiers"| GW
+    OPS --> PF
+    GW --> REG --> ADP --> CAN
+    GW --> INTG --> OBJ
+    CAN --> INTG
+    GW --> PF
+    PF --> CPUW & LLMW
+    PF --> MAN
+    CPUW --> DA & STR & MDG & ANC & EXT & NLP & SRCH
+    CAN -.->|"read-only canonical blocks"| DA
+    SRCH --> EMB
+    EXT --> NLP
+
+    MDG --> A1
+    EXT --> A2
+    ANC --> A3
+    LLMW --> A1 & A2 & A3 & A4
+    A3 -->|"catalog search"| AUTHD
+    A1 & A2 & A3 & A4 --> LGW
+    PRR --> LGW
+    LGW <--> CACHE
+    LGW --> VLLM
+    LGW --> CLLM
+
+    EXT --> EVG
+    A2 --> EVG
+    EVG --> RUL --> CON
+    CON -->|"disagreement"| A4
+    A4 -->|"resolved / unresolved"| CONF
+    CON -->|"agreed"| CONF
+    CONF -->|"auto_approved"| PG
+    CONF -->|"pending_review<br/>(low confidence or sensitive)"| RQ --> ARG
+    RVW <--> ARG
+    ARG -->|"approved / edited / rejected<br/>review_decisions.json"| PG
+    ARG -->|"reprocess_requested"| PF
+    ARG --> AUD
+    ARG -.->|"training_examples.jsonl"| VLLM
+
+    PG -->|"projection jobs"| PROJ
+    PROJ --> QD & NEO & OSR
+    OBJ -.->|"original text"| PROJ
+    EMB --> QD
+    PG & QD & NEO & OSR --> API
+    OBJ -.->|"jump-to-source PDF page"| API
+    API -->|"approved enrichment"| PUB
+
+    INTG -.->|"integrity_verify: originals unchanged, anchors valid"| PG
+    LGW -.-> LF
+    PF -.-> OTEL
+    PG -.-> EVAL
+
+    %% ───────────── Styles ─────────────
+    classDef script fill:#dbeafe,stroke:#1d4ed8,color:#000
+    classDef nlp fill:#dcfce7,stroke:#15803d,color:#000
+    classDef llm fill:#ffedd5,stroke:#c2410c,color:#000
+    classDef human fill:#fee2e2,stroke:#b91c1c,color:#000
+    classDef store fill:#f3f4f6,stroke:#374151,color:#000
+    classDef sot fill:#e0e7ff,stroke:#312e81,stroke-width:3px,color:#000
+    classDef derived fill:#f3f4f6,stroke:#6b7280,stroke-dasharray:5 3,color:#000
+    classDef ext fill:#ffffff,stroke:#6b7280,stroke-dasharray:3 3,color:#000

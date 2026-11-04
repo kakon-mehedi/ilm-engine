@@ -1,0 +1,53 @@
+{
+  "additionalProperties": false,
+  "description": "Contiguous run of blocks sharing an origin (origin_map.json).",
+  "properties": {
+    "block_count": {
+      "minimum": 0,
+      "title": "Block Count",
+      "type": "integer"
+    },
+    "end_block_id": {
+      "title": "End Block Id",
+      "type": "string"
+    },
+    "end_page": {
+      "title": "End Page",
+      "type": "integer"
+    },
+    "origin": {
+      "enum": [
+        "author_text",
+        "transmission_isnad",
+        "editor_text",
+        "editor_footnote",
+        "ai_generated"
+      ],
+      "title": "Origin",
+      "type": "string"
+    },
+    "rule": {
+      "title": "Rule",
+      "type": "string"
+    },
+    "start_block_id": {
+      "title": "Start Block Id",
+      "type": "string"
+    },
+    "start_page": {
+      "title": "Start Page",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "origin",
+    "start_block_id",
+    "end_block_id",
+    "start_page",
+    "end_page",
+    "rule",
+    "block_count"
+  ],
+  "title": "OriginSpan",
+  "type": "object"
+}

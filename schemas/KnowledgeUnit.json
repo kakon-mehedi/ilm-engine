@@ -1,0 +1,406 @@
+{
+  "$defs": {
+    "Anchor": {
+      "additionalProperties": false,
+      "description": "Pointer to an exact span of an original block. `block.text[start:end] == quote` is checked by\n`validation/evidence.py`, which needs the block text.",
+      "properties": {
+        "bbox": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "block_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Block Hash",
+          "type": "string"
+        },
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "page": {
+          "title": "Page",
+          "type": "integer"
+        },
+        "pub_ref": {
+          "title": "Pub Ref",
+          "type": "string"
+        },
+        "quote": {
+          "title": "Quote",
+          "type": "string"
+        },
+        "quote_truncated": {
+          "default": false,
+          "title": "Quote Truncated",
+          "type": "boolean"
+        },
+        "scan_page": {
+          "title": "Scan Page",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "status": {
+          "default": "valid",
+          "enum": [
+            "valid",
+            "stale",
+            "orphaned"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pub_ref",
+        "page",
+        "scan_page",
+        "block_id",
+        "start",
+        "end",
+        "quote",
+        "block_hash"
+      ],
+      "title": "Anchor",
+      "type": "object"
+    },
+    "Fact": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion": {
+          "enum": [
+            "stated",
+            "inferred"
+          ],
+          "title": "Assertion",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Anchor"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "fact_id": {
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "object": {
+          "title": "Object"
+        },
+        "object_entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Entity Id"
+        },
+        "origin": {
+          "enum": [
+            "author_text",
+            "transmission_isnad",
+            "editor_text",
+            "editor_footnote",
+            "ai_generated"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "predicate": {
+          "title": "Predicate",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "review_status": {
+          "enum": [
+            "auto_approved",
+            "pending_review",
+            "approved",
+            "rejected",
+            "edited",
+            "reprocess_requested"
+          ],
+          "title": "Review Status",
+          "type": "string"
+        },
+        "sensitive": {
+          "default": [],
+          "items": {
+            "enum": [
+              "prophetic_attribution",
+              "hadith_grading",
+              "fiqh_ruling",
+              "aqeedah_proposition",
+              "narrator_disambiguation"
+            ],
+            "type": "string"
+          },
+          "title": "Sensitive",
+          "type": "array"
+        }
+      },
+      "required": [
+        "fact_id",
+        "predicate",
+        "object",
+        "evidence",
+        "origin",
+        "assertion",
+        "confidence",
+        "review_status",
+        "provenance"
+      ],
+      "title": "Fact",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "How a value was produced. Attached to every derived record.",
+      "properties": {
+        "method": {
+          "enum": [
+            "structural",
+            "rule",
+            "nlp",
+            "llm",
+            "llm_consensus",
+            "human"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Id"
+        },
+        "prompt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Id"
+        },
+        "prompt_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Version"
+        },
+        "step": {
+          "title": "Step",
+          "type": "string"
+        },
+        "step_version": {
+          "title": "Step Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "step",
+        "step_version"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "anchors": {
+      "items": {
+        "$ref": "#/$defs/Anchor"
+      },
+      "title": "Anchors",
+      "type": "array"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "entry_no": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Entry No"
+    },
+    "facts": {
+      "items": {
+        "$ref": "#/$defs/Fact"
+      },
+      "title": "Facts",
+      "type": "array"
+    },
+    "genre": {
+      "enum": [
+        "fiqh",
+        "hadith",
+        "tafsir",
+        "seerah",
+        "aqeedah",
+        "history",
+        "biography"
+      ],
+      "title": "Genre",
+      "type": "string"
+    },
+    "issues": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Issues",
+      "type": "array"
+    },
+    "note_annotation_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Note Annotation Ids",
+      "type": "array"
+    },
+    "origin": {
+      "enum": [
+        "author_text",
+        "transmission_isnad",
+        "editor_text",
+        "editor_footnote",
+        "ai_generated"
+      ],
+      "title": "Origin",
+      "type": "string"
+    },
+    "payload": {
+      "additionalProperties": true,
+      "title": "Payload",
+      "type": "object"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "review_status": {
+      "enum": [
+        "auto_approved",
+        "pending_review",
+        "approved",
+        "rejected",
+        "edited",
+        "reprocess_requested"
+      ],
+      "title": "Review Status",
+      "type": "string"
+    },
+    "section_id": {
+      "title": "Section Id",
+      "type": "string"
+    },
+    "sub_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Sub Type"
+    },
+    "subject_entity_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Subject Entity Id"
+    },
+    "unit_id": {
+      "title": "Unit Id",
+      "type": "string"
+    },
+    "unit_type": {
+      "title": "Unit Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "unit_id",
+    "genre",
+    "sub_type",
+    "unit_type",
+    "entry_no",
+    "section_id",
+    "anchors",
+    "note_annotation_ids",
+    "subject_entity_id",
+    "payload",
+    "facts",
+    "origin",
+    "confidence",
+    "review_status",
+    "issues",
+    "provenance"
+  ],
+  "title": "KnowledgeUnit",
+  "type": "object"
+}

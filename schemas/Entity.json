@@ -1,0 +1,360 @@
+{
+  "$defs": {
+    "Anchor": {
+      "additionalProperties": false,
+      "description": "Pointer to an exact span of an original block. `block.text[start:end] == quote` is checked by\n`validation/evidence.py`, which needs the block text.",
+      "properties": {
+        "bbox": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "block_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Block Hash",
+          "type": "string"
+        },
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "page": {
+          "title": "Page",
+          "type": "integer"
+        },
+        "pub_ref": {
+          "title": "Pub Ref",
+          "type": "string"
+        },
+        "quote": {
+          "title": "Quote",
+          "type": "string"
+        },
+        "quote_truncated": {
+          "default": false,
+          "title": "Quote Truncated",
+          "type": "boolean"
+        },
+        "scan_page": {
+          "title": "Scan Page",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "status": {
+          "default": "valid",
+          "enum": [
+            "valid",
+            "stale",
+            "orphaned"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pub_ref",
+        "page",
+        "scan_page",
+        "block_id",
+        "start",
+        "end",
+        "quote",
+        "block_hash"
+      ],
+      "title": "Anchor",
+      "type": "object"
+    },
+    "PersonName": {
+      "additionalProperties": false,
+      "properties": {
+        "full_surface": {
+          "title": "Full Surface",
+          "type": "string"
+        },
+        "ism": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ism"
+        },
+        "kunya": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kunya"
+        },
+        "laqab": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Laqab"
+        },
+        "nasab": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Nasab",
+          "type": "array"
+        },
+        "nisba": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Nisba",
+          "type": "array"
+        }
+      },
+      "required": [
+        "full_surface"
+      ],
+      "title": "PersonName",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "How a value was produced. Attached to every derived record.",
+      "properties": {
+        "method": {
+          "enum": [
+            "structural",
+            "rule",
+            "nlp",
+            "llm",
+            "llm_consensus",
+            "human"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Id"
+        },
+        "prompt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Id"
+        },
+        "prompt_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Version"
+        },
+        "step": {
+          "title": "Step",
+          "type": "string"
+        },
+        "step_version": {
+          "title": "Step Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "step",
+        "step_version"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "aliases": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Aliases",
+      "type": "array"
+    },
+    "candidates": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Candidates",
+      "type": "array"
+    },
+    "canonical_name": {
+      "title": "Canonical Name",
+      "type": "string"
+    },
+    "canonical_name_normalized": {
+      "title": "Canonical Name Normalized",
+      "type": "string"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "disambiguation": {
+      "default": "unique",
+      "enum": [
+        "unique",
+        "resolved",
+        "ambiguous"
+      ],
+      "title": "Disambiguation",
+      "type": "string"
+    },
+    "entity_id": {
+      "title": "Entity Id",
+      "type": "string"
+    },
+    "entity_type": {
+      "enum": [
+        "person",
+        "place",
+        "work",
+        "event",
+        "concept",
+        "group"
+      ],
+      "title": "Entity Type",
+      "type": "string"
+    },
+    "external_ids": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {},
+      "title": "External Ids",
+      "type": "object"
+    },
+    "gender": {
+      "default": "unknown",
+      "enum": [
+        "m",
+        "f",
+        "unknown"
+      ],
+      "title": "Gender",
+      "type": "string"
+    },
+    "mentions": {
+      "items": {
+        "$ref": "#/$defs/Anchor"
+      },
+      "title": "Mentions",
+      "type": "array"
+    },
+    "name": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PersonName"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "review_status": {
+      "enum": [
+        "auto_approved",
+        "pending_review",
+        "approved",
+        "rejected",
+        "edited",
+        "reprocess_requested"
+      ],
+      "title": "Review Status",
+      "type": "string"
+    },
+    "roles": {
+      "default": [],
+      "items": {
+        "enum": [
+          "author",
+          "editor",
+          "narrator",
+          "sahabi",
+          "scholar",
+          "subject"
+        ],
+        "type": "string"
+      },
+      "title": "Roles",
+      "type": "array"
+    }
+  },
+  "required": [
+    "entity_id",
+    "entity_type",
+    "canonical_name",
+    "canonical_name_normalized",
+    "name",
+    "mentions",
+    "confidence",
+    "review_status",
+    "provenance"
+  ],
+  "title": "Entity",
+  "type": "object"
+}

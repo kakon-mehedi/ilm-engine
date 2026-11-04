@@ -1,0 +1,62 @@
+[project]
+name = "ilm-engine"
+version = "0.1.0"
+description = "Post-OCR knowledge enrichment for digitized Islamic books"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "pydantic>=2",
+    "typer",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+llm = ["anthropic", "litellm"]
+nlp = ["camel-tools"]
+semantic = ["sentence-transformers"]
+web = [
+    "fastapi>=0.162.0",
+    "python-multipart>=0.0.33",
+    "uvicorn>=0.54.0",
+]
+
+[project.scripts]
+ilm-engine = "ilm_engine.cli:app"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+    "httpx>=0.28.1",
+    "fastapi>=0.162.0",
+    "uvicorn>=0.54.0",
+    "python-multipart>=0.0.33",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ilm_engine"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.format]
+# Code samples in the Markdown specs are documentation, not formatted source.
+exclude = ["*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["live: calls a real external API (skipped without credentials)"]
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient` is deprecated"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true

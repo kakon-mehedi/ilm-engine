@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ILM Engine</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='serif'%3E%D8%B9%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/">
+      <span class="brand-mark" aria-hidden="true">ع</span>
+      <span>
+        <strong>ILM Engine</strong>
+        <small>Post-OCR knowledge enrichment</small>
+      </span>
+    </a>
+    <nav class="booknav" id="booknav" aria-label="Book sections"></nav>
+    <div class="topbar-actions">
+      <select id="bookpicker" aria-label="Processed book" hidden></select>
+      <button class="icon-btn" id="theme" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    </div>
+  </header>
+  <main id="app" tabindex="-1"></main>
+  <div id="toasts" aria-live="polite"></div>
+  <dialog id="pdfdialog">
+    <div class="dialog-head">
+      <strong id="pdftitle">Scan</strong>
+      <button class="icon-btn" type="button" data-close aria-label="Close">✕</button>
+    </div>
+    <iframe id="pdfframe" title="Scan page"></iframe>
+  </dialog>
+  <script src="/static/app.js"></script>
+</body>
+</html>

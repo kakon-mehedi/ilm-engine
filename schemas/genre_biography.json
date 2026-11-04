@@ -1,0 +1,352 @@
+{
+  "$defs": {
+    "LifeEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "place": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Place"
+        },
+        "year_hijri": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year Hijri"
+        }
+      },
+      "title": "LifeEvent",
+      "type": "object"
+    },
+    "Person": {
+      "additionalProperties": false,
+      "properties": {
+        "gender": {
+          "default": "unknown",
+          "enum": [
+            "m",
+            "f",
+            "unknown"
+          ],
+          "title": "Gender",
+          "type": "string"
+        },
+        "ism": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ism"
+        },
+        "kunya": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kunya"
+        },
+        "laqab": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Laqab"
+        },
+        "nisba": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Nisba",
+          "type": "array"
+        },
+        "span": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Span"
+        },
+        "surface": {
+          "title": "Surface",
+          "type": "string"
+        }
+      },
+      "required": [
+        "surface"
+      ],
+      "title": "Person",
+      "type": "object"
+    },
+    "Relative": {
+      "additionalProperties": false,
+      "properties": {
+        "entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Id"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kind"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "relation": {
+          "title": "Relation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "relation"
+      ],
+      "title": "Relative",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "birth": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LifeEvent"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "companion_status": {
+      "default": "unknown",
+      "enum": [
+        "sahabi",
+        "not_sahabi",
+        "unknown"
+      ],
+      "title": "Companion Status",
+      "type": "string"
+    },
+    "death": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LifeEvent"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "entry_no": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Entry No"
+    },
+    "kunya": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Kunya"
+    },
+    "laqab": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Laqab"
+    },
+    "narration_status": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Narration Status"
+    },
+    "nasab": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Nasab",
+      "type": "array"
+    },
+    "person": {
+      "$ref": "#/$defs/Person"
+    },
+    "relatives": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Relative"
+      },
+      "title": "Relatives",
+      "type": "array"
+    },
+    "section_heading_anchor": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Heading Anchor"
+    },
+    "section_heading_block": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Heading Block"
+    },
+    "section_mother": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Mother"
+    },
+    "section_subject": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Subject"
+    },
+    "students": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Students",
+      "type": "array"
+    },
+    "tarjama_annotation": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tarjama Annotation"
+    },
+    "teachers": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Teachers",
+      "type": "array"
+    }
+  },
+  "required": [
+    "person"
+  ],
+  "title": "UnitSchema",
+  "type": "object"
+}

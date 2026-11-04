@@ -1,0 +1,256 @@
+{
+  "$defs": {
+    "Anchor": {
+      "additionalProperties": false,
+      "description": "Pointer to an exact span of an original block. `block.text[start:end] == quote` is checked by\n`validation/evidence.py`, which needs the block text.",
+      "properties": {
+        "bbox": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "block_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Block Hash",
+          "type": "string"
+        },
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "page": {
+          "title": "Page",
+          "type": "integer"
+        },
+        "pub_ref": {
+          "title": "Pub Ref",
+          "type": "string"
+        },
+        "quote": {
+          "title": "Quote",
+          "type": "string"
+        },
+        "quote_truncated": {
+          "default": false,
+          "title": "Quote Truncated",
+          "type": "boolean"
+        },
+        "scan_page": {
+          "title": "Scan Page",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "status": {
+          "default": "valid",
+          "enum": [
+            "valid",
+            "stale",
+            "orphaned"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pub_ref",
+        "page",
+        "scan_page",
+        "block_id",
+        "start",
+        "end",
+        "quote",
+        "block_hash"
+      ],
+      "title": "Anchor",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "How a value was produced. Attached to every derived record.",
+      "properties": {
+        "method": {
+          "enum": [
+            "structural",
+            "rule",
+            "nlp",
+            "llm",
+            "llm_consensus",
+            "human"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Id"
+        },
+        "prompt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Id"
+        },
+        "prompt_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Version"
+        },
+        "step": {
+          "title": "Step",
+          "type": "string"
+        },
+        "step_version": {
+          "title": "Step Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "step",
+        "step_version"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "anchors": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Anchor"
+      },
+      "title": "Anchors",
+      "type": "array"
+    },
+    "code": {
+      "enum": [
+        "unknown_schema_version",
+        "page_count_mismatch",
+        "missing_page",
+        "toc_without_block",
+        "toc_page_offset",
+        "heading_without_toc",
+        "unlinked_footnote",
+        "nested_footnote",
+        "continued_footnote_joined",
+        "broken_ref",
+        "numbering_gap",
+        "numbering_duplicate",
+        "entry_without_footnote",
+        "title_variant",
+        "metadata_conflict",
+        "evidence_not_found",
+        "schema_invalid",
+        "model_disagreement",
+        "ambiguous_entity",
+        "needs_llm",
+        "sensitive_content",
+        "unresolved_internal_ref",
+        "anchor_stale",
+        "source_hash_unverified"
+      ],
+      "title": "Code",
+      "type": "string"
+    },
+    "details": {
+      "additionalProperties": true,
+      "default": {},
+      "title": "Details",
+      "type": "object"
+    },
+    "issue_id": {
+      "title": "Issue Id",
+      "type": "string"
+    },
+    "message": {
+      "title": "Message",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "severity": {
+      "enum": [
+        "info",
+        "warning",
+        "error"
+      ],
+      "title": "Severity",
+      "type": "string"
+    },
+    "target_id": {
+      "title": "Target Id",
+      "type": "string"
+    },
+    "target_kind": {
+      "enum": [
+        "book",
+        "page",
+        "block",
+        "section",
+        "annotation",
+        "citation",
+        "unit",
+        "fact",
+        "entity",
+        "relationship",
+        "metadata_field",
+        "work"
+      ],
+      "title": "Target Kind",
+      "type": "string"
+    }
+  },
+  "required": [
+    "issue_id",
+    "code",
+    "severity",
+    "target_kind",
+    "target_id",
+    "message",
+    "provenance"
+  ],
+  "title": "Issue",
+  "type": "object"
+}

@@ -1,0 +1,268 @@
+{
+  "$defs": {
+    "Grading": {
+      "additionalProperties": false,
+      "properties": {
+        "block_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Block Id"
+        },
+        "grader": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Grader"
+        },
+        "label": {
+          "enum": [
+            "sahih",
+            "hasan",
+            "daif",
+            "daif_jiddan",
+            "mawdu",
+            "other"
+          ],
+          "title": "Label",
+          "type": "string"
+        },
+        "label_raw": {
+          "title": "Label Raw",
+          "type": "string"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "label",
+        "label_raw"
+      ],
+      "title": "Grading",
+      "type": "object"
+    },
+    "Rawi": {
+      "additionalProperties": false,
+      "properties": {
+        "entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Id"
+        },
+        "link_word": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Link Word"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Position"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Rawi",
+      "type": "object"
+    },
+    "SourceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "collector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Collector"
+        },
+        "number": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Number"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "volume": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Volume"
+        },
+        "work": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Work"
+        }
+      },
+      "title": "SourceRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "grading": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Grading"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "sensitive": true,
+      "sensitive_category": "hadith_grading"
+    },
+    "isnad": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Rawi"
+      },
+      "title": "Isnad",
+      "type": "array"
+    },
+    "matn": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "sensitive": true,
+      "sensitive_category": "prophetic_attribution",
+      "title": "Matn"
+    },
+    "sharh_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sharh Ref"
+    },
+    "takhrij": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/SourceRef"
+      },
+      "title": "Takhrij",
+      "type": "array"
+    }
+  },
+  "title": "UnitSchema",
+  "type": "object"
+}

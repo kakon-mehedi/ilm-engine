@@ -1,0 +1,318 @@
+{
+  "$defs": {
+    "Anchor": {
+      "additionalProperties": false,
+      "description": "Pointer to an exact span of an original block. `block.text[start:end] == quote` is checked by\n`validation/evidence.py`, which needs the block text.",
+      "properties": {
+        "bbox": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "block_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Block Hash",
+          "type": "string"
+        },
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "page": {
+          "title": "Page",
+          "type": "integer"
+        },
+        "pub_ref": {
+          "title": "Pub Ref",
+          "type": "string"
+        },
+        "quote": {
+          "title": "Quote",
+          "type": "string"
+        },
+        "quote_truncated": {
+          "default": false,
+          "title": "Quote Truncated",
+          "type": "boolean"
+        },
+        "scan_page": {
+          "title": "Scan Page",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "status": {
+          "default": "valid",
+          "enum": [
+            "valid",
+            "stale",
+            "orphaned"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pub_ref",
+        "page",
+        "scan_page",
+        "block_id",
+        "start",
+        "end",
+        "quote",
+        "block_hash"
+      ],
+      "title": "Anchor",
+      "type": "object"
+    },
+    "Locator": {
+      "additionalProperties": false,
+      "properties": {
+        "number": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Number"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Page"
+        },
+        "page_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Label"
+        },
+        "raw": {
+          "title": "Raw",
+          "type": "string"
+        },
+        "volume": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Volume"
+        }
+      },
+      "required": [
+        "raw",
+        "volume",
+        "page"
+      ],
+      "title": "Locator",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "How a value was produced. Attached to every derived record.",
+      "properties": {
+        "method": {
+          "enum": [
+            "structural",
+            "rule",
+            "nlp",
+            "llm",
+            "llm_consensus",
+            "human"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Id"
+        },
+        "prompt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Id"
+        },
+        "prompt_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Version"
+        },
+        "step": {
+          "title": "Step",
+          "type": "string"
+        },
+        "step_version": {
+          "title": "Step Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "step",
+        "step_version"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "anchor": {
+      "$ref": "#/$defs/Anchor"
+    },
+    "author_hint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Author Hint"
+    },
+    "citation_id": {
+      "title": "Citation Id",
+      "type": "string"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "context": {
+      "enum": [
+        "footnote",
+        "body"
+      ],
+      "title": "Context",
+      "type": "string"
+    },
+    "locators": {
+      "items": {
+        "$ref": "#/$defs/Locator"
+      },
+      "title": "Locators",
+      "type": "array"
+    },
+    "origin": {
+      "enum": [
+        "author_text",
+        "transmission_isnad",
+        "editor_text",
+        "editor_footnote",
+        "ai_generated"
+      ],
+      "title": "Origin",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "resolution": {
+      "enum": [
+        "alias_table",
+        "agent",
+        "unresolved"
+      ],
+      "title": "Resolution",
+      "type": "string"
+    },
+    "title_normalized": {
+      "title": "Title Normalized",
+      "type": "string"
+    },
+    "title_raw": {
+      "title": "Title Raw",
+      "type": "string"
+    },
+    "work_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Work Id"
+    }
+  },
+  "required": [
+    "citation_id",
+    "title_raw",
+    "title_normalized",
+    "work_id",
+    "author_hint",
+    "locators",
+    "anchor",
+    "context",
+    "origin",
+    "resolution",
+    "confidence",
+    "provenance"
+  ],
+  "title": "Citation",
+  "type": "object"
+}

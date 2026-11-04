@@ -1,0 +1,281 @@
+{
+  "blocks": {
+    "p1f1": {
+      "block_hash": "sha256:6a984285a0331e2b9b8e00cef20c8bc7fb89f4aab0deaa3fb0d72519be8c04ee",
+      "block_id": "p1f1",
+      "continues": false,
+      "kind": "footnote",
+      "marker": "١",
+      "order": 2,
+      "page": 1,
+      "raw_extras": {
+        "bbox": [
+          60,
+          700,
+          480,
+          24
+        ]
+      },
+      "refs": [],
+      "spans": [],
+      "text": "(١) حاشية تجريبية.",
+      "volume": 1
+    },
+    "p1l1": {
+      "block_hash": "sha256:089f86c6ddb791e3eb5cf0d0d2739b01081362266641706e56e6d0e7a28003b2",
+      "block_id": "p1l1",
+      "continues": false,
+      "kind": "heading",
+      "marker": null,
+      "order": 0,
+      "page": 1,
+      "raw_extras": {
+        "bbox": [
+          120,
+          80,
+          360,
+          40
+        ]
+      },
+      "refs": [],
+      "spans": [],
+      "text": "مقدمة المحقق",
+      "volume": 1
+    },
+    "p1l2": {
+      "block_hash": "sha256:0ff111533043b283ea92554b46fecca3cd65c764735b1b6790e24ac7d71117d9",
+      "block_id": "p1l2",
+      "continues": false,
+      "kind": "text",
+      "marker": null,
+      "order": 1,
+      "page": 1,
+      "raw_extras": {
+        "bbox": [
+          60,
+          140,
+          480,
+          30
+        ]
+      },
+      "refs": [],
+      "spans": [],
+      "text": "هذا نص تجريبي للتحقق من المحول (١).",
+      "volume": 1
+    },
+    "p2l1": {
+      "block_hash": "sha256:12b66071f0b3ad3d771d92ca4c5055d91b5aa709b447154b7a018f4b96972357",
+      "block_id": "p2l1",
+      "continues": false,
+      "kind": "heading",
+      "marker": null,
+      "order": 3,
+      "page": 2,
+      "raw_extras": {
+        "bbox": [
+          120,
+          80,
+          360,
+          40
+        ]
+      },
+      "refs": [],
+      "spans": [],
+      "text": "مقدمة المؤلف",
+      "volume": 1
+    },
+    "p2l2": {
+      "block_hash": "sha256:eb5c7fc17955d5cf6d89ba6fa444033ad28e530f9d91395b38953c4d781aa24d",
+      "block_id": "p2l2",
+      "continues": false,
+      "kind": "text",
+      "marker": null,
+      "order": 4,
+      "page": 2,
+      "raw_extras": {
+        "bbox": [
+          60,
+          140,
+          480,
+          30
+        ],
+        "confidence": 0.97
+      },
+      "refs": [],
+      "spans": [],
+      "text": "١ - زيد بن عمرو؛ أسلم.",
+      "volume": 1
+    },
+    "p4l1": {
+      "block_hash": "sha256:4280bc42bbc798ece770663d635f6d4f38807c513313e9c8526cbcacb1427aa1",
+      "block_id": "p4l1",
+      "continues": false,
+      "kind": "text",
+      "marker": null,
+      "order": 5,
+      "page": 4,
+      "raw_extras": {
+        "bbox": [
+          60,
+          140,
+          480,
+          30
+        ]
+      },
+      "refs": [],
+      "spans": [],
+      "text": "٢ - وعمرو.",
+      "volume": 1
+    }
+  },
+  "book": {
+    "edition_id": null,
+    "pub_id": "ocr_DEMO0001",
+    "pub_ref": "ocr_DEMO0001@r1",
+    "revision": 1,
+    "source_work_id": null
+  },
+  "canonical_content_hash": "sha256:9e0b4e33bbf5e4913a02cbe5e4c973761019e53c975079e53c00cb4cd9aeb56b",
+  "canonical_schema_version": "1.0",
+  "metadata": {
+    "author_as_source": "مؤلف تجريبي",
+    "author_death_hijri": null,
+    "author_name": "مؤلف تجريبي",
+    "card": [],
+    "category_id": null,
+    "category_name": "التراجم",
+    "claimed_page_count": 3,
+    "edition": null,
+    "editor": "محقق تجريبي",
+    "page_numbering": null,
+    "publisher": null,
+    "title_as_source": "كتاب تجريبي",
+    "toc": [],
+    "year_gregorian": null,
+    "year_hijri": null
+  },
+  "pages": [
+    {
+      "block_ids": [
+        "p1l1",
+        "p1l2",
+        "p1f1"
+      ],
+      "n": 1,
+      "raw_extras": {},
+      "scan_page": 5,
+      "source_key": "1",
+      "source_url": null,
+      "volume": 1
+    },
+    {
+      "block_ids": [
+        "p2l1",
+        "p2l2"
+      ],
+      "n": 2,
+      "raw_extras": {},
+      "scan_page": 6,
+      "source_key": "2",
+      "source_url": null,
+      "volume": 1
+    },
+    {
+      "block_ids": [
+        "p4l1"
+      ],
+      "n": 4,
+      "raw_extras": {},
+      "scan_page": 8,
+      "source_key": "4",
+      "source_url": null,
+      "volume": 1
+    }
+  ],
+  "quality": null,
+  "raw_extras": {
+    "blocks": {
+      "p1f1": {
+        "bbox": [
+          60,
+          700,
+          480,
+          24
+        ]
+      },
+      "p1l1": {
+        "bbox": [
+          120,
+          80,
+          360,
+          40
+        ]
+      },
+      "p1l2": {
+        "bbox": [
+          60,
+          140,
+          480,
+          30
+        ]
+      },
+      "p2l1": {
+        "bbox": [
+          120,
+          80,
+          360,
+          40
+        ]
+      },
+      "p2l2": {
+        "bbox": [
+          60,
+          140,
+          480,
+          30
+        ],
+        "confidence": 0.97
+      },
+      "p4l1": {
+        "bbox": [
+          60,
+          140,
+          480,
+          30
+        ]
+      }
+    },
+    "top": {
+      "document": {
+        "author": "مؤلف تجريبي",
+        "category": "التراجم",
+        "editor": "محقق تجريبي",
+        "id": "ocr_DEMO0001",
+        "page_count": 3,
+        "revision": 1,
+        "title": "كتاب تجريبي"
+      },
+      "format": "ocr-team",
+      "version": "1.0"
+    }
+  },
+  "scan": {
+    "available": false,
+    "file": null,
+    "page_count": null,
+    "volumes": [
+      1
+    ]
+  },
+  "source": {
+    "adapter_id": "ocr_team_v1",
+    "adapter_version": "1.0.0",
+    "claim_type": null,
+    "schema_version": "1.0",
+    "source_adapter_semver": null,
+    "source_book_key": "ocr_DEMO0001",
+    "source_code": "src-ocr-team",
+    "source_declared_hash": null,
+    "source_declared_hash_verified": false
+  }
+}

@@ -1,0 +1,31 @@
+# Overrides for al-Ikhwa wa al-Akhawat (al-Daraqutni), ed. al-Jawabira, revision 6.
+# Origin ranges follow DECISIONS §6 and were checked against the sample blocks.
+
+pages:
+  # Printed pages missing from the source, classified from the scan (scan_page == printed page here).
+  gaps:
+    1: cover
+    2: publisher_page
+    4: basmala
+    18: blank
+  # PDF pages 73–80 hold the editor's printed indexes (not part of the source text).
+  pdf_extra:
+    "73-80": printed_indexes
+
+origin:
+  overrides:
+    - pages: [3, 16]
+      origin: editor_text
+      note: Editor's introduction and manuscript description (مقدمة المحقق).
+    - pages: [17, 17]
+      origin: transmission_isnad
+      note: Manuscript title page with the riwaya chain (b000081–b000089).
+    - blocks: [b000093, b000093]
+      origin: transmission_isnad
+      note: Isnad of the transmitted text, "أخبرنا الشيخ الفقيه ..." (page 19).
+    - blocks: [b000098, b000587]
+      origin: author_text
+      note: Al-Daraqutni's text, from "ذكر الأخوة ممن صحب النبي" to the closing doxology (pages 20–72).
+    - blocks: [b000588, b000589]
+      origin: transmission_isnad
+      note: Copyist's note on the sama' of the original manuscript (end of page 72).

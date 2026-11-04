@@ -1,0 +1,548 @@
+{
+  "source": "printed_index",
+  "index_title": "فهرس الرواة المترجم لهم في الكتاب",
+  "pub_ref": "pub_01M0CJECV4ZHFTP02BJQ6D3STJ@r6",
+  "pdf_file": "demo_book_daraqutni_v1.pdf",
+  "pdf_pages": [
+    76,
+    77,
+    78,
+    79
+  ],
+  "number_column": "entry_no",
+  "transcribed_by": "Claude (from 200 dpi renders of the scan), checked against the book text",
+  "transcription_rules": [
+    "Names as printed, without diacritics; the editor writes compound names joined (عبدالله, عبدالرحمن).",
+    "The printed honorific ligature after رسول الله is written as ﷺ.",
+    "أم هانئ is printed with the spelling هانيء.",
+    "Order follows the printed index (alphabetical by the editor's rules: men, then women, kunyas last)."
+  ],
+  "entry_count": 75,
+  "entries": [
+    {
+      "name": "إبراهيم بن رسول الله ﷺ",
+      "entry_no": 7,
+      "pdf_page": 76,
+      "line": 1,
+      "uncertain": false
+    },
+    {
+      "name": "إسماعيل بن عبدالرحمن بن أبي بكر",
+      "entry_no": 51,
+      "pdf_page": 76,
+      "line": 2,
+      "uncertain": false
+    },
+    {
+      "name": "أمية بن الحارث",
+      "entry_no": 31,
+      "pdf_page": 76,
+      "line": 3,
+      "uncertain": false
+    },
+    {
+      "name": "تمام بن العباس",
+      "entry_no": 40,
+      "pdf_page": 76,
+      "line": 4,
+      "uncertain": false
+    },
+    {
+      "name": "جعفر بن أبي طالب",
+      "entry_no": 23,
+      "pdf_page": 76,
+      "line": 5,
+      "uncertain": false
+    },
+    {
+      "name": "الحارث بن العباس",
+      "entry_no": 42,
+      "pdf_page": 76,
+      "line": 6,
+      "uncertain": false
+    },
+    {
+      "name": "حارثة بن وهب",
+      "entry_no": 67,
+      "pdf_page": 76,
+      "line": 7,
+      "uncertain": false
+    },
+    {
+      "name": "الحسن بن علي",
+      "entry_no": 11,
+      "pdf_page": 76,
+      "line": 8,
+      "uncertain": false
+    },
+    {
+      "name": "الحسين بن علي",
+      "entry_no": 12,
+      "pdf_page": 76,
+      "line": 9,
+      "uncertain": false
+    },
+    {
+      "name": "حمزة بن عبدالمطلب",
+      "entry_no": 18,
+      "pdf_page": 76,
+      "line": 10,
+      "uncertain": false
+    },
+    {
+      "name": "ربيعة بن الحارث",
+      "entry_no": 28,
+      "pdf_page": 76,
+      "line": 11,
+      "uncertain": false
+    },
+    {
+      "name": "زيد الأصغر",
+      "entry_no": 64,
+      "pdf_page": 76,
+      "line": 12,
+      "uncertain": false
+    },
+    {
+      "name": "زيد الأكبر",
+      "entry_no": 62,
+      "pdf_page": 76,
+      "line": 13,
+      "uncertain": false
+    },
+    {
+      "name": "زيد بن الخطاب",
+      "entry_no": 55,
+      "pdf_page": 76,
+      "line": 14,
+      "uncertain": false
+    },
+    {
+      "name": "صبيح بن العباس",
+      "entry_no": 46,
+      "pdf_page": 76,
+      "line": 15,
+      "uncertain": false
+    },
+    {
+      "name": "عاصم بن عمر",
+      "entry_no": 68,
+      "pdf_page": 76,
+      "line": 16,
+      "uncertain": false
+    },
+    {
+      "name": "العباس بن عبدالمطلب",
+      "entry_no": 19,
+      "pdf_page": 76,
+      "line": 17,
+      "uncertain": false
+    },
+    {
+      "name": "عبدالرحمن الأصغر",
+      "entry_no": 71,
+      "pdf_page": 77,
+      "line": 1,
+      "uncertain": false
+    },
+    {
+      "name": "عبدالرحمن الأكبر",
+      "entry_no": 59,
+      "pdf_page": 77,
+      "line": 2,
+      "uncertain": false
+    },
+    {
+      "name": "عبدالرحمن الأوسط",
+      "entry_no": 70,
+      "pdf_page": 77,
+      "line": 3,
+      "uncertain": false
+    },
+    {
+      "name": "عبدالرحمن بن العباس",
+      "entry_no": 38,
+      "pdf_page": 77,
+      "line": 4,
+      "uncertain": false
+    },
+    {
+      "name": "عبدالرحمن بن يزيد بن جارية",
+      "entry_no": 69,
+      "pdf_page": 77,
+      "line": 5,
+      "uncertain": false
+    },
+    {
+      "name": "عبدالله بن رسول الله ﷺ",
+      "entry_no": 6,
+      "pdf_page": 77,
+      "line": 6,
+      "uncertain": false
+    },
+    {
+      "name": "عبدالله بن أبي جهم",
+      "entry_no": 66,
+      "pdf_page": 77,
+      "line": 7,
+      "uncertain": false
+    },
+    {
+      "name": "عبدالله الأصغر",
+      "entry_no": 75,
+      "pdf_page": 77,
+      "line": 8,
+      "uncertain": false
+    },
+    {
+      "name": "عبدالله بن الحارث",
+      "entry_no": 30,
+      "pdf_page": 77,
+      "line": 9,
+      "uncertain": false
+    },
+    {
+      "name": "عبدالله بن العباس",
+      "entry_no": 34,
+      "pdf_page": 77,
+      "line": 10,
+      "uncertain": false
+    },
+    {
+      "name": "عبدالله بن عبدالرحمن بن أبي بكر",
+      "entry_no": 50,
+      "pdf_page": 77,
+      "line": 11,
+      "uncertain": false
+    },
+    {
+      "name": "عبدالله بن عمر بن الخطاب",
+      "entry_no": 58,
+      "pdf_page": 77,
+      "line": 12,
+      "uncertain": false
+    },
+    {
+      "name": "عبيدالله بن العباس",
+      "entry_no": 35,
+      "pdf_page": 77,
+      "line": 13,
+      "uncertain": false
+    },
+    {
+      "name": "عبيدالله بن عمر",
+      "entry_no": 65,
+      "pdf_page": 77,
+      "line": 14,
+      "uncertain": false
+    },
+    {
+      "name": "عقيل بن أبي طالب",
+      "entry_no": 24,
+      "pdf_page": 77,
+      "line": 15,
+      "uncertain": false
+    },
+    {
+      "name": "علي بن أبي طالب",
+      "entry_no": 22,
+      "pdf_page": 77,
+      "line": 16,
+      "uncertain": false
+    },
+    {
+      "name": "علي بن أبي العاص",
+      "entry_no": 16,
+      "pdf_page": 77,
+      "line": 17,
+      "uncertain": false
+    },
+    {
+      "name": "عمر بن الخطاب",
+      "entry_no": 54,
+      "pdf_page": 77,
+      "line": 18,
+      "uncertain": false
+    },
+    {
+      "name": "عياض بن عمر",
+      "entry_no": 73,
+      "pdf_page": 77,
+      "line": 19,
+      "uncertain": false
+    },
+    {
+      "name": "الفضل بن العباس",
+      "entry_no": 33,
+      "pdf_page": 77,
+      "line": 20,
+      "uncertain": false
+    },
+    {
+      "name": "القاسم بن رسول الله ﷺ",
+      "entry_no": 5,
+      "pdf_page": 77,
+      "line": 21,
+      "uncertain": false
+    },
+    {
+      "name": "قثم بن العباس",
+      "entry_no": 36,
+      "pdf_page": 78,
+      "line": 1,
+      "uncertain": false
+    },
+    {
+      "name": "كثير بن العباس",
+      "entry_no": 41,
+      "pdf_page": 78,
+      "line": 2,
+      "uncertain": false
+    },
+    {
+      "name": "محسن بن علي",
+      "entry_no": 13,
+      "pdf_page": 78,
+      "line": 3,
+      "uncertain": false
+    },
+    {
+      "name": "مسهر بن العباس",
+      "entry_no": 47,
+      "pdf_page": 78,
+      "line": 4,
+      "uncertain": false
+    },
+    {
+      "name": "معبد بن العباس",
+      "entry_no": 37,
+      "pdf_page": 78,
+      "line": 5,
+      "uncertain": false
+    },
+    {
+      "name": "نوفل بن الحارث",
+      "entry_no": 27,
+      "pdf_page": 78,
+      "line": 6,
+      "uncertain": false
+    },
+    {
+      "name": "هالة بن أبي هالة",
+      "entry_no": 10,
+      "pdf_page": 78,
+      "line": 7,
+      "uncertain": false
+    },
+    {
+      "name": "هند بن أبي هالة",
+      "entry_no": 9,
+      "pdf_page": 78,
+      "line": 8,
+      "uncertain": false
+    },
+    {
+      "name": "أبو سفيان بن الحارث",
+      "entry_no": 29,
+      "pdf_page": 78,
+      "line": 9,
+      "uncertain": false
+    },
+    {
+      "name": "آمنة بنت العباس",
+      "entry_no": 43,
+      "pdf_page": 78,
+      "line": 10,
+      "uncertain": false
+    },
+    {
+      "name": "أروى بنت الحارث",
+      "entry_no": 32,
+      "pdf_page": 78,
+      "line": 11,
+      "uncertain": false
+    },
+    {
+      "name": "أسماء بنت عبدالرحمن",
+      "entry_no": 53,
+      "pdf_page": 78,
+      "line": 12,
+      "uncertain": false
+    },
+    {
+      "name": "أمامة بنت أبي العاص",
+      "entry_no": 17,
+      "pdf_page": 78,
+      "line": 13,
+      "uncertain": false
+    },
+    {
+      "name": "أميمة بنت الخطاب",
+      "entry_no": 57,
+      "pdf_page": 78,
+      "line": 14,
+      "uncertain": false
+    },
+    {
+      "name": "أمينة بنت العباس",
+      "entry_no": 49,
+      "pdf_page": 78,
+      "line": 15,
+      "uncertain": false
+    },
+    {
+      "name": "جمانة بنت أبي طالب",
+      "entry_no": 26,
+      "pdf_page": 78,
+      "line": 16,
+      "uncertain": false
+    },
+    {
+      "name": "حفصة بنت عبدالرحمن",
+      "entry_no": 52,
+      "pdf_page": 78,
+      "line": 17,
+      "uncertain": false
+    },
+    {
+      "name": "حفصة بنت عمر",
+      "entry_no": 60,
+      "pdf_page": 78,
+      "line": 18,
+      "uncertain": false
+    },
+    {
+      "name": "رقية بنت رسول الله ﷺ",
+      "entry_no": 3,
+      "pdf_page": 78,
+      "line": 19,
+      "uncertain": false
+    },
+    {
+      "name": "رقية بنت عمر",
+      "entry_no": 63,
+      "pdf_page": 78,
+      "line": 20,
+      "uncertain": false
+    },
+    {
+      "name": "زينب بنت رسول الله ﷺ",
+      "entry_no": 2,
+      "pdf_page": 78,
+      "line": 21,
+      "uncertain": false
+    },
+    {
+      "name": "زينب بنت علي",
+      "entry_no": 15,
+      "pdf_page": 79,
+      "line": 1,
+      "uncertain": false
+    },
+    {
+      "name": "زينب بنت عمر",
+      "entry_no": 72,
+      "pdf_page": 79,
+      "line": 2,
+      "uncertain": false
+    },
+    {
+      "name": "صفية بنت الخطاب",
+      "entry_no": 56,
+      "pdf_page": 79,
+      "line": 3,
+      "uncertain": false
+    },
+    {
+      "name": "صفية بنت العباس",
+      "entry_no": 44,
+      "pdf_page": 79,
+      "line": 4,
+      "uncertain": false
+    },
+    {
+      "name": "صفية بنت عبدالمطلب",
+      "entry_no": 20,
+      "pdf_page": 79,
+      "line": 5,
+      "uncertain": false
+    },
+    {
+      "name": "عاتكة بنت عبدالمطلب",
+      "entry_no": 21,
+      "pdf_page": 79,
+      "line": 6,
+      "uncertain": false
+    },
+    {
+      "name": "فاطمة بنت رسول الله ﷺ",
+      "entry_no": 1,
+      "pdf_page": 79,
+      "line": 7,
+      "uncertain": false
+    },
+    {
+      "name": "فاطمة بنت عمر",
+      "entry_no": 74,
+      "pdf_page": 79,
+      "line": 8,
+      "uncertain": false
+    },
+    {
+      "name": "لبابة بنت العباس",
+      "entry_no": 48,
+      "pdf_page": 79,
+      "line": 9,
+      "uncertain": false
+    },
+    {
+      "name": "هند بنت عتيق",
+      "entry_no": 8,
+      "pdf_page": 79,
+      "line": 10,
+      "uncertain": false
+    },
+    {
+      "name": "أم حبيب بنت العباس",
+      "entry_no": 39,
+      "pdf_page": 79,
+      "line": 11,
+      "uncertain": false
+    },
+    {
+      "name": "أم كلثوم بنت رسول الله ﷺ",
+      "entry_no": 4,
+      "pdf_page": 79,
+      "line": 12,
+      "uncertain": false
+    },
+    {
+      "name": "أم كلثوم بنت العباس",
+      "entry_no": 45,
+      "pdf_page": 79,
+      "line": 13,
+      "uncertain": false
+    },
+    {
+      "name": "أم كلثوم بنت علي",
+      "entry_no": 14,
+      "pdf_page": 79,
+      "line": 14,
+      "uncertain": false
+    },
+    {
+      "name": "أم هانئ بنت أبي طالب",
+      "entry_no": 25,
+      "pdf_page": 79,
+      "line": 15,
+      "uncertain": false
+    },
+    {
+      "name": "أم الوليد بنت عمر",
+      "entry_no": 61,
+      "pdf_page": 79,
+      "line": 16,
+      "uncertain": false
+    }
+  ]
+}

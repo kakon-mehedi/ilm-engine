@@ -1,0 +1,79 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "aliases": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Aliases",
+      "type": "array"
+    },
+    "author_entity_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Author Entity Id"
+    },
+    "author_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Author Name"
+    },
+    "source_work_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Source Work Id"
+    },
+    "status": {
+      "enum": [
+        "catalog",
+        "stub",
+        "this_book"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "title_normalized": {
+      "title": "Title Normalized",
+      "type": "string"
+    },
+    "work_id": {
+      "pattern": "^wrk_[0-9a-f]{12}$",
+      "title": "Work Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "work_id",
+    "source_work_id",
+    "title",
+    "title_normalized",
+    "aliases",
+    "author_name",
+    "author_entity_id",
+    "status"
+  ],
+  "title": "Work",
+  "type": "object"
+}

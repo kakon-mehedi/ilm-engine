@@ -1,0 +1,252 @@
+{
+  "$defs": {
+    "Anchor": {
+      "additionalProperties": false,
+      "description": "Pointer to an exact span of an original block. `block.text[start:end] == quote` is checked by\n`validation/evidence.py`, which needs the block text.",
+      "properties": {
+        "bbox": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "block_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Block Hash",
+          "type": "string"
+        },
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "page": {
+          "title": "Page",
+          "type": "integer"
+        },
+        "pub_ref": {
+          "title": "Pub Ref",
+          "type": "string"
+        },
+        "quote": {
+          "title": "Quote",
+          "type": "string"
+        },
+        "quote_truncated": {
+          "default": false,
+          "title": "Quote Truncated",
+          "type": "boolean"
+        },
+        "scan_page": {
+          "title": "Scan Page",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "status": {
+          "default": "valid",
+          "enum": [
+            "valid",
+            "stale",
+            "orphaned"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pub_ref",
+        "page",
+        "scan_page",
+        "block_id",
+        "start",
+        "end",
+        "quote",
+        "block_hash"
+      ],
+      "title": "Anchor",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "How a value was produced. Attached to every derived record.",
+      "properties": {
+        "method": {
+          "enum": [
+            "structural",
+            "rule",
+            "nlp",
+            "llm",
+            "llm_consensus",
+            "human"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Id"
+        },
+        "prompt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Id"
+        },
+        "prompt_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Version"
+        },
+        "step": {
+          "title": "Step",
+          "type": "string"
+        },
+        "step_version": {
+          "title": "Step Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "step",
+        "step_version"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "assertion": {
+      "enum": [
+        "stated",
+        "inferred"
+      ],
+      "title": "Assertion",
+      "type": "string"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "count": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Count",
+      "type": "integer"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/Anchor"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "object_work_id": {
+      "title": "Object Work Id",
+      "type": "string"
+    },
+    "origin": {
+      "enum": [
+        "author_text",
+        "transmission_isnad",
+        "editor_text",
+        "editor_footnote",
+        "ai_generated"
+      ],
+      "title": "Origin",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "relation_id": {
+      "title": "Relation Id",
+      "type": "string"
+    },
+    "review_status": {
+      "enum": [
+        "auto_approved",
+        "pending_review",
+        "approved",
+        "rejected",
+        "edited",
+        "reprocess_requested"
+      ],
+      "title": "Review Status",
+      "type": "string"
+    },
+    "subject_work_id": {
+      "title": "Subject Work Id",
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "sharh_of",
+        "hashiyah_of",
+        "mukhtasar_of",
+        "translation_of",
+        "edition_of",
+        "tahqiq_of",
+        "cites",
+        "same_topic_as"
+      ],
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "relation_id",
+    "type",
+    "subject_work_id",
+    "object_work_id",
+    "evidence",
+    "origin",
+    "assertion",
+    "confidence",
+    "review_status",
+    "provenance"
+  ],
+  "title": "WorkRelation",
+  "type": "object"
+}

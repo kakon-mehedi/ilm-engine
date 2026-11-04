@@ -1,0 +1,145 @@
+{
+  "$defs": {
+    "AyahRef": {
+      "additionalProperties": false,
+      "properties": {
+        "ayah_from": {
+          "title": "Ayah From",
+          "type": "integer"
+        },
+        "ayah_to": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ayah To"
+        },
+        "surah": {
+          "title": "Surah",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "surah",
+        "ayah_from"
+      ],
+      "title": "AyahRef",
+      "type": "object"
+    },
+    "Qawl": {
+      "additionalProperties": false,
+      "properties": {
+        "block_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Block Id"
+        },
+        "mufassir": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mufassir"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "view": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "View"
+        }
+      },
+      "title": "Qawl",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "aqwal": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Qawl"
+      },
+      "title": "Aqwal",
+      "type": "array"
+    },
+    "ayah_ref": {
+      "$ref": "#/$defs/AyahRef"
+    },
+    "method": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Method"
+    },
+    "mufassir": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Mufassir"
+    },
+    "tafsir_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tafsir Text"
+    }
+  },
+  "required": [
+    "ayah_ref"
+  ],
+  "title": "UnitSchema",
+  "type": "object"
+}

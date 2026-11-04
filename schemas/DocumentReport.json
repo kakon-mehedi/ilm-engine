@@ -1,0 +1,251 @@
+{
+  "$defs": {
+    "SourceQuality": {
+      "additionalProperties": false,
+      "properties": {
+        "archive_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Archive Code"
+        },
+        "claimed_pages": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Claimed Pages"
+        },
+        "held_pages": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Held Pages"
+        },
+        "passed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Passed"
+        },
+        "short_pct": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Short Pct"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Status"
+        },
+        "tolerance": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tolerance"
+        }
+      },
+      "required": [
+        "status",
+        "passed",
+        "claimed_pages",
+        "held_pages",
+        "short_pct",
+        "tolerance",
+        "archive_code"
+      ],
+      "title": "SourceQuality",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "block_counts": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Block Counts",
+      "type": "object"
+    },
+    "block_total": {
+      "title": "Block Total",
+      "type": "integer"
+    },
+    "continued_footnotes": {
+      "title": "Continued Footnotes",
+      "type": "integer"
+    },
+    "duplicate_blocks": {
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Duplicate Blocks",
+      "type": "array"
+    },
+    "empty_blocks": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Empty Blocks",
+      "type": "array"
+    },
+    "issues": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Issues",
+      "type": "array"
+    },
+    "missing_printed_pages": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Missing Printed Pages",
+      "type": "array"
+    },
+    "page_classes": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {},
+      "title": "Page Classes",
+      "type": "object"
+    },
+    "page_count_claimed": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Page Count Claimed"
+    },
+    "page_count_held": {
+      "title": "Page Count Held",
+      "type": "integer"
+    },
+    "pdf_page_count": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Pdf Page Count"
+    },
+    "pdf_pages_not_in_json": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Pdf Pages Not In Json",
+      "type": "array"
+    },
+    "printed_page_range": {
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer"
+        }
+      ],
+      "title": "Printed Page Range",
+      "type": "array"
+    },
+    "pub_ref": {
+      "title": "Pub Ref",
+      "type": "string"
+    },
+    "ref_count": {
+      "title": "Ref Count",
+      "type": "integer"
+    },
+    "refs_from_footnotes": {
+      "title": "Refs From Footnotes",
+      "type": "integer"
+    },
+    "source_quality": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SourceQuality"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "span_class_counts": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Span Class Counts",
+      "type": "object"
+    }
+  },
+  "required": [
+    "pub_ref",
+    "page_count_held",
+    "page_count_claimed",
+    "printed_page_range",
+    "missing_printed_pages",
+    "pdf_page_count",
+    "pdf_pages_not_in_json",
+    "block_counts",
+    "block_total",
+    "ref_count",
+    "refs_from_footnotes",
+    "continued_footnotes",
+    "span_class_counts",
+    "empty_blocks",
+    "duplicate_blocks",
+    "source_quality",
+    "issues"
+  ],
+  "title": "DocumentReport",
+  "type": "object"
+}

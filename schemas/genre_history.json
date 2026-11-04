@@ -1,0 +1,126 @@
+{
+  "$defs": {
+    "Date": {
+      "additionalProperties": false,
+      "properties": {
+        "gregorian": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gregorian"
+        },
+        "hijri": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hijri"
+        },
+        "precision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Precision"
+        }
+      },
+      "title": "Date",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "chronology_order": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Chronology Order"
+    },
+    "date": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Date"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "dynasty": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Dynasty"
+    },
+    "event": {
+      "title": "Event",
+      "type": "string"
+    },
+    "persons": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Persons",
+      "type": "array"
+    },
+    "place": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Place"
+    },
+    "source_claim": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Claim"
+    }
+  },
+  "required": [
+    "event"
+  ],
+  "title": "UnitSchema",
+  "type": "object"
+}

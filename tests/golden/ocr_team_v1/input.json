@@ -1,0 +1,43 @@
+{
+  "format": "ocr-team",
+  "version": "1.0",
+  "document": {
+    "id": "ocr_DEMO0001",
+    "revision": 1,
+    "title": "كتاب تجريبي",
+    "author": "مؤلف تجريبي",
+    "editor": "محقق تجريبي",
+    "category": "التراجم",
+    "page_count": 3
+  },
+  "pages": [
+    {
+      "page_no": 1,
+      "image_page": 5,
+      "lines": [
+        {"id": "p1l1", "role": "heading", "text": "مقدمة المحقق", "bbox": [120, 80, 360, 40]},
+        {"id": "p1l2", "role": "body", "text": "هذا نص تجريبي للتحقق من المحول (١).", "bbox": [60, 140, 480, 30]}
+      ],
+      "footnotes": [
+        {"id": "p1f1", "marker": "١", "text": "(١) حاشية تجريبية.", "bbox": [60, 700, 480, 24]}
+      ]
+    },
+    {
+      "page_no": 2,
+      "image_page": 6,
+      "lines": [
+        {"id": "p2l1", "role": "heading", "text": "مقدمة المؤلف", "bbox": [120, 80, 360, 40]},
+        {"id": "p2l2", "role": "body", "text": "١ - زيد بن عمرو؛ أسلم.", "bbox": [60, 140, 480, 30], "confidence": 0.97}
+      ],
+      "footnotes": []
+    },
+    {
+      "page_no": 4,
+      "image_page": 8,
+      "lines": [
+        {"id": "p4l1", "role": "body", "text": "٢ - وعمرو.", "bbox": [60, 140, 480, 30]}
+      ],
+      "footnotes": []
+    }
+  ]
+}

@@ -45,6 +45,23 @@ uv run ilm-engine run --input data          # narrates all 21 steps in 8 phases;
 xdg-open "output/pub_01M0CJECV4ZHFTP02BJQ6D3STJ@r6/review.html"   # macOS: open …
 ```
 
+### Web UI
+
+```bash
+uv run ilm-engine serve                     # opens http://127.0.0.1:8000/
+```
+
+1. **Upload** the book JSON (and optionally the scan PDF).
+2. **Watch** the 21 steps run phase by phase, with live counters and the pipeline log.
+3. **Review** the uncertain and sensitive items: the source passage is highlighted, the scan page opens next to it,
+   and every decision (approve, reject, edit, reprocess) is audited and exported as training data. Sensitive items
+   need the scholar role.
+4. **Explore** the results: overview and accuracy, knowledge units, people and relationships, the graph, Arabic
+   search and every output file for download.
+
+The UI runs locally on the same pipeline code as the CLI (FastAPI + plain HTML/JS, no build step). Uploads are
+copied to `.cache/uploads/`; results go to `output/` as with `ilm-engine run`.
+
 More commands:
 
 ```bash
@@ -114,7 +131,7 @@ ilm-engine/
 - Parents named in sibling closures are new people, not yet linked to the same person's own entry (e.g. "عمر" and entry #54).
 - Page- and name-based backward references ("تقدمت ترجمته (ص: ٢٨)") are kept and sent to review rather than resolved.
 - Biography is fully implemented and hadith takhrij/grading detection works; the other five genre plugins have schemas only.
-- Production infrastructure (Prefect, PostgreSQL, Qdrant, Neo4j, OpenSearch, Argilla, FastAPI, vLLM) is designed and backlogged (tickets T-160–T-169), not built.
+- The web UI is a local, single-user demo (one run at a time, no authentication). Production infrastructure (Prefect, PostgreSQL, Qdrant, Neo4j, OpenSearch, Argilla, a multi-user FastAPI service, vLLM) is designed and backlogged (tickets T-160–T-169), not built.
 
 ## Open questions for the client
 

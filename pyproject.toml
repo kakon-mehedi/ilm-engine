@@ -14,12 +14,25 @@ dependencies = [
 llm = ["anthropic", "litellm"]
 nlp = ["camel-tools"]
 semantic = ["sentence-transformers"]
+web = [
+    "fastapi>=0.162.0",
+    "python-multipart>=0.0.33",
+    "uvicorn>=0.54.0",
+]
 
 [project.scripts]
 ilm-engine = "ilm_engine.cli:app"
 
 [dependency-groups]
-dev = ["pytest", "ruff", "mypy"]
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+    "httpx>=0.28.1",
+    "fastapi>=0.162.0",
+    "uvicorn>=0.54.0",
+    "python-multipart>=0.0.33",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -42,6 +55,7 @@ select = ["E", "F", "I", "B", "UP"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["live: calls a real external API (skipped without credentials)"]
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient` is deprecated"]
 
 [tool.mypy]
 python_version = "3.12"

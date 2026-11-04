@@ -10,7 +10,6 @@ from typing import Annotated
 import typer
 
 from ilm_engine import __version__
-from ilm_engine.config import load_config
 from ilm_engine.log import logging_setup
 
 app = typer.Typer(help="Post-OCR knowledge enrichment for digitized Islamic books.", no_args_is_help=True)
@@ -72,10 +71,9 @@ def run(
 ) -> None:
     """Run the enrichment pipeline on one book."""
     from ilm_engine.adapters.registry import UnknownSchemaError
-    from ilm_engine.llm.cache import ResponseCache
-    from ilm_engine.llm.gateway import LLMGateway, get_provider
     from ilm_engine.pipeline.narration import Narrator
-    from ilm_engine.pipeline.runner import PipelineError, RunContext, Runner
+    from ilm_engine.pipeline.runner import PipelineError, Runner
+    from ilm_engine.pipeline.session import prepare_context
     from ilm_engine.pipeline.stages import find_inputs
     from ilm_engine.pipeline.steps import PIPELINE
 
@@ -88,26 +86,7 @@ def run(
     if llm is not None and llm not in LLM_PROVIDERS:
         raise typer.BadParameter(f"must be one of {', '.join(LLM_PROVIDERS)}", param_hint="--llm")
 
-    inputs = find_inputs(input, pdf)
-    raw = json.loads(inputs["json"].read_text(encoding="utf-8"))
-    pub_id = raw.get("pub", {}).get("id") if isinstance(raw.get("pub"), dict) else None
-    config = load_config(pub_id)
-    provider_name = llm or config.llm.provider
-    if provider_name in ("anthropic", "litellm"):
-        route = config.llm.extractor
-        extra = {"api_base": route.api_base} if provider_name == "litellm" and route.api_base else {}
-        provider = get_provider(provider_name, default_model=route.model, **extra)
-    else:
-        provider = get_provider(provider_name)
-    gateway = LLMGateway(provider, temperature=config.llm.temperature, cache=ResponseCache(cache_dir / "llm"))
-
-    ctx = RunContext(
-        config=config,
-        inputs=inputs,
-        out_root=out,
-        llm=gateway,
-        options={"llm": provider_name, "store_root": store_root},
-    )
+    ctx = prepare_context(find_inputs(input, pdf), out, store_root, cache_dir, llm)
     try:
         runner = Runner(PIPELINE, cache_dir=cache_dir / "steps")
         narrator = None if quiet else Narrator(typer.echo)
@@ -129,6 +108,45 @@ def run(
         typer.echo(f"\nFinished {len(records)} steps ({ran} ran, {len(records) - ran} from cache).")
     if ctx.pub_ref:
         typer.echo(f"output: {ctx.store.directory}")
+
+
+@app.command()
+def serve(
+    host: Annotated[str, typer.Option("--host", help="Interface to bind (localhost only by default).")] = (
+        "127.0.0.1"
+    ),
+    port: Annotated[int, typer.Option("--port", help="Port of the web UI.")] = 8000,
+    out: Annotated[Path, typer.Option("--out", help="Output root.")] = Path("output"),
+    store_root: Annotated[Path, typer.Option("--store", help="Read-only original store root.")] = Path(
+        "store/originals"
+    ),
+    cache_dir: Annotated[Path, typer.Option("--cache-dir", help="Step, LLM and upload cache root.")] = Path(
+        ".cache"
+    ),
+    open_browser: Annotated[bool, typer.Option("--open/--no-open", help="Open the UI in a browser.")] = True,
+) -> None:
+    """Start the web UI: upload a book, watch the pipeline, review items, browse the results."""
+    try:
+        import uvicorn
+
+        from ilm_engine.web.server import Paths, create_app
+    except ImportError:
+        typer.echo("The web UI needs the `web` extra: uv sync --extra web", err=True)
+        raise typer.Exit(EXIT_FAILED) from None
+
+    url = f"http://{host}:{port}/"
+    typer.echo(f"ILM Engine UI on {url}  (Ctrl+C to stop)")
+    if open_browser:
+        import threading
+        import webbrowser
+
+        threading.Timer(1.0, webbrowser.open, args=(url,)).start()
+    uvicorn.run(
+        create_app(Paths(out=out, store=store_root, cache=cache_dir)),
+        host=host,
+        port=port,
+        log_level="warning",
+    )
 
 
 @app.command()

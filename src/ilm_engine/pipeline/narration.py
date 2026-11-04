@@ -237,6 +237,14 @@ STORIES: dict[str, StepStory] = {
 }
 
 
+def summarize(step: str, ctx: RunContext, record: StepRecord) -> str:
+    """What the step found, from its own result; the status when the result has no such data."""
+    try:
+        return STORIES[step].summary(ctx)
+    except Exception:  # narration must never break a run
+        return record.status
+
+
 class Narrator:
     """A `StepListener` that writes one header per phase and two lines per step."""
 
@@ -262,10 +270,7 @@ class Narrator:
         if record.status == "failed":
             self.write(f"Pipeline_{index:02d}/{total} ✗ {story.title} failed.")
             return
-        try:
-            summary = story.summary(ctx)
-        except Exception:  # narration must never break a run
-            summary = record.status
+        summary = summarize(step.name, ctx, record)
         mark = "✓" if record.status == "ran" else "↺"
         cached = " (from cache)" if record.status == "cached" else ""
         moving = f" Moving to {STORIES[next_step].title} →" if next_step in STORIES else " Done."

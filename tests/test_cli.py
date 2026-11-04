@@ -61,7 +61,7 @@ def test_run_on_data_folder_finds_json_and_pdf(dirs):
 
 def test_second_run_is_fully_cached(dirs):
     run(dirs, "--input", str(DATA))
-    result = run(dirs, "--input", str(DATA))
+    result = run(dirs, "--input", str(DATA), "--quiet")
     assert result.exit_code == 0
     assert {line.split()[0] for line in result.output.splitlines() if line.split()[-1] in STEP_NAMES} == {
         "cached"
@@ -77,6 +77,14 @@ def test_unknown_schema_exits_2(dirs, tmp_path):
     result = run(dirs, "--input", str(path))
     assert result.exit_code == 2
     assert "failed" in result.output and "adapt" in result.output
+
+
+def test_run_narrates_every_step(dirs):
+    result = run(dirs, "--input", str(DATA))
+    assert result.exit_code == 0, result.output
+    output = result.output
+    assert "Pipeline_01/21 ✓ Got the input: demo_book_daraqutni.json + demo_book_daraqutni_v1.pdf" in output
+    assert "75 knowledge units" in output and "Finished 21 steps (21 ran, 0 from cache)." in output
 
 
 def test_unknown_llm_provider_rejected(dirs):

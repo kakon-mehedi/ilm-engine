@@ -41,7 +41,7 @@ Requires Python 3.12 and [uv](https://docs.astral.sh/uv/). The sample book is co
 
 ```bash
 uv sync
-uv run ilm-engine run --input data          # writes output/pub_01M0CJECV4ZHFTP02BJQ6D3STJ@r6/
+uv run ilm-engine run --input data          # narrates all 21 steps in 8 phases; writes output/pub_01M0CJECV4ZHFTP02BJQ6D3STJ@r6/
 xdg-open "output/pub_01M0CJECV4ZHFTP02BJQ6D3STJ@r6/review.html"   # macOS: open …
 ```
 
@@ -54,6 +54,7 @@ uv run ilm-engine verify output/pub_01M0CJECV4ZHFTP02BJQ6D3STJ@r6   # inputs, ou
 uv run ilm-engine review apply decisions.json --book pub_01M0CJECV4ZHFTP02BJQ6D3STJ@r6
 uv run ilm-engine rebuild-derived output/pub_01M0CJECV4ZHFTP02BJQ6D3STJ@r6   # search index + graph from enrichment.db
 uv run ilm-engine run --list-steps                        # the 21 pipeline steps
+uv run ilm-engine run --input data --quiet                # one status line per step instead of the narration
 uv run pytest -q                                          # 680 tests
 ```
 

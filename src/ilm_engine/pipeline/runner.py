@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from functools import cache
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 
 from ilm_engine.config import Config
 from ilm_engine.enrichment.models import Issue, StepRecord
@@ -69,6 +69,16 @@ class RunContext:
 
 
 StepFn = Callable[[RunContext], StepResult]
+
+
+class StepListener(Protocol):
+    """Told before and after each step (e.g. `pipeline.narration.Narrator` for live progress)."""
+
+    def started(self, index: int, total: int, step: Step, ctx: RunContext) -> None: ...
+
+    def finished(
+        self, index: int, total: int, step: Step, ctx: RunContext, record: StepRecord, next_step: str | None
+    ) -> None: ...
 
 
 @dataclass(frozen=True)
@@ -191,6 +201,7 @@ class Runner:
         only: str | None = None,
         from_step: str | None = None,
         no_cache: bool = False,
+        listener: StepListener | None = None,
     ) -> list[StepRecord]:
         """Run the pipeline; returns one `StepRecord` per executed or reused step."""
         names = self.registry.names()
@@ -207,13 +218,23 @@ class Runner:
         records: list[StepRecord] = []
         ctx.records = records
         keys: dict[str, str] = {}
-        for name in selected:
+        for index, name in enumerate(selected, 1):
             step = self.registry[name]
             key = self.cache_key(step, ctx, keys)
             keys[name] = key
+            next_step = selected[index] if index < len(selected) else None
+            if listener:
+                listener.started(index, len(selected), step, ctx)
             with log_context(step=name, pub_ref=ctx.pub_ref):
-                record = self._run_step(step, ctx, key, force=name in forced, records=records)
+                try:
+                    record = self._run_step(step, ctx, key, force=name in forced, records=records)
+                except PipelineError:
+                    if listener and records and records[-1].name == name:
+                        listener.finished(index, len(selected), step, ctx, records[-1], next_step)
+                    raise
             records.append(record)
+            if listener:
+                listener.finished(index, len(selected), step, ctx, record, next_step)
         return records
 
     def _check(self, name: str) -> None:
@@ -273,7 +294,7 @@ class Runner:
         entry = {"result": result, "pub_ref": ctx.pub_ref, "file_hashes": file_hashes}
         write_bytes_atomic(self._cache_path(step, key), pickle.dumps(entry))
         status: StepStatus = "skipped" if result.skipped else "ran"
-        log.info(f"step {status}", extra={"duration_ms": int((time.monotonic() - started) * 1000)})
+        log.debug(f"step {status}", extra={"duration_ms": int((time.monotonic() - started) * 1000)})
         return self._record(step, status, key, started, result)
 
     @staticmethod

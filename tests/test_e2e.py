@@ -52,6 +52,7 @@ def runs(tmp_path_factory):
         str(base / "store"),
         "--cache-dir",
         str(base / "cache"),
+        "--quiet",
     ]
     first = runner.invoke(app, args)
     assert first.exit_code == 0, first.output

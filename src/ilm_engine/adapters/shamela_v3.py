@@ -169,7 +169,8 @@ class ShamelaV3Adapter:
                 top[key] = rest
         block_extras = {block.block_id: dict(block.raw_extras) for block in blocks if block.raw_extras}
         unmapped = sorted(
-            [f"top.{key}" for key in top]
+            [f"top.{key}" for key in top if key not in _MAPPED]
+            + [f"top.{key}.{sub}" for key in top if key in _MAPPED for sub in top[key]]
             + [f"pages.{page.n}.{key}" for page in pages for key in page.raw_extras]
             + [f"blocks.{block_id}.{key}" for block_id, extras in block_extras.items() for key in extras]
         )

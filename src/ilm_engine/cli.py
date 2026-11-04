@@ -59,6 +59,9 @@ def run(
         str | None, typer.Option("--from", help="Re-run this step and all downstream.")
     ] = None,
     no_cache: Annotated[bool, typer.Option("--no-cache", help="Ignore cached step results.")] = False,
+    quiet: Annotated[
+        bool, typer.Option("--quiet", "-q", help="One status line per step instead of the narration.")
+    ] = False,
     list_steps: Annotated[
         bool, typer.Option("--list-steps", help="Print the steps in order and exit.")
     ] = False,
@@ -71,6 +74,7 @@ def run(
     from ilm_engine.adapters.registry import UnknownSchemaError
     from ilm_engine.llm.cache import ResponseCache
     from ilm_engine.llm.gateway import LLMGateway, get_provider
+    from ilm_engine.pipeline.narration import Narrator
     from ilm_engine.pipeline.runner import PipelineError, RunContext, Runner
     from ilm_engine.pipeline.stages import find_inputs
     from ilm_engine.pipeline.steps import PIPELINE
@@ -106,17 +110,23 @@ def run(
     )
     try:
         runner = Runner(PIPELINE, cache_dir=cache_dir / "steps")
-        records = runner.run(ctx, only=only, from_step=from_step, no_cache=no_cache)
+        narrator = None if quiet else Narrator(typer.echo)
+        records = runner.run(ctx, only=only, from_step=from_step, no_cache=no_cache, listener=narrator)
     except PipelineError as error:
-        for record in error.records:
-            typer.echo(f"{record.status:<8} {record.name}")
+        if quiet:
+            for record in error.records:
+                typer.echo(f"{record.status:<8} {record.name}")
         typer.echo(f"error: {error}", err=True)
         cause = error.__cause__
         raise typer.Exit(
             EXIT_UNKNOWN_SCHEMA if isinstance(cause, UnknownSchemaError) else EXIT_FAILED
         ) from None
-    for record in records:
-        typer.echo(f"{record.status:<8} {record.name}")
+    if quiet:
+        for record in records:
+            typer.echo(f"{record.status:<8} {record.name}")
+    else:
+        ran = sum(record.status == "ran" for record in records)
+        typer.echo(f"\nFinished {len(records)} steps ({ran} ran, {len(records) - ran} from cache).")
     if ctx.pub_ref:
         typer.echo(f"output: {ctx.store.directory}")
 

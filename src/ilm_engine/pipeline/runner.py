@@ -1,7 +1,8 @@
 """In-process DAG runner (ADR-004). Each step maps 1:1 to a Prefect task in production.
 
 A step runs in topological order with the cache key
-`sha256(name + version + config sections it reads + upstream cache keys + input file hashes)`.
+`sha256(name + version + code + config sections it reads + upstream cache keys + input file hashes)`.
+`code` hashes every source file of the package, so a code change never reuses stale results.
 If an entry with that key exists and the step's output files are unchanged, the step is not executed
 (`cached`) and its stored result is reused, so a rerun without changes executes no step, and a config
 change re-runs only the steps that read the changed section plus everything downstream.
@@ -15,6 +16,7 @@ import time
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from functools import cache
 from pathlib import Path
 from typing import Any, Literal
 
@@ -27,6 +29,7 @@ from ilm_engine.storage.json_store import JsonStore, write_bytes_atomic
 log = get_logger("pipeline.runner")
 
 DEFAULT_CACHE_DIR = Path(".cache") / "steps"
+PACKAGE_DIR = Path(__file__).resolve().parents[1]
 
 StepStatus = Literal["ran", "cached", "skipped", "failed"]
 
@@ -143,6 +146,17 @@ class StepRegistry:
         return [step for step in self._steps if step in needed]
 
 
+@cache
+def code_fingerprint() -> str:
+    """sha256 over the package's .py, .md, .sql and .lock files (code, prompts, schema)."""
+    digest = hashlib.sha256()
+    for path in sorted(PACKAGE_DIR.rglob("*")):
+        if path.suffix in {".py", ".md", ".sql", ".lock"} and "__pycache__" not in path.parts:
+            digest.update(path.relative_to(PACKAGE_DIR).as_posix().encode())
+            digest.update(path.read_bytes())
+    return digest.hexdigest()
+
+
 def _config_section_hash(config: Config, sections: tuple[str, ...]) -> str:
     dumped = config.model_dump(mode="json", by_alias=True)
     values = {}
@@ -163,6 +177,7 @@ class Runner:
         parts: dict[str, Any] = {
             "step": step.name,
             "version": step.version,
+            "code": code_fingerprint(),
             "config": _config_section_hash(ctx.config, step.config),
             "needs": {need: upstream_keys[need] for need in step.needs},
         }

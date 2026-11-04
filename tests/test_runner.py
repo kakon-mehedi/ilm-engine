@@ -6,6 +6,7 @@ from typer.testing import CliRunner
 
 from ilm_engine.cli import app
 from ilm_engine.config import load_config
+from ilm_engine.pipeline import runner as runner_module
 from ilm_engine.pipeline.runner import PipelineError, RunContext, Runner, Step, StepRegistry, StepResult
 from ilm_engine.pipeline.steps import PIPELINE, STEP_NAMES, build_registry
 
@@ -107,6 +108,18 @@ def test_no_cache_reruns_everything(inputs, tmp_path):
     run(registry, inputs, tmp_path)
     records, _ = run(registry, inputs, tmp_path, no_cache=True)
     assert set(statuses(records).values()) == {"ran"}
+
+
+def test_code_change_invalidates_cache(inputs, tmp_path, monkeypatch):
+    registry = counting_registry(Counter())
+    run(registry, inputs, tmp_path)
+    monkeypatch.setattr(runner_module, "code_fingerprint", lambda: "changed")
+    records, _ = run(registry, inputs, tmp_path)
+    assert set(statuses(records).values()) == {"ran"}
+
+
+def test_code_fingerprint_is_stable():
+    assert runner_module.code_fingerprint() == runner_module.code_fingerprint.__wrapped__()
 
 
 def test_from_step_reruns_it_and_downstream(inputs, tmp_path):
